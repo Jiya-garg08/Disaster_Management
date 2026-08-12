@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relief Resolver — Emergency Supply Dispatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="home">
+  <header class="topbar">
+    <div class="brand">
+      <span class="pulse-dot"></span>
+      RELIEF RESOLVER
+    </div>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="request.html">Shelter Request</a>
+      <a href="dispatcher.html">Control Room</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero-parallax">
+    <div class="sky-layer" aria-hidden="true">
+      <div class="sun"></div>
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+      <div class="cloud c3"></div>
+      <div class="cloud c4"></div>
+
+      <div class="ridge far">
+        <svg viewBox="0 0 1440 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,180 L140,120 L300,170 L460,90 L620,150 L780,80 L940,140 L1100,100 L1260,160 L1440,110 L1440,300 L0,300 Z" fill="#2c5266" />
+        </svg>
+      </div>
+      <div class="mist m1"></div>
+      <div class="ridge mid">
+        <svg viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,160 L160,110 L340,155 L520,95 L700,145 L880,85 L1060,135 L1240,100 L1440,140 L1440,260 L0,260 Z" fill="#1a3a44" />
+        </svg>
+      </div>
+      <div class="mist m2"></div>
+      <div class="ridge near">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,120 L180,150 L360,100 L560,160 L760,90 L960,145 L1160,110 L1440,150 L1440,200 L0,200 Z" fill="#08141e" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="hero-parallax-content">
+      <div class="hero-caption-bar">
+        <div class="eyebrow">Emergency Supply Allocation &amp; Route Bottleneck Resolver</div>
+        <h1>Get supplies to the shelters<br />that need <em>them first.</em></h1>
+        <p class="hero-sub">
+          A priority-weighted dispatch system for flood, earthquake, and cyclone
+          relief. Shelters report need, the system ranks urgency and packs trucks
+          without exceeding route capacity.
+        </p>
+
+        <div class="role-cards">
+          <a class="role-card" href="request.html">
+            <div class="tag">SHELTER / FIELD RESPONDER</div>
+            <h3>Submit a Supply Request</h3>
+            <p>Report your shelter's location, victim count, and days without supply.</p>
+          </a>
+          <a class="role-card" href="dispatcher.html">
+            <div class="tag">DISPATCHER</div>
+            <h3>Open Control Room</h3>
+            <p>View the live priority queue, cargo loads, and flagged alerts.</p>
+          </a>
+        </div>
+
+        <div class="hero-dots">
+          <span class="dots-label">Scenarios</span>
+          <a href="#scenario-aluva" class="is-current" aria-label="Jump to Aluva scenario"></a>
+          <a href="#scenario-kaziranga" aria-label="Jump to Kaziranga scenario"></a>
+          <a href="#scenario-puri" aria-label="Jump to Puri scenario"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll-cue">Scroll</div>
+  </section>
+
+  <!-- ============ STATS STRIP ============ -->
+  <section class="stats-strip">
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Active disaster zones monitored</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Dispatch trucks in fleet</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Layers of request verification</div></div>
+    <div class="stat"><div class="stat-num">&lt;1s</div><div class="stat-label">To re-rank the queue on new requests</div></div>
+  </section>
+
+  <!-- ============ HOW IT RESPONDS ============ -->
+  <section class="page scenarios">
+    <div class="section-head">
+      <div class="eyebrow">Walkthrough</div>
+      <h2>How Relief Resolver responds</h2>
+      <p class="section-sub">
+        Three requests, three outcomes — see exactly what the queue does
+        with live sample data. Open the
+        <a href="dispatcher.html">Control Room</a> to try it yourself.
+      </p>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="scenario-card" id="scenario-aluva">
+        <div class="scenario-tag ok">Accepted &amp; queued</div>
+        <h3>Govt. HSS, Aluva</h3>
+        <p>340 victims, 3 days waiting, inside the Kerala flood zone.</p>
+        <div class="scenario-outcome">
+          Urgency score <strong>460</strong> → placed in the priority queue,
+          packed onto the first truck with capacity.
+        </div>
+      </div>
+      <div class="scenario-card" id="scenario-kaziranga">
+        <div class="scenario-tag ok">Accepted &amp; queued</div>
+        <h3>Community Hall, Kaziranga Rd</h3>
+        <p>120 victims, 1 day waiting, inside the Assam flood zone.</p>
+        <div class="scenario-outcome">
+          Urgency score <strong>160</strong> → lower priority than
+          longer-waiting shelters, but still fulfilled if capacity allows.
+        </div>
+      </div>
+      <div class="scenario-card" id="scenario-puri">
+        <div class="scenario-tag warn">Ranked highest</div>
+        <h3>Primary School, Puri Coastal Belt</h3>
+        <p>610 victims, 5 days without supply, inside the Odisha cyclone corridor.</p>
+        <div class="scenario-outcome">
+          Urgency score <strong>810</strong> → dispatched first, ahead of
+          every other shelter in queue.
+        </div>
+      </div>
+    </div>
+
+    <div class="scenario-note">
+      A fourth case — a shelter claiming 3,000+ victims — is rejected from
+      auto-dispatch and routed to the Alert Feed for manual audit instead,
+      regardless of urgency score.
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand" style="margin-bottom:10px;"><span class="pulse-dot"></span>RELIEF RESOLVER</div>
+        <p>
+          Priority-weighted supply dispatch for disaster relief operations —
+          getting the right supplies to the shelters that need them most,
+          without overloading a single route.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html">Home</a>
+        <a href="request.html">Shelter Request</a>
+        <a href="dispatcher.html">Control Room</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Status</h4>
+        <span>All systems operational</span>
+        <span>v1.0 — Phase 1</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Relief Resolver. Not affiliated with any government emergency service. Sample data shown in this demo.
+    </div>
+  </footer>
+</body>
+</html>

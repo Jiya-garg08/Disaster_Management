@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Request — Relief Resolver</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="pulse-dot"></span>
+      RELIEF RESOLVER
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="request.html" class="active">Shelter Request</a>
+      <a href="dispatcher.html">Control Room</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="form-shell">
+      <h2>Report Shelter Need</h2>
+      <div class="sub">
+        Coordinates are checked against active disaster zones before your
+        request enters the dispatch queue.
+      </div>
+
+      <form id="requestForm">
+        <div class="field">
+          <label for="shelterName">Shelter / Location Name <span class="req-star">*</span></label>
+          <input type="text" id="shelterName" required placeholder="e.g. Govt. Higher Secondary School, Aluva" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="lat">Latitude <span class="req-star">*</span></label>
+            <input type="number" id="lat" step="any" required placeholder="10.11" />
+          </div>
+          <div class="field">
+            <label for="lng">Longitude <span class="req-star">*</span></label>
+            <input type="number" id="lng" step="any" required placeholder="76.35" />
+          </div>
+        </div>
+        <button type="button" class="geo-btn" id="useLocationBtn">📍 Use My Current Location</button>
+
+        <div class="field" style="margin-top:18px;">
+          <label for="victims">Vulnerable Population Count <span class="req-star">*</span></label>
+          <input type="number" id="victims" min="1" required placeholder="e.g. 340" />
+        </div>
+
+        <div class="field">
+          <label for="days">Days Without Supply <span class="req-star">*</span></label>
+          <input type="number" id="days" min="0" required placeholder="e.g. 3" />
+        </div>
+
+        <div class="field">
+          <label for="supplyType">Supply Type Needed <span class="req-star">*</span></label>
+          <select id="supplyType" required>
+            <option value="">Select type</option>
+            <option>Food + Water</option>
+            <option>Medicine</option>
+            <option>Tents + Food</option>
+            <option>Medicine + Water</option>
+            <option>General Relief Kit</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="photo">Verification Photo (metadata check placeholder) <span class="req-star">*</span></label>
+          <input type="file" id="photo" accept="image/*" required />
+        </div>
+
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+
+      <div id="resultBanner" class="result-banner"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand" style="margin-bottom:10px;"><span class="pulse-dot"></span>RELIEF RESOLVER</div>
+        <p>
+          Priority-weighted supply dispatch for disaster relief operations —
+          getting the right supplies to the shelters that need them most,
+          without overloading a single route.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="index.html">Home</a>
+        <a href="request.html">Shelter Request</a>
+        <a href="dispatcher.html">Control Room</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Status</h4>
+        <span>All systems operational</span>
+        <span>v1.0 — Phase 1</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Relief Resolver. Not affiliated with any government emergency service. Sample data shown in this demo.
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/geofence.js"></script>
+  <script src="js/priority.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/request.js"></script>
+</body>
+</html>
