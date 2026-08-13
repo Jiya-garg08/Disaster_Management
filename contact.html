@@ -1,130 +1,1234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>Contact — Relief Resolver</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  />
+
+
+  <style>
+
+    /* ============================================================
+       CONTACT PAGE
+    ============================================================ */
+
+    :root {
+      --paper: #f5f1e8;
+      --card: #fffdf8;
+      --ink: #071525;
+      --muted: #66717d;
+      --red: #b43b32;
+      --gold: #d7ad62;
+      --line: #ddd8ce;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Inter", sans-serif;
+      overflow-x: hidden;
+    }
+
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+
+    .contact-hero {
+      position: relative;
+      min-height: 580px;
+      display: grid;
+      grid-template-columns: 1fr .9fr;
+      gap: 60px;
+      align-items: center;
+      padding: 75px 6vw 85px;
+      overflow: hidden;
+    }
+
+
+    .contact-hero::before {
+      content: "";
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(180, 59, 50, .07);
+      right: -180px;
+      top: -220px;
+      animation: floatBlob 8s ease-in-out infinite;
+    }
+
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      animation: fadeUp .8s ease both;
+    }
+
+
+    .eyebrow {
+      color: var(--red);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 17px;
+    }
+
+
+    .hero-copy h1 {
+      max-width: 720px;
+      margin: 0 0 22px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(44px, 5vw, 72px);
+      line-height: .98;
+      letter-spacing: -.045em;
+      font-weight: 600;
+    }
+
+
+    .hero-copy h1 em {
+      color: var(--red);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+
+    .hero-copy p {
+      max-width: 610px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+
+    /* ============================================================
+       HERO VISUAL
+    ============================================================ */
+
+    .contact-visual {
+      position: relative;
+      min-height: 420px;
+      animation: fadeIn 1s .15s ease both;
+    }
+
+
+    .contact-photo {
+      position: absolute;
+      inset: 10px 25px 20px 0;
+      overflow: hidden;
+      box-shadow: 0 25px 65px rgba(7,21,37,.16);
+    }
+
+
+    .contact-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(.78);
+      transition: transform .9s ease;
+    }
+
+
+    .contact-photo:hover img {
+      transform: scale(1.06);
+    }
+
+
+    .contact-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(7,21,37,.02),
+        rgba(7,21,37,.48)
+      );
+    }
+
+
+    .photo-caption {
+      position: absolute;
+      z-index: 2;
+      left: 25px;
+      bottom: 25px;
+      right: 25px;
+      color: white;
+    }
+
+
+    .photo-caption small {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+
+
+    .photo-caption strong {
+      display: block;
+      max-width: 400px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 26px;
+      line-height: 1.05;
+    }
+
+
+    .floating-card {
+      position: absolute;
+      z-index: 3;
+      right: 0;
+      top: 45px;
+      width: 175px;
+      padding: 20px;
+      background: var(--ink);
+      color: white;
+      box-shadow: 0 18px 45px rgba(7,21,37,.24);
+      animation: floatCard 5s ease-in-out infinite;
+    }
+
+
+    .floating-card .icon {
+      font-size: 25px;
+      margin-bottom: 14px;
+    }
+
+
+    .floating-card strong {
+      display: block;
+      margin-bottom: 7px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 21px;
+      line-height: 1.05;
+    }
+
+
+    .floating-card span {
+      color: #b8c0c8;
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+
+    /* ============================================================
+       CONTACT SECTION
+    ============================================================ */
+
+    .contact-section {
+      padding: 85px 6vw;
+      background: #eee9df;
+    }
+
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 25px;
+      max-width: 1250px;
+      margin: 0 auto;
+    }
+
+
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 38px;
+      box-shadow: 0 14px 35px rgba(7,21,37,.06);
+      animation: fadeUp .75s ease both;
+    }
+
+
+    .contact-card:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+
+    .contact-card h2,
+    .contact-card h3 {
+      margin: 0 0 9px;
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+    }
+
+
+    .contact-card h2 {
+      font-size: 35px;
+    }
+
+
+    .contact-card h3 {
+      font-size: 27px;
+    }
+
+
+    .card-intro {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+
+    /* ============================================================
+       FORM
+    ============================================================ */
+
+    .field {
+      margin-bottom: 19px;
+    }
+
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #cfc9be;
+      border-radius: 0;
+      background: #f8f5ee;
+      color: var(--ink);
+      padding: 13px 14px;
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: .22s ease;
+    }
+
+
+    .field input {
+      height: 48px;
+    }
+
+
+    .field textarea {
+      min-height: 145px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--red);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(180,59,50,.08);
+    }
+
+
+    .submit-btn {
+      width: 100%;
+      min-height: 50px;
+      border: 0;
+      background: var(--ink);
+      color: white;
+      cursor: pointer;
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: .25s ease;
+    }
+
+
+    .submit-btn:hover {
+      background: var(--red);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(7,21,37,.14);
+    }
+
+
+    .result-banner {
+      display: none;
+      margin-top: 18px;
+      padding: 15px;
+      border-left: 3px solid #3d7658;
+      background: #edf5ef;
+      color: #28533d;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+
+    .result-banner.show {
+      display: block;
+      animation: fadeUp .35s ease both;
+    }
+
+
+    /* ============================================================
+       CONTACT DETAILS
+    ============================================================ */
+
+    .contact-info {
+      margin-top: 28px;
+    }
+
+
+    .contact-info-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 14px;
+      padding: 19px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+
+    .contact-info-item:last-child {
+      border-bottom: 0;
+    }
+
+
+    .info-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      background: #eee8dd;
+      color: var(--ink);
+      font-size: 19px;
+      transition: .25s ease;
+    }
+
+
+    .contact-info-item:hover .info-icon {
+      background: var(--red);
+      color: white;
+      transform: translateY(-3px) rotate(-4deg);
+    }
+
+
+    .info-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+
+    .emergency-note {
+      margin-top: 25px;
+      padding: 18px;
+      background: #f7e8e4;
+      border-left: 3px solid var(--red);
+      color: #6d302b;
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+
+    .emergency-note strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--red);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+
+    /* ============================================================
+       COLLABORATION STRIP
+    ============================================================ */
+
+    .collab-section {
+      padding: 80px 6vw;
+      background: var(--ink);
+      color: white;
+      text-align: center;
+    }
+
+
+    .collab-section .eyebrow {
+      color: var(--gold);
+    }
+
+
+    .collab-section h2 {
+      max-width: 780px;
+      margin: 0 auto 15px;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1;
+    }
+
+
+    .collab-section p {
+      max-width: 650px;
+      margin: 0 auto;
+      color: #aeb8c2;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+
+    .collab-links {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+
+    .collab-links a {
+      padding: 12px 16px;
+      border: 1px solid #3d4a56;
+      color: white;
+      text-decoration: none;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: .25s ease;
+    }
+
+
+    .collab-links a:hover {
+      background: white;
+      color: var(--ink);
+      transform: translateY(-3px);
+    }
+
+
+    /* ============================================================
+       ANIMATIONS
+    ============================================================ */
+
+    @keyframes fadeUp {
+
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+    @keyframes fadeIn {
+
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+
+    }
+
+
+    @keyframes floatCard {
+
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-11px);
+      }
+
+    }
+
+
+    @keyframes floatBlob {
+
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+
+      50% {
+        transform: translate(-25px, 20px);
+      }
+
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 900px) {
+
+      .contact-hero {
+        grid-template-columns: 1fr;
+      }
+
+
+      .contact-visual {
+        min-height: 430px;
+      }
+
+
+      .contact-layout {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+      .contact-hero {
+        padding: 50px 5vw 65px;
+      }
+
+
+      .contact-visual {
+        min-height: 350px;
+      }
+
+
+      .floating-card {
+        width: 145px;
+        top: 25px;
+      }
+
+
+      .contact-card {
+        padding: 25px;
+      }
+
+
+      .contact-section {
+        padding: 60px 5vw;
+      }
+
+    }
+
+  </style>
+
 </head>
+
+
 <body>
+
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+
   <header class="topbar">
-    <div class="brand">
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+
       <span class="pulse-dot"></span>
+
       RELIEF RESOLVER
-    </div>
+
+    </a>
+
+
     <nav>
-      <a href="index.html">Home</a>
-      <a href="request.html">Shelter Request</a>
-      <a href="dispatcher.html">Control Room</a>
-      <a href="about.html">About</a>
-      <a href="contact.html" class="active">Contact</a>
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="request.html">
+        Shelter Request
+      </a>
+
+      <a href="dispatcher.html">
+        Control Room
+      </a>
+
+      <a href="about.html">
+        About
+      </a>
+
+      <a
+        href="contact.html"
+        class="active"
+      >
+        Contact
+      </a>
+
     </nav>
+
   </header>
 
-  <section class="info-hero">
-    <div class="eyebrow">Get in touch</div>
-    <h1>Questions, feedback, or a relief network to connect?</h1>
-    <p>Reach out below — this form logs to your browser for now, ready to wire up to a real inbox in Phase 2.</p>
+
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+
+  <section class="contact-hero">
+
+    <div class="hero-copy">
+
+      <div class="eyebrow">
+        GET IN TOUCH
+      </div>
+
+
+      <h1>
+
+        Good relief work starts with
+
+        <em>
+          good information.
+        </em>
+
+      </h1>
+
+
+      <p>
+
+        Whether you want to share feedback, connect a relief
+        organisation, discuss the project, or help us improve the
+        way emergency requests are coordinated — we'd like to hear
+        from you.
+
+      </p>
+
+    </div>
+
+
+    <div class="contact-visual">
+
+      <div class="contact-photo">
+
+        <img
+          src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=85"
+          alt="Volunteers working together to provide humanitarian support"
+        >
+
+
+        <div class="photo-caption">
+
+          <small>
+            RELIEF RESOLVER
+          </small>
+
+          <strong>
+            Connect people.
+            Coordinate help.
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="floating-card">
+
+        <div class="icon">
+          ✉
+        </div>
+
+        <strong>
+          Let's build a stronger relief network.
+        </strong>
+
+        <span>
+          Questions, partnerships and feedback
+          are welcome.
+        </span>
+
+      </div>
+
+    </div>
+
   </section>
 
-  <div class="contact-wrap">
-    <div class="contact-card">
-      <h3>Send a message</h3>
-      <form id="contactForm">
-        <div class="field">
-          <label for="cname">Name</label>
-          <input type="text" id="cname" required placeholder="Your name" />
+
+
+  <!-- ============================================================
+       CONTACT
+  ============================================================ -->
+
+  <section class="contact-section">
+
+    <div class="contact-layout">
+
+
+      <!-- FORM -->
+
+      <div class="contact-card">
+
+        <div class="eyebrow">
+          SEND A MESSAGE
         </div>
-        <div class="field">
-          <label for="cemail">Email</label>
-          <input type="email" id="cemail" required placeholder="you@example.com" />
+
+
+        <h2>
+          Tell us what you need.
+        </h2>
+
+
+        <p class="card-intro">
+
+          This prototype stores your message in the browser only.
+          A real email/inbox integration can be connected in Phase 2.
+
+        </p>
+
+
+        <form id="contactForm">
+
+          <div class="field">
+
+            <label for="cname">
+              Name
+            </label>
+
+            <input
+              type="text"
+              id="cname"
+              required
+              placeholder="Your name"
+            />
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="cemail">
+              Email
+            </label>
+
+            <input
+              type="email"
+              id="cemail"
+              required
+              placeholder="you@example.com"
+            />
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="cmessage">
+              Message
+            </label>
+
+            <textarea
+              id="cmessage"
+              required
+              placeholder="Tell us how you can help, what you need, or what you would improve..."
+              rows="6"
+            ></textarea>
+
+          </div>
+
+
+          <button
+            type="submit"
+            class="submit-btn"
+          >
+            Send Message →
+          </button>
+
+        </form>
+
+
+        <div
+          id="resultBanner"
+          class="result-banner"
+        ></div>
+
+      </div>
+
+
+
+      <!-- INFORMATION -->
+
+      <div class="contact-card">
+
+        <div class="eyebrow">
+          CONNECT WITH THE PROJECT
         </div>
-        <div class="field">
-          <label for="cmessage">Message</label>
-          <textarea id="cmessage" required placeholder="How can we help?" rows="5"
-            style="width:100%;background:var(--ink);border:1px solid var(--line);border-radius:7px;padding:10px 12px;color:var(--text);font-family:var(--font-display);font-size:14px;resize:vertical;"></textarea>
+
+
+        <h3>
+          Other ways to reach us
+        </h3>
+
+
+        <p class="card-intro">
+
+          We're especially interested in hearing from people working
+          around emergency shelter, food distribution, volunteering
+          and disaster-response coordination.
+
+        </p>
+
+
+        <div class="contact-info">
+
+
+          <div class="contact-info-item">
+
+            <div class="info-icon">
+              ✉
+            </div>
+
+            <div>
+
+              <span class="info-label">
+                Email
+              </span>
+
+              hello@reliefresolver.example
+
+            </div>
+
+          </div>
+
+
+
+          <div class="contact-info-item">
+
+            <div class="info-icon">
+              ⏱
+            </div>
+
+            <div>
+
+              <span class="info-label">
+                Response time
+              </span>
+
+              Within 2 business days
+
+            </div>
+
+          </div>
+
+
+
+          <div class="contact-info-item">
+
+            <div class="info-icon">
+              🌐
+            </div>
+
+            <div>
+
+              <span class="info-label">
+                Project scope
+              </span>
+
+              Designed for disaster-relief coordination
+              and emergency shelter requests.
+
+            </div>
+
+          </div>
+
+
+
+          <div class="contact-info-item">
+
+            <div class="info-icon">
+              🤝
+            </div>
+
+            <div>
+
+              <span class="info-label">
+                Looking for
+              </span>
+
+              Relief organisations, volunteers,
+              logistics partners and project feedback.
+
+            </div>
+
+          </div>
+
+
         </div>
-        <button type="submit" class="submit-btn">Send Message</button>
-      </form>
-      <div id="resultBanner" class="result-banner"></div>
+
+
+        <div class="emergency-note">
+
+          <strong>
+            ⚠ Active emergency?
+          </strong>
+
+          Relief Resolver is a prototype coordination platform,
+          not a replacement for official emergency services or
+          first responders. Contact the appropriate local emergency
+          authorities immediately during a real emergency.
+
+        </div>
+
+      </div>
+
+
     </div>
 
-    <div class="contact-card">
-      <h3>Other ways to reach us</h3>
-      <div class="contact-info-item">
-        <div class="icon">✉</div>
-        <div>
-          <div class="label">Email</div>
-          hello@reliefresolver.example
-        </div>
-      </div>
-      <div class="contact-info-item">
-        <div class="icon">⏱</div>
-        <div>
-          <div class="label">Response time</div>
-          Within 2 business days
-        </div>
-      </div>
-      <div class="contact-info-item">
-        <div class="icon">🌐</div>
-        <div>
-          <div class="label">Currently covering</div>
-          Kerala, Assam, Uttarakhand, Odisha
-        </div>
-      </div>
-      <div class="contact-info-item">
-        <div class="icon">⚠</div>
-        <div>
-          <div class="label">In an active emergency</div>
-          Contact local emergency services directly — this platform coordinates supply logistics, not first response.
-        </div>
-      </div>
+  </section>
+
+
+
+  <!-- ============================================================
+       COLLABORATION
+  ============================================================ -->
+
+  <section class="collab-section">
+
+    <div class="eyebrow">
+      BUILD WITH US
     </div>
-  </div>
+
+
+    <h2>
+      The goal isn't just to move supplies.
+      It's to make sure they reach people who need them.
+    </h2>
+
+
+    <p>
+
+      If you're part of a relief organisation, volunteer network,
+      logistics team or technology community, your feedback can help
+      shape the next version of Relief Resolver.
+
+    </p>
+
+
+    <div class="collab-links">
+
+      <a href="request.html">
+        Submit a Shelter Request
+      </a>
+
+      <a href="dispatcher.html">
+        View Control Room
+      </a>
+
+      <a href="about.html">
+        Learn About The Project
+      </a>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
 
   <footer class="site-footer">
+
     <div class="footer-grid">
+
+
       <div class="footer-brand">
-        <div class="brand" style="margin-bottom:10px;"><span class="pulse-dot"></span>RELIEF RESOLVER</div>
+
+        <div
+          class="brand"
+          style="margin-bottom:10px;"
+        >
+
+          <span class="pulse-dot"></span>
+
+          RELIEF RESOLVER
+
+        </div>
+
+
         <p>
-          Priority-weighted supply dispatch for disaster relief operations —
-          getting the right supplies to the shelters that need them most,
-          without overloading a single route.
+
+          Priority-weighted emergency shelter and supply
+          coordination designed to help responders make
+          faster decisions.
+
         </p>
+
       </div>
+
+
+
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="index.html">Home</a>
-        <a href="request.html">Shelter Request</a>
-        <a href="dispatcher.html">Control Room</a>
+
+        <h4>
+          Product
+        </h4>
+
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="request.html">
+          Shelter Request
+        </a>
+
+        <a href="dispatcher.html">
+          Control Room
+        </a>
+
       </div>
+
+
+
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
+
+        <h4>
+          Company
+        </h4>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <a href="contact.html">
+          Contact
+        </a>
+
       </div>
+
+
+
       <div class="footer-col">
-        <h4>Status</h4>
-        <span>All systems operational</span>
-        <span>v1.0 — Phase 1</span>
+
+        <h4>
+          Status
+        </h4>
+
+        <span>
+          Prototype operational
+        </span>
+
+        <span>
+          v1.0 — Phase 1
+        </span>
+
       </div>
+
+
     </div>
+
+
     <div class="footer-bottom">
-      © 2026 Relief Resolver. Not affiliated with any government emergency service. Sample data shown in this demo.
+
+      © 2026 Relief Resolver · Prototype project ·
+      Not affiliated with any government emergency service.
+
     </div>
+
   </footer>
 
+
+
+  <!-- ============================================================
+       FORM SCRIPT
+  ============================================================ -->
+
   <script>
-    document.getElementById("contactForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const banner = document.getElementById("resultBanner");
-      banner.className = "result-banner show success";
-      banner.textContent = "✅ Message received — stored locally for this demo. A real inbox connects in Phase 2.";
-      this.reset();
-    });
+
+    document
+      .getElementById("contactForm")
+      .addEventListener(
+        "submit",
+        function (event) {
+
+          event.preventDefault();
+
+
+          const name =
+            document.getElementById("cname").value.trim();
+
+
+          const banner =
+            document.getElementById("resultBanner");
+
+
+          banner.className =
+            "result-banner show";
+
+
+          banner.innerHTML = `
+            <strong>
+              ✓ Message received, ${name || "there"}.
+            </strong>
+
+            <br>
+
+            Your message has been stored locally
+            for this Phase 1 prototype.
+            A real inbox can be connected in Phase 2.
+          `;
+
+
+          this.reset();
+
+
+          banner.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+          });
+
+        }
+      );
+
   </script>
+
+
 </body>
 </html>
