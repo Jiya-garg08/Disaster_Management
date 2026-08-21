@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Register Organization — Relief Resolver</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+
+        .verification-help {
+            display: block;
+            margin-top: 7px;
+            color: #8a9298;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .ngo-verification-notice {
+            margin-top: 20px;
+            padding: 18px 20px;
+            background: #f5f1e8;
+            border-left: 3px solid #b43b32;
+        }
+
+        .ngo-verification-notice strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #071525;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+
+        .ngo-verification-notice p {
+            margin: 0;
+            color: #65778a;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        .form-group input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            background: #fffdf8;
+            border: 1px solid #d8d2c7;
+            font-family: inherit;
+            font-size: 10px;
+        }
+
+        .form-group input[type="file"]:focus {
+            outline: none;
+            border-color: #071525;
+        }
+
+    </style>
+
+
+
+    <style>
+        /* =========================================================
+           NGO PARTNER EXPERIENCE — PREMIUM
+           ========================================================= */
+
+        .ngo-premium-hero {
+            width: min(1320px, 90%);
+            margin: 55px auto 70px;
+            display: grid;
+            grid-template-columns: .9fr 1.1fr;
+            gap: 70px;
+            align-items: center;
+        }
+
+        .ngo-premium-copy {
+            padding-left: 8px;
+        }
+
+        .ngo-premium-kicker {
+            color: #b43b32;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .ngo-premium-copy h1 {
+            max-width: 650px;
+            margin: 0;
+            color: #071525;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: clamp(52px, 5.6vw, 82px);
+            line-height: .93;
+            letter-spacing: -.055em;
+        }
+
+        .ngo-premium-copy h1 span {
+            display: block;
+            color: #b43b32;
+            font-style: italic;
+        }
+
+        .ngo-premium-copy > p {
+            max-width: 590px;
+            margin: 27px 0 0;
+            color: #60758a;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .ngo-premium-actions {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .ngo-premium-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 22px;
+            padding: 16px 21px;
+            background: #071525;
+            color: #fff;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .1em;
+            transition: all .25s ease;
+        }
+
+        .ngo-premium-cta:hover {
+            background: #b43b32;
+            transform: translateY(-3px);
+        }
+
+        .ngo-premium-cta span {
+            font-size: 17px;
+            transition: transform .25s ease;
+        }
+
+        .ngo-premium-cta:hover span {
+            transform: translateX(4px);
+        }
+
+        .ngo-trust-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #788895;
+            font-size: 9px;
+        }
+
+        .ngo-trust-check {
+            width: 21px;
+            height: 21px;
+            display: grid;
+            place-items: center;
+            background: #e7f0e8;
+            color: #397044;
+            font-weight: 800;
+        }
+
+        .ngo-premium-visual {
+            position: relative;
+            min-height: 535px;
+        }
+
+        .ngo-main-photo {
+            position: absolute;
+            inset: 0 0 0 35px;
+            overflow: hidden;
+            background: #071525;
+            box-shadow: 0 28px 60px rgba(7, 21, 37, .15);
+        }
+
+        .ngo-main-photo img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            animation: ngoPremiumZoom 14s ease-in-out infinite alternate;
+        }
+
+        .ngo-main-photo.ngo-photo-fallback {
+            background:
+                linear-gradient(
+                    135deg,
+                    #071525 10%,
+                    #28455d 55%,
+                    #b43b32 100%
+                );
+        }
+
+        .ngo-photo-shade {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(7, 21, 37, .02) 35%,
+                    rgba(7, 21, 37, .78) 100%
+                );
+        }
+
+        .ngo-photo-caption {
+            position: absolute;
+            left: 30px;
+            right: 30px;
+            bottom: 28px;
+            color: #fff;
+        }
+
+        .ngo-caption-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e46b61;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .15em;
+        }
+
+        .ngo-photo-caption strong {
+            display: block;
+            max-width: 430px;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: 28px;
+            line-height: 1.08;
+        }
+
+        .ngo-mini-card {
+            position: absolute;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 16px;
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+            box-shadow: 0 15px 35px rgba(7, 21, 37, .11);
+        }
+
+        .ngo-mini-card-top {
+            top: 38px;
+            left: 0;
+        }
+
+        .ngo-mini-card-bottom {
+            right: -18px;
+            bottom: 35px;
+        }
+
+        .ngo-mini-number,
+        .ngo-mini-check {
+            width: 33px;
+            height: 33px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background: #071525;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+        }
+
+        .ngo-mini-check {
+            background: #397044;
+            font-size: 14px;
+        }
+
+        .ngo-mini-card strong,
+        .ngo-mini-card small {
+            display: block;
+        }
+
+        .ngo-mini-card strong {
+            color: #071525;
+            font-size: 10px;
+            margin-bottom: 3px;
+        }
+
+        .ngo-mini-card small {
+            max-width: 145px;
+            color: #82909c;
+            font-size: 8px;
+            line-height: 1.45;
+        }
+
+        .ngo-process,
+        .ngo-benefits {
+            width: min(1320px, 90%);
+            margin: 0 auto 85px;
+        }
+
+        .ngo-process {
+            padding: 45px 0 0;
+            border-top: 1px solid #d9d3c8;
+        }
+
+        .ngo-process-heading h2,
+        .ngo-benefits-heading h2 {
+            margin: 0;
+            color: #071525;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: clamp(40px, 4vw, 58px);
+            line-height: .98;
+            letter-spacing: -.045em;
+        }
+
+        .ngo-process-heading h2 em,
+        .ngo-benefits-heading h2 em {
+            color: #b43b32;
+        }
+
+        .ngo-process-grid {
+            margin-top: 38px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .ngo-process-item {
+            min-height: 145px;
+            padding: 23px;
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+        }
+
+        .ngo-process-item > span {
+            color: #b43b32;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .12em;
+        }
+
+        .ngo-process-item h3 {
+            margin: 22px 0 8px;
+            color: #071525;
+            font-size: 16px;
+        }
+
+        .ngo-process-item p {
+            margin: 0;
+            color: #6d7e8d;
+            font-size: 10px;
+            line-height: 1.65;
+        }
+
+        .ngo-process-line {
+            width: 30px;
+            height: 1px;
+            background: #cfc8bc;
+        }
+
+        .ngo-benefits {
+            padding-top: 10px;
+        }
+
+        .ngo-benefit-grid {
+            margin-top: 35px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .ngo-benefit {
+            padding: 28px;
+            background: #071525;
+            color: #fff;
+            transition: transform .25s ease;
+        }
+
+        .ngo-benefit:hover {
+            transform: translateY(-6px);
+        }
+
+        .ngo-benefit-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #d85a50;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .ngo-benefit-top b {
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .ngo-benefit h3 {
+            margin: 35px 0 10px;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: 25px;
+        }
+
+        .ngo-benefit p {
+            margin: 0;
+            color: #aebdca;
+            font-size: 10px;
+            line-height: 1.75;
+        }
+
+        @keyframes ngoPremiumZoom {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.06);
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .ngo-premium-hero {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .ngo-premium-visual {
+                min-height: 470px;
+            }
+
+            .ngo-main-photo {
+                inset: 0 0 0 20px;
+            }
+
+            .ngo-mini-card-bottom {
+                right: 5px;
+            }
+
+            .ngo-process-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ngo-process-line {
+                width: 1px;
+                height: 25px;
+                margin: 0 auto;
+            }
+
+            .ngo-benefit-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .ngo-premium-hero,
+            .ngo-process,
+            .ngo-benefits {
+                width: 92%;
+            }
+
+            .ngo-premium-copy h1 {
+                font-size: 49px;
+            }
+
+            .ngo-premium-visual {
+                min-height: 390px;
+            }
+
+            .ngo-main-photo {
+                inset: 0;
+            }
+
+            .ngo-mini-card-top {
+                left: 10px;
+                top: 18px;
+            }
+
+            .ngo-mini-card-bottom {
+                right: 10px;
+                bottom: 18px;
+            }
+
+            .ngo-photo-caption {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .ngo-photo-caption strong {
+                font-size: 23px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <span class="pulse-dot"></span>
+
+        RELIEF RESOLVER
+
+    </div>
+
+
+    <nav>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="request.html">
+            Request Help
+        </a>
+
+        <a href="ngo-register.html" class="active">
+            Join as NGO
+        </a>
+
+        <a href="staff-login.html">
+            Control Room
+        </a>
+
+        <a href="about.html">
+            About
+        </a>
+
+        <a href="contact.html">
+            Contact
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="ngo-register-page">
+
+
+    <!-- =========================================================
+         NGO PARTNER HERO — PREMIUM VERSION
+    ========================================================= -->
+
+    <section class="ngo-premium-hero">
+
+        <div class="ngo-premium-copy">
+
+            <div class="ngo-premium-kicker">
+                RELIEF PARTNER NETWORK
+            </div>
+
+            <h1>
+                Be there when
+                <span>help matters most.</span>
+            </h1>
+
+            <p>
+                Join Relief Resolver as a verified relief partner.
+                Your organization can be connected with genuine
+                emergency requests that match your location,
+                services and current capacity.
+            </p>
+
+            <div class="ngo-premium-actions">
+
+                <a
+                    href="#ngoRegisterForm"
+                    class="ngo-premium-cta"
+                >
+                    JOIN THE NETWORK
+                    <span>→</span>
+                </a>
+
+                <div class="ngo-trust-line">
+                    <span class="ngo-trust-check">✓</span>
+                    Credentials reviewed before activation
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="ngo-premium-visual">
+
+            <div class="ngo-main-photo">
+
+                <img
+                    src="images/help.jpg"
+                    alt="Relief volunteers helping during an emergency"
+                    onerror="this.style.display='none'; this.parentElement.classList.add('ngo-photo-fallback');"
+                >
+
+                <div class="ngo-photo-shade"></div>
+
+                <div class="ngo-photo-caption">
+
+                    <span class="ngo-caption-label">
+                        RELIEF PARTNER
+                    </span>
+
+                    <strong>
+                        Local organizations.
+                        Real-world impact.
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="ngo-mini-card ngo-mini-card-top">
+
+                <span class="ngo-mini-number">
+                    01
+                </span>
+
+                <div>
+                    <strong>
+                        Apply
+                    </strong>
+
+                    <small>
+                        Tell us about your organization
+                    </small>
+                </div>
+
+            </div>
+
+
+            <div class="ngo-mini-card ngo-mini-card-bottom">
+
+                <span class="ngo-mini-check">
+                    ✓
+                </span>
+
+                <div>
+                    <strong>
+                        Verified
+                    </strong>
+
+                    <small>
+                        Review before receiving requests
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         SIMPLE PROCESS
+    ========================================================= -->
+
+    <section class="ngo-process">
+
+        <div class="ngo-process-heading">
+
+            <div class="ngo-premium-kicker">
+                HOW IT WORKS
+            </div>
+
+            <h2>
+                From registration to
+                <em>relief.</em>
+            </h2>
+
+        </div>
+
+
+        <div class="ngo-process-grid">
+
+            <div class="ngo-process-item">
+
+                <span>01</span>
+
+                <h3>
+                    Register
+                </h3>
+
+                <p>
+                    Submit your organization's details,
+                    services and operating area.
+                </p>
+
+            </div>
+
+
+            <div class="ngo-process-line"></div>
+
+
+            <div class="ngo-process-item">
+
+                <span>02</span>
+
+                <h3>
+                    Get reviewed
+                </h3>
+
+                <p>
+                    Relief Resolver staff reviews your
+                    registration credentials and documents.
+                </p>
+
+            </div>
+
+
+            <div class="ngo-process-line"></div>
+
+
+            <div class="ngo-process-item">
+
+                <span>03</span>
+
+                <h3>
+                    Start helping
+                </h3>
+
+                <p>
+                    Once approved, your organization can
+                    be matched with relevant requests.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         WHY JOIN
+    ========================================================= -->
+
+    <section class="ngo-benefits">
+
+        <div class="ngo-benefits-heading">
+
+            <div class="ngo-premium-kicker">
+                WHY BECOME A PARTNER
+            </div>
+
+            <h2>
+                Your reach can become
+                <em>someone's relief.</em>
+            </h2>
+
+        </div>
+
+
+        <div class="ngo-benefit-grid">
+
+            <article class="ngo-benefit">
+
+                <div class="ngo-benefit-top">
+                    <span>01</span>
+                    <b>↗</b>
+                </div>
+
+                <h3>
+                    Relevant requests
+                </h3>
+
+                <p>
+                    Connect with emergency needs that
+                    align with your services and operating
+                    location.
+                </p>
+
+            </article>
+
+
+            <article class="ngo-benefit">
+
+                <div class="ngo-benefit-top">
+                    <span>02</span>
+                    <b>◉</b>
+                </div>
+
+                <h3>
+                    Local response
+                </h3>
+
+                <p>
+                    Focus your limited resources where
+                    your organization can realistically respond.
+                </p>
+
+            </article>
+
+
+            <article class="ngo-benefit">
+
+                <div class="ngo-benefit-top">
+                    <span>03</span>
+                    <b>✓</b>
+                </div>
+
+                <h3>
+                    Trust & accountability
+                </h3>
+
+                <p>
+                    Beneficiary confirmation and feedback
+                    help create a more transparent relief network.
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         REGISTRATION INTRO
+    ========================================================= -->
+    <section class="ngo-registration-intro">
+
+        <div>
+
+            <div class="ngo-hero-eyebrow">
+                READY TO HELP?
+            </div>
+
+            <h2>
+                Tell us about your
+                <em>organization.</em>
+            </h2>
+
+        </div>
+
+        <p>
+            Submit your organization details and verification credentials.
+            Our team will review them before your organization enters
+            the verified relief network.
+        </p>
+
+    </section>
+
+
+
+    <!-- HERO -->
+
+    <section class="ngo-register-hero">
+
+        <div class="eyebrow">
+            RELIEF PARTNER NETWORK
+        </div>
+
+
+        <h1>
+            Help us connect
+            <em>people in need</em>
+            with organizations that can help.
+        </h1>
+
+
+        <p>
+
+            Relief Resolver connects emergency requests with
+            verified relief organizations based on location,
+            assistance type and availability.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- FORM -->
+
+    <section class="ngo-form-section">
+
+
+        <div class="ngo-form-card">
+
+
+            <div class="form-heading">
+
+                <span class="section-number">
+                    01
+                </span>
+
+                <div>
+
+                    <h2>
+                        Organization Information
+                    </h2>
+
+                    <p>
+                        Tell us about your organization.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <form id="ngoRegisterForm">
+
+
+                <!-- ORGANIZATION NAME -->
+
+                <div class="form-group">
+
+                    <label for="ngoName">
+                        ORGANIZATION NAME
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="ngoName"
+                        placeholder="e.g. Hope Relief Foundation"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- REGISTRATION NUMBER -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="registrationNumber">
+                            ORGANIZATION / REGISTRATION NUMBER
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registrationNumber"
+                            placeholder="e.g. NGO-2026-001"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="contactPerson">
+                            CONTACT PERSON
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="contactPerson"
+                            placeholder="Full name"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CONTACT -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="ngoEmail">
+                            EMAIL
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="ngoEmail"
+                            placeholder="organization@example.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="ngoPhone">
+                            PHONE NUMBER
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="ngoPhone"
+                            placeholder="e.g. 9876543210"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- LOCATION -->
+
+                <div class="form-heading second">
+
+                    <span class="section-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Operating Location
+                        </h2>
+
+                        <p>
+                            Tell us where your organization can provide assistance.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label for="ngoCountry">
+                            COUNTRY
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ngoCountry"
+                            value="India"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="ngoState">
+                            STATE
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ngoState"
+                            placeholder="e.g. Uttar Pradesh"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label for="ngoCity">
+                            CITY / DISTRICT
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ngoCity"
+                            placeholder="e.g. Agra"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="operatingRadius">
+                            OPERATING RADIUS
+                            <span>*</span>
+                        </label>
+
+                        <div class="input-with-unit">
+
+                            <input
+                                type="number"
+                                id="operatingRadius"
+                                min="1"
+                                max="1000"
+                                placeholder="50"
+                                required
+                            >
+
+                            <span>
+                                km
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SERVICES -->
+
+                <div class="form-heading second">
+
+                    <span class="section-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Assistance You Provide
+                        </h2>
+
+                        <p>
+                            Select all types of relief your organization can provide.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="service-grid">
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Food"
+                        >
+
+                        <span class="service-icon">
+                            🍱
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Food
+                            </strong>
+
+                            <small>
+                                Meals and food supplies
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Water"
+                        >
+
+                        <span class="service-icon">
+                            💧
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Water
+                            </strong>
+
+                            <small>
+                                Drinking water
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Medicine"
+                        >
+
+                        <span class="service-icon">
+                            🩺
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Medicine
+                            </strong>
+
+                            <small>
+                                Medical supplies
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Shelter"
+                        >
+
+                        <span class="service-icon">
+                            ⛺
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Shelter
+                            </strong>
+
+                            <small>
+                                Temporary accommodation
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Emergency Kits"
+                        >
+
+                        <span class="service-icon">
+                            📦
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Emergency Kits
+                            </strong>
+
+                            <small>
+                                Essential relief items
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="service-option">
+
+                        <input
+                            type="checkbox"
+                            name="ngoServices"
+                            value="Other Relief"
+                        >
+
+                        <span class="service-icon">
+                            🤝
+                        </span>
+
+                        <span>
+
+                            <strong>
+                                Other Relief
+                            </strong>
+
+                            <small>
+                                Other emergency support
+                            </small>
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+
+                <!-- AVAILABILITY -->
+
+                <div class="form-heading second">
+
+                    <span class="section-number">
+                        04
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Current Availability
+                        </h2>
+
+                        <p>
+                            Let coordinators know whether your organization can currently accept requests.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="availability-options">
+
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value="Available"
+                            required
+                        >
+
+                        <span>
+                            Available
+                        </span>
+
+                    </label>
+
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value="Limited"
+                        >
+
+                        <span>
+                            Limited Capacity
+                        </span>
+
+                    </label>
+
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value="Unavailable"
+                        >
+
+                        <span>
+                            Currently Unavailable
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+
+
+                <!-- =========================================================
+                     VERIFICATION CREDENTIALS
+                ========================================================= -->
+
+                <div class="form-heading second">
+
+                    <span class="section-number">
+                        05
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Verification Credentials
+                        </h2>
+
+                        <p>
+                            Provide official organization credentials for staff review.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DARPAN + PAN -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="darpanId">
+                            NGO DARPAN ID
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="darpanId"
+                            placeholder="e.g. DL/2026/0012345"
+                            maxlength="30"
+                            required
+                        >
+
+                        <small class="verification-help">
+                            Enter the official DARPAN ID associated with your organization.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="organisationPan">
+                            ORGANISATION PAN
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="organisationPan"
+                            placeholder="e.g. ABCDE1234F"
+                            maxlength="10"
+                            style="text-transform:uppercase;"
+                            required
+                        >
+
+                        <small class="verification-help">
+                            Enter the 10-character PAN of the organization.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DOCUMENTS -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="registrationCertificate">
+                            REGISTRATION CERTIFICATE
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="file"
+                            id="registrationCertificate"
+                            accept=".pdf,.jpg,.jpeg,.png,.webp"
+                            required
+                        >
+
+                        <small class="verification-help">
+                            PDF, JPG, PNG or WEBP — maximum 5 MB.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="panDocument">
+                            PAN DOCUMENT
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="file"
+                            id="panDocument"
+                            accept=".pdf,.jpg,.jpeg,.png,.webp"
+                            required
+                        >
+
+                        <small class="verification-help">
+                            PDF, JPG, PNG or WEBP — maximum 5 MB.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VERIFICATION NOTICE -->
+
+                <div class="ngo-verification-notice">
+
+                    <strong>
+                        Verification required
+                    </strong>
+
+                    <p>
+                        Submitting these details does not automatically verify your
+                        organization. Relief Resolver staff will review the submitted
+                        credentials and documents before the organization can receive
+                        emergency requests.
+                    </p>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-heading second">
+
+                    <span class="section-number">
+                        06
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Create NGO Login
+                        </h2>
+
+                        <p>
+                            These credentials will be used after your organization is verified.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label for="ngoPassword">
+                            PASSWORD
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="password"
+                            id="ngoPassword"
+                            minlength="6"
+                            placeholder="Minimum 6 characters"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="ngoConfirmPassword">
+                            CONFIRM PASSWORD
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="password"
+                            id="ngoConfirmPassword"
+                            minlength="6"
+                            placeholder="Re-enter password"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- TERMS -->
+
+                <label class="ngo-agreement">
+
+                    <input
+                        type="checkbox"
+                        id="ngoAgreement"
+                        required
+                    >
+
+                    <span>
+
+                        I confirm that the information provided is
+                        accurate and that our organization agrees to
+                        Relief Resolver verification before receiving
+                        emergency requests.
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    class="ngo-submit-btn"
+                >
+
+                    Submit Organization for Verification
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="ngoResult"
+                    class="ngo-result"
+                ></div>
+
+
+            </form>
+
+        </div>
+
+
+
+        <!-- SIDE INFORMATION -->
+
+        <aside class="ngo-info-card">
+
+
+            <div class="info-icon">
+                ✓
+            </div>
+
+
+            <h3>
+                Why verification matters
+            </h3>
+
+
+            <p>
+
+                Relief Resolver does not automatically connect
+                emergency requests to unverified organizations.
+
+                Every organization must first be reviewed by
+                the Relief Coordination Centre.
+
+            </p>
+
+
+            <div class="info-line"></div>
+
+
+            <h4>
+                After registration
+            </h4>
+
+
+            <ol>
+
+                <li>
+                    Your organization is placed under review.
+                </li>
+
+                <li>
+                    Relief Resolver staff verify your organization.
+                </li>
+
+                <li>
+                    Once approved, you can log in.
+                </li>
+
+                <li>
+                    Verified requests can then be matched to your organization.
+                </li>
+
+            </ol>
+
+        </aside>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="site-footer">
+
+    <div class="footer-grid">
+
+
+        <div class="footer-brand">
+
+            <div
+                class="brand"
+                style="margin-bottom:10px;"
+            >
+
+                <span class="pulse-dot"></span>
+
+                RELIEF RESOLVER
+
+            </div>
+
+
+            <p>
+
+                Connecting verified emergency needs
+                with organizations capable of providing relief.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="footer-col">
+
+            <h4>
+                Get Help
+            </h4>
+
+            <a href="request.html">
+                Request Assistance
+            </a>
+
+            <a href="index.html">
+                Home
+            </a>
+
+        </div>
+
+
+
+        <div class="footer-col">
+
+            <h4>
+                Relief Partners
+            </h4>
+
+            <a href="ngo-register.html">
+                Join as NGO
+            </a>
+
+            <a href="ngo-login.html">
+                NGO Login
+            </a>
+
+        </div>
+
+
+
+        <div class="footer-col">
+
+            <h4>
+                Coordination
+            </h4>
+
+            <a href="staff-login.html">
+                Staff Login
+            </a>
+
+            <span>
+                Verified relief network
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        © 2026 Relief Resolver.
+        Not affiliated with any government emergency service.
+        Demo platform.
+
+    </div>
+
+</footer>
+
+
+
+<script src="js/ngo-register.js"></script>
+
+</body>
+
+</html>
