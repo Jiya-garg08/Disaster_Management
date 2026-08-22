@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Register — Relief Resolver</title>
+
+
+    <!-- Google Fonts -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,0..144,500&family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Main CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+
+    <style>
+
+        /* =====================================================
+           PAGE
+           ===================================================== */
+
+        .individual-register-page {
+
+            min-height: calc(100vh - 70px);
+
+            padding: 70px 20px 90px;
+
+            background:
+
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(180, 59, 50, 0.07),
+                    transparent 28%
+                ),
+
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(7, 21, 37, 0.05),
+                    transparent 30%
+                ),
+
+                var(--paper);
+
+        }
+
+
+        .individual-register-wrapper {
+
+            width: 100%;
+
+            max-width: 1080px;
+
+            margin: 0 auto;
+
+        }
+
+
+        /* =====================================================
+           HERO
+           ===================================================== */
+
+        .individual-register-hero {
+
+            text-align: center;
+
+            max-width: 720px;
+
+            margin: 0 auto 50px;
+
+        }
+
+
+        .individual-register-kicker {
+
+            color: var(--red);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .individual-register-hero h1 {
+
+            margin: 0;
+
+            color: var(--ink);
+
+            font-family:
+                var(--font-display);
+
+            font-size: clamp(
+                42px,
+                6vw,
+                68px
+            );
+
+            line-height: 0.98;
+
+            letter-spacing: -2px;
+
+        }
+
+
+        .individual-register-hero h1 em {
+
+            color: var(--red);
+
+            font-weight: 500;
+
+        }
+
+
+        .individual-register-hero p {
+
+            max-width: 620px;
+
+            margin: 22px auto 0;
+
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.8;
+
+        }
+
+
+        /* =====================================================
+           LAYOUT
+           ===================================================== */
+
+        .individual-register-layout {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.6fr)
+                minmax(280px, 0.7fr);
+
+            gap: 25px;
+
+            align-items: start;
+
+        }
+
+
+        /* =====================================================
+           FORM CARD
+           ===================================================== */
+
+        .individual-register-card {
+
+            background: #fffdf8;
+
+            border: 1px solid var(--line);
+
+            padding: 42px;
+
+            box-shadow:
+                0 25px 70px
+                rgba(7, 21, 37, 0.07);
+
+        }
+
+
+        /* =====================================================
+           FORM SECTIONS
+           ===================================================== */
+
+        .individual-form-section {
+
+            margin-bottom: 38px;
+
+        }
+
+
+        .individual-form-section:last-of-type {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .individual-section-heading {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 13px;
+
+            margin-bottom: 24px;
+
+        }
+
+
+        .individual-section-number {
+
+            flex-shrink: 0;
+
+            width: 29px;
+
+            height: 29px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: var(--ink);
+
+            color: white;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+        }
+
+
+        .individual-section-heading h2 {
+
+            margin: 0;
+
+            color: var(--ink);
+
+            font-family:
+                var(--font-display);
+
+            font-size: 23px;
+
+            line-height: 1.1;
+
+        }
+
+
+        .individual-section-heading p {
+
+            margin: 5px 0 0;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        /* =====================================================
+           FORM GRID
+           ===================================================== */
+
+        .individual-form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 18px 14px;
+
+        }
+
+
+        .individual-field.full {
+
+            grid-column: 1 / -1;
+
+        }
+
+
+        .individual-field label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: var(--ink);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .individual-required {
+
+            color: var(--red);
+
+        }
+
+
+        .individual-field input,
+        .individual-field select {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid #d8d2c7;
+
+            background: #fff;
+
+            color: var(--ink);
+
+            font-family:
+                var(--font-body);
+
+            font-size: 13px;
+
+            outline: none;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+
+        }
+
+
+        .individual-field input:focus,
+        .individual-field select:focus {
+
+            border-color: var(--red);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(180, 59, 50, .08);
+
+        }
+
+
+        .individual-field small {
+
+            display: block;
+
+            margin-top: 6px;
+
+            color: #8a939a;
+
+            font-size: 9px;
+
+            line-height: 1.5;
+
+        }
+
+
+        /* =====================================================
+           PASSWORD NOTE
+           ===================================================== */
+
+        .individual-password-note {
+
+            margin-top: 7px;
+
+            color: #89939c;
+
+            font-size: 9px;
+
+            line-height: 1.5;
+
+        }
+
+
+        /* =====================================================
+           CONSENT
+           ===================================================== */
+
+        .individual-consent {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+
+            margin: 20px 0;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
+        }
+
+
+        .individual-consent input {
+
+            margin-top: 3px;
+
+            accent-color: var(--red);
+
+        }
+
+
+        /* =====================================================
+           REGISTER BUTTON
+           ===================================================== */
+
+        .individual-register-button {
+
+            width: 100%;
+
+            border: none;
+
+            padding: 16px;
+
+            background: var(--ink);
+
+            color: white;
+
+            font-family:
+                var(--font-body);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            transition:
+                background .2s ease,
+                transform .2s ease;
+
+        }
+
+
+        .individual-register-button:hover {
+
+            background: var(--red);
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        /* =====================================================
+           RESULT MESSAGE
+           ===================================================== */
+
+        .individual-register-result {
+
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 14px 16px;
+
+            font-size: 11px;
+
+            line-height: 1.6;
+
+        }
+
+
+        .individual-register-result.show {
+
+            display: block;
+
+        }
+
+
+        .individual-register-result.success {
+
+            border-left:
+                3px solid #3b9254;
+
+            background: #e9f4eb;
+
+            color: #286439;
+
+        }
+
+
+        .individual-register-result.error {
+
+            border-left:
+                3px solid var(--red);
+
+            background: #f9ece9;
+
+            color: #8d2922;
+
+        }
+
+
+        /* =====================================================
+           INFORMATION PANEL
+           ===================================================== */
+
+        .individual-register-info {
+
+            position: sticky;
+
+            top: 100px;
+
+            background: var(--ink);
+
+            color: white;
+
+            padding: 35px;
+
+            overflow: hidden;
+
+        }
+
+
+        .individual-register-info::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 190px;
+
+            height: 190px;
+
+            border-radius: 50%;
+
+            right: -100px;
+
+            top: -80px;
+
+            background:
+                rgba(180, 59, 50, .25);
+
+        }
+
+
+        .individual-info-icon {
+
+            position: relative;
+
+            width: 48px;
+
+            height: 48px;
+
+            display: grid;
+
+            place-items: center;
+
+            background: var(--red);
+
+            font-size: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .individual-register-info h2 {
+
+            position: relative;
+
+            margin: 0 0 14px;
+
+            font-family:
+                var(--font-display);
+
+            font-size: 30px;
+
+            line-height: 1.05;
+
+        }
+
+
+        .individual-register-info p {
+
+            position: relative;
+
+            color: #bdc7cf;
+
+            font-size: 11px;
+
+            line-height: 1.7;
+
+        }
+
+
+        .individual-info-list {
+
+            position: relative;
+
+            margin-top: 28px;
+
+            padding-top: 23px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.14);
+
+            display: grid;
+
+            gap: 17px;
+
+        }
+
+
+        .individual-info-item {
+
+            display: flex;
+
+            gap: 10px;
+
+            color: #dce2e6;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .individual-info-item span {
+
+            color: #e2645b;
+
+            font-weight: 800;
+
+        }
+
+
+        /* =====================================================
+           LOGIN LINK
+           ===================================================== */
+
+        .individual-already-account {
+
+            margin-top: 22px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        .individual-already-account a {
+
+            color: var(--red);
+
+            font-weight: 800;
+
+            text-decoration: none;
+
+        }
+
+
+        .individual-already-account a:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 850px) {
+
+            .individual-register-layout {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .individual-register-info {
+
+                position: static;
+
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .individual-register-page {
+
+                padding-top: 45px;
+
+            }
+
+
+            .individual-register-card {
+
+                padding: 28px 20px;
+
+            }
+
+
+            .individual-form-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .individual-field.full {
+
+                grid-column: auto;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+
+<header class="topbar">
+
+
+    <div class="brand">
+
+        <span class="pulse-dot"></span>
+
+        RELIEF RESOLVER
+
+    </div>
+
+
+    <nav>
+
+
+        <a href="index.html">
+            Home
+        </a>
+
+
+        <a href="request.html">
+            Request Help
+        </a>
+
+
+        <a href="ngo-register.html">
+            Join as NGO
+        </a>
+
+
+        <a href="about.html">
+            About
+        </a>
+
+
+        <a href="contact.html">
+            Contact
+        </a>
+
+
+    </nav>
+
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN
+     ========================================================= -->
+
+<main class="individual-register-page">
+
+
+    <div class="individual-register-wrapper">
+
+
+        <!-- =====================================================
+             HERO
+             ===================================================== -->
+
+        <section class="individual-register-hero">
+
+
+            <div class="individual-register-kicker">
+
+                INDIVIDUAL REGISTRATION
+
+            </div>
+
+
+            <h1>
+
+                Create your
+
+                <em>
+                    account.
+                </em>
+
+            </h1>
+
+
+            <p>
+
+                Register once to submit emergency requests,
+                track assistance and stay connected with
+                verified relief organizations serving your area.
+
+            </p>
+
+
+        </section>
+
+
+
+        <!-- =====================================================
+             CONTENT
+             ===================================================== -->
+
+        <div class="individual-register-layout">
+
+
+            <!-- =================================================
+                 REGISTRATION FORM
+                 ================================================= -->
+
+            <section class="individual-register-card">
+
+
+                <form
+                    id="individualRegisterForm"
+                >
+
+
+                    <!-- =========================================
+                         SECTION 01
+                         PERSONAL INFORMATION
+                         ========================================= -->
+
+                    <div class="individual-form-section">
+
+
+                        <div class="individual-section-heading">
+
+
+                            <span class="individual-section-number">
+
+                                01
+
+                            </span>
+
+
+                            <div>
+
+                                <h2>
+                                    Your information
+                                </h2>
+
+
+                                <p>
+                                    Tell us who is requesting assistance.
+                                </p>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="individual-form-grid">
+
+
+                            <!-- FULL NAME -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualName"
+                                >
+
+                                    FULL NAME
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    id="individualName"
+                                    placeholder="Your full name"
+                                    autocomplete="name"
+                                    required
+                                >
+
+                            </div>
+
+
+
+                            <!-- PRIMARY PHONE -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualPhone"
+                                >
+
+                                    PRIMARY PHONE NUMBER
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="tel"
+                                    id="individualPhone"
+                                    placeholder="e.g. 9876543210"
+                                    maxlength="10"
+                                    autocomplete="tel"
+                                    required
+                                >
+
+
+                                <small>
+
+                                    Main number we will use
+                                    to contact you.
+
+                                </small>
+
+                            </div>
+
+
+
+                            <!-- ALTERNATE PHONE -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualAlternatePhone"
+                                >
+
+                                    ALTERNATE PHONE NUMBER
+
+                                </label>
+
+
+                                <input
+                                    type="tel"
+                                    id="individualAlternatePhone"
+                                    placeholder="Optional alternate number"
+                                    maxlength="10"
+                                    autocomplete="tel"
+                                >
+
+
+                                <small>
+
+                                    Optional. Useful if your
+                                    primary number is unavailable.
+
+                                </small>
+
+                            </div>
+
+
+
+                            <!-- EMAIL -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualEmail"
+                                >
+
+                                    EMAIL ADDRESS
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="email"
+                                    id="individualEmail"
+                                    placeholder="you@example.com"
+                                    autocomplete="email"
+                                    required
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 02
+                         LOCATION
+                         ================================================= -->
+
+                    <div class="individual-form-section">
+
+
+                        <div class="individual-section-heading">
+
+
+                            <span class="individual-section-number">
+
+                                02
+
+                            </span>
+
+
+                            <div>
+
+                                <h2>
+                                    Your location
+                                </h2>
+
+
+                                <p>
+                                    This helps identify nearby relief support.
+                                </p>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="individual-form-grid">
+
+
+                            <!-- STATE -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualState"
+                                >
+
+                                    STATE
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    id="individualState"
+                                    placeholder="e.g. Punjab"
+                                    autocomplete="address-level1"
+                                    required
+                                >
+
+                            </div>
+
+
+
+                            <!-- CITY -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualCity"
+                                >
+
+                                    CITY / DISTRICT
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    id="individualCity"
+                                    placeholder="e.g. Bathinda"
+                                    autocomplete="address-level2"
+                                    required
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 03
+                         ACCOUNT SECURITY
+                         ================================================= -->
+
+                    <div class="individual-form-section">
+
+
+                        <div class="individual-section-heading">
+
+
+                            <span class="individual-section-number">
+
+                                03
+
+                            </span>
+
+
+                            <div>
+
+                                <h2>
+                                    Create password
+                                </h2>
+
+
+                                <p>
+                                    You will use this to sign in later.
+                                </p>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="individual-form-grid">
+
+
+                            <!-- PASSWORD -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualPassword"
+                                >
+
+                                    PASSWORD
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="password"
+                                    id="individualPassword"
+                                    placeholder="Create password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+
+                                <div
+                                    class="individual-password-note"
+                                >
+
+                                    Minimum 6 characters.
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- CONFIRM PASSWORD -->
+
+                            <div class="individual-field">
+
+                                <label
+                                    for="individualConfirmPassword"
+                                >
+
+                                    CONFIRM PASSWORD
+
+                                    <span class="individual-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="password"
+                                    id="individualConfirmPassword"
+                                    placeholder="Repeat password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         CONSENT
+                         ================================================= -->
+
+                    <label class="individual-consent">
+
+
+                        <input
+                            type="checkbox"
+                            id="individualConsent"
+                            required
+                        >
+
+
+                        <span>
+
+                            I confirm that the information provided
+                            is accurate and understand that emergency
+                            requests may be reviewed before assistance
+                            is coordinated.
+
+                        </span>
+
+
+                    </label>
+
+
+
+                    <!-- =================================================
+                         SUBMIT
+                         ================================================= -->
+
+                    <button
+                        type="submit"
+                        class="individual-register-button"
+                    >
+
+                        CREATE ACCOUNT →
+
+                    </button>
+
+
+
+                    <!-- =================================================
+                         RESULT
+                         ================================================= -->
+
+                    <div
+                        id="individualRegisterResult"
+                        class="individual-register-result"
+                    ></div>
+
+
+                </form>
+
+
+
+                <!-- LOGIN -->
+
+                <div class="individual-already-account">
+
+                    Already have an account?
+
+                    <a href="login.html">
+
+                        Sign in here
+
+                    </a>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RIGHT INFORMATION PANEL
+                 ================================================= -->
+
+            <aside class="individual-register-info">
+
+
+                <div class="individual-info-icon">
+
+                    ♥
+
+                </div>
+
+
+                <h2>
+
+                    Help starts with knowing where you are.
+
+                </h2>
+
+
+                <p>
+
+                    Your account allows Relief Resolver
+                    to understand your location and connect
+                    your requests with appropriate verified
+                    relief organizations.
+
+                </p>
+
+
+
+                <div class="individual-info-list">
+
+
+                    <div class="individual-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        Your account keeps your requests organized.
+
+                    </div>
+
+
+                    <div class="individual-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        Your location helps identify nearby support.
+
+                    </div>
+
+
+                    <div class="individual-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        Your alternate number gives responders
+                        another way to reach you.
+
+                    </div>
+
+
+                    <div class="individual-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        You can provide feedback after receiving help.
+
+                    </div>
+
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+<!-- =========================================================
+     INDIVIDUAL REGISTRATION JS
+     ========================================================= -->
+
+<script src="js/individual-register.js"></script>
+
+
+</body>
+
+</html>

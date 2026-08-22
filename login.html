@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login — Relief Resolver</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,0..144,500&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        .login-page {
+
+            min-height: calc(100vh - 70px);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 55px 20px;
+
+            background:
+
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(180, 59, 50, 0.08),
+                    transparent 30%
+                ),
+
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(7, 21, 37, 0.06),
+                    transparent 30%
+                ),
+
+                var(--paper);
+
+        }
+
+
+        .login-layout {
+
+            width: 100%;
+
+            max-width: 1050px;
+
+            display: grid;
+
+            grid-template-columns: 0.9fr 1.1fr;
+
+            background: #fffdf8;
+
+            border: 1px solid var(--line);
+
+            box-shadow:
+                0 30px 80px
+                rgba(7, 21, 37, 0.09);
+
+            overflow: hidden;
+
+            animation:
+                loginAppear 0.6s ease forwards;
+
+        }
+
+
+        @keyframes loginAppear {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(20px);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+
+            }
+
+        }
+
+
+        /* =====================================================
+           LEFT SIDE
+           ===================================================== */
+
+        .login-intro {
+
+            position: relative;
+
+            padding: 55px 48px;
+
+            background: var(--ink);
+
+            color: white;
+
+            overflow: hidden;
+
+        }
+
+
+        .login-intro::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 280px;
+
+            height: 280px;
+
+            border-radius: 50%;
+
+            right: -130px;
+
+            top: -100px;
+
+            background:
+                rgba(180, 59, 50, 0.28);
+
+        }
+
+
+        .login-intro::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 190px;
+
+            height: 190px;
+
+            border-radius: 50%;
+
+            left: -100px;
+
+            bottom: -90px;
+
+            border: 1px solid
+                rgba(255,255,255,0.12);
+
+        }
+
+
+        .login-kicker {
+
+            position: relative;
+
+            z-index: 1;
+
+            color: #d95b52;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .login-intro h1 {
+
+            position: relative;
+
+            z-index: 1;
+
+            margin: 0;
+
+            max-width: 430px;
+
+            font-family:
+                var(--font-display);
+
+            font-size: 48px;
+
+            line-height: 1;
+
+            letter-spacing: -1.5px;
+
+        }
+
+
+        .login-intro h1 em {
+
+            color: #e2645b;
+
+            font-weight: 500;
+
+        }
+
+
+        .login-intro-text {
+
+            position: relative;
+
+            z-index: 1;
+
+            max-width: 390px;
+
+            margin-top: 24px;
+
+            color: #b9c5cf;
+
+            font-size: 13px;
+
+            line-height: 1.8;
+
+        }
+
+
+        .login-points {
+
+            position: relative;
+
+            z-index: 1;
+
+            margin-top: 40px;
+
+            display: grid;
+
+            gap: 17px;
+
+        }
+
+
+        .login-point {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            color: #dbe2e7;
+
+            font-size: 11px;
+
+        }
+
+
+        .login-point-icon {
+
+            width: 29px;
+
+            height: 29px;
+
+            display: grid;
+
+            place-items: center;
+
+            background:
+                rgba(255,255,255,0.09);
+
+            color: #fff;
+
+            font-size: 12px;
+
+        }
+
+
+        /* =====================================================
+           RIGHT SIDE
+           ===================================================== */
+
+        .login-form-side {
+
+            padding: 48px;
+
+        }
+
+
+        .login-heading {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .login-heading .small-label {
+
+            color: var(--red);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .login-heading h2 {
+
+            margin: 0;
+
+            color: var(--ink);
+
+            font-family:
+                var(--font-display);
+
+            font-size: 34px;
+
+            line-height: 1.05;
+
+        }
+
+
+        .login-heading p {
+
+            margin: 10px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* =====================================================
+           INDIVIDUAL / NGO SWITCH
+           ===================================================== */
+
+        .role-switch {
+
+            position: relative;
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            padding: 4px;
+
+            margin-bottom: 28px;
+
+            background: #f1ede5;
+
+            border: 1px solid #ded8cc;
+
+        }
+
+
+        .role-slider {
+
+            position: absolute;
+
+            top: 4px;
+
+            left: 4px;
+
+            width: calc(50% - 4px);
+
+            height: calc(100% - 8px);
+
+            background: var(--ink);
+
+            transition:
+                transform 0.25s ease;
+
+        }
+
+
+        .role-switch.ngo-active
+        .role-slider {
+
+            transform:
+                translateX(100%);
+
+        }
+
+
+        .role-button {
+
+            position: relative;
+
+            z-index: 1;
+
+            border: none;
+
+            background: transparent;
+
+            padding: 13px 10px;
+
+            color: #6c7882;
+
+            font-family:
+                var(--font-body);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: .8px;
+
+            cursor: pointer;
+
+            transition:
+                color 0.25s ease;
+
+        }
+
+
+        .role-button.active {
+
+            color: white;
+
+        }
+
+
+        /* =====================================================
+           FORM
+           ===================================================== */
+
+        .login-form .field {
+
+            margin-bottom: 19px;
+
+        }
+
+
+        .login-form label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: var(--ink);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .login-form input {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid #d8d2c7;
+
+            background: #fff;
+
+            color: var(--ink);
+
+            font-family:
+                var(--font-body);
+
+            font-size: 13px;
+
+            outline: none;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+
+        }
+
+
+        .login-form input:focus {
+
+            border-color: var(--red);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(180,59,50,.08);
+
+        }
+
+
+        .login-button {
+
+            width: 100%;
+
+            border: none;
+
+            padding: 15px;
+
+            margin-top: 4px;
+
+            background: var(--ink);
+
+            color: white;
+
+            font-family:
+                var(--font-body);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                background .2s ease;
+
+        }
+
+
+        .login-button:hover {
+
+            background: var(--red);
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        .login-error {
+
+            display: none;
+
+            margin-top: 15px;
+
+            padding: 12px 14px;
+
+            border-left: 3px solid var(--red);
+
+            background: #f9ece9;
+
+            color: #8d2922;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .login-error.show {
+
+            display: block;
+
+        }
+
+
+        .login-success {
+
+            display: none;
+
+            margin-top: 15px;
+
+            padding: 12px 14px;
+
+            border-left: 3px solid #3b9254;
+
+            background: #e9f4eb;
+
+            color: #286439;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .login-success.show {
+
+            display: block;
+
+        }
+
+
+        /* =====================================================
+           REGISTER LINKS
+           ===================================================== */
+
+        .register-area {
+
+            margin-top: 25px;
+
+            padding-top: 20px;
+
+            border-top: 1px solid var(--line);
+
+            text-align: center;
+
+        }
+
+
+        .register-area p {
+
+            margin: 0 0 12px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        .register-links {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .register-link {
+
+            padding: 9px 12px;
+
+            border: 1px solid #d8d2c7;
+
+            color: var(--ink);
+
+            text-decoration: none;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .5px;
+
+            transition:
+                background .2s ease,
+                color .2s ease;
+
+        }
+
+
+        .register-link:hover {
+
+            background: var(--ink);
+
+            color: white;
+
+        }
+
+
+        .staff-note {
+
+            margin-top: 22px;
+
+            padding-top: 16px;
+
+            border-top: 1px solid var(--line);
+
+            color: #89939c;
+
+            text-align: center;
+
+            font-size: 9px;
+
+            line-height: 1.6;
+
+        }
+
+
+        .staff-note strong {
+
+            color: var(--ink);
+
+        }
+
+
+        .back-home {
+
+            display: block;
+
+            margin-top: 16px;
+
+            color: var(--muted);
+
+            text-align: center;
+
+            text-decoration: none;
+
+            font-size: 10px;
+
+        }
+
+
+        .back-home:hover {
+
+            color: var(--red);
+
+        }
+
+
+        @media (max-width: 800px) {
+
+            .login-layout {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .login-intro {
+
+                padding: 38px 30px;
+
+            }
+
+
+            .login-intro h1 {
+
+                font-size: 39px;
+
+            }
+
+
+            .login-points {
+
+                display: none;
+
+            }
+
+
+            .login-form-side {
+
+                padding: 35px 28px;
+
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .login-page {
+
+                padding: 25px 12px;
+
+            }
+
+
+            .login-intro h1 {
+
+                font-size: 34px;
+
+            }
+
+
+            .login-form-side {
+
+                padding: 28px 20px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <span class="pulse-dot"></span>
+
+        RELIEF RESOLVER
+
+    </div>
+
+
+    <nav>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="request.html">
+            Request Help
+        </a>
+
+        <a href="ngo-register.html">
+            Join as NGO
+        </a>
+
+        <a href="about.html">
+            About
+        </a>
+
+        <a href="contact.html">
+            Contact
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="login-page">
+
+
+    <div class="login-layout">
+
+
+        <!-- =====================================================
+             LEFT INTRODUCTION
+             ===================================================== -->
+
+        <section class="login-intro">
+
+            <div class="login-kicker">
+                RELIEF RESOLVER
+            </div>
+
+
+            <h1>
+
+                Welcome back.
+
+                <em>
+                    Let's help.
+                </em>
+
+            </h1>
+
+
+            <p class="login-intro-text">
+
+                Sign in to continue your relief journey.
+                Individuals can manage their requests,
+                while verified organizations can respond
+                to people who need assistance.
+
+            </p>
+
+
+            <div class="login-points">
+
+
+                <div class="login-point">
+
+                    <span class="login-point-icon">
+                        ✓
+                    </span>
+
+                    Verified relief network
+
+                </div>
+
+
+                <div class="login-point">
+
+                    <span class="login-point-icon">
+                        ◉
+                    </span>
+
+                    Location-based connections
+
+                </div>
+
+
+                <div class="login-point">
+
+                    <span class="login-point-icon">
+                        ↗
+                    </span>
+
+                    Assistance that reaches people
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             RIGHT LOGIN
+             ===================================================== -->
+
+        <section class="login-form-side">
+
+
+            <div class="login-heading">
+
+                <div class="small-label">
+                    ACCOUNT ACCESS
+                </div>
+
+                <h2 id="loginTitle">
+                    Sign in as an individual
+                </h2>
+
+                <p id="loginDescription">
+
+                    Continue to manage your emergency
+                    requests and assistance.
+
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 ROLE SWITCH
+                 ================================================= -->
+
+            <div
+                class="role-switch"
+                id="roleSwitch"
+            >
+
+                <div class="role-slider"></div>
+
+
+                <button
+                    type="button"
+                    class="role-button active"
+                    id="individualRole"
+                >
+
+                    INDIVIDUAL
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="role-button"
+                    id="ngoRole"
+                >
+
+                    NGO
+
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 LOGIN FORM
+                 ================================================= -->
+
+            <form
+                class="login-form"
+                id="commonLoginForm"
+            >
+
+
+                <div class="field">
+
+                    <label for="loginIdentifier">
+                        <span id="identifierLabel">
+                            Email
+                        </span>
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="loginIdentifier"
+                        placeholder="Enter your email"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+
+                    SIGN IN →
+
+                </button>
+
+
+                <div
+                    id="loginError"
+                    class="login-error"
+                ></div>
+
+
+                <div
+                    id="loginSuccess"
+                    class="login-success"
+                ></div>
+
+
+            </form>
+
+
+            <!-- =================================================
+                 REGISTRATION LINKS
+                 ================================================= -->
+
+            <div class="register-area">
+
+                <p>
+                    Don't have an account yet?
+                </p>
+
+
+                <div class="register-links">
+
+                    <a
+                        href="individual-register.html"
+                        class="register-link"
+                        id="individualRegisterLink"
+                    >
+                        REGISTER AS INDIVIDUAL
+                    </a>
+
+
+                    <a
+                        href="ngo-register.html"
+                        class="register-link"
+                        id="ngoRegisterLink"
+                    >
+                        JOIN AS NGO
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 STAFF NOTE
+                 ================================================= -->
+
+            <div class="staff-note">
+
+                <strong>
+                    Authorized staff?
+                </strong>
+
+                Use your existing staff credentials
+                on this same login page.
+
+            </div>
+
+
+            <a
+                href="index.html"
+                class="back-home"
+            >
+
+                ← Return to public website
+
+            </a>
+
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script src="js/auth.js"></script>
+
+<script src="js/login.js"></script>
+
+
+</body>
+
+</html>
