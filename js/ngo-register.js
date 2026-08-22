@@ -38,6 +38,192 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    /* =========================================================
+       POPUP TOAST
+       ========================================================= */
+
+    const toast =
+        document.getElementById("ngoToast");
+
+    const toastText =
+        document.getElementById("ngoToastText");
+
+    let toastTimer = null;
+
+
+    function showToast(message) {
+
+        if (!toast || !toastText) {
+            return;
+        }
+
+        toastText.textContent = message;
+
+        toast.classList.add("show");
+
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+        }
+
+        toastTimer = setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3500);
+
+    }
+
+
+    /* =========================================================
+       LIVE FIELD VALIDATION
+       (numbers-only fields show an inline warning instead of
+       letting the user submit and only finding out later)
+       ========================================================= */
+
+    const phoneInput =
+        document.getElementById("ngoPhone");
+
+    const phoneError =
+        document.getElementById("ngoPhoneError");
+
+    const radiusInput =
+        document.getElementById("operatingRadius");
+
+    const radiusError =
+        document.getElementById("operatingRadiusError");
+
+
+    function setFieldError(input, errorEl, isValid) {
+
+        if (!input || !errorEl) {
+            return;
+        }
+
+        if (isValid) {
+            input.classList.remove("invalid");
+            errorEl.classList.remove("show");
+        } else {
+            input.classList.add("invalid");
+            errorEl.classList.add("show");
+        }
+
+    }
+
+
+    function validatePhoneLive() {
+
+        if (!phoneInput) {
+            return true;
+        }
+
+        // Strip anything that isn't a digit as the user types.
+        const digitsOnly =
+            phoneInput.value.replace(/\D/g, "");
+
+        if (phoneInput.value !== digitsOnly) {
+            phoneInput.value = digitsOnly;
+        }
+
+        const isValid =
+            digitsOnly.length === 0 ||
+            /^[0-9]{10}$/.test(digitsOnly);
+
+        setFieldError(
+            phoneInput,
+            phoneError,
+            digitsOnly.length === 0 || isValid
+        );
+
+        if (digitsOnly.length === 10 && !isValid) {
+
+            showToast(
+                "Phone number can only contain digits — please re-check the number."
+            );
+
+        }
+
+        return digitsOnly.length > 0 && isValid;
+
+    }
+
+
+    let lastRadiusWasValid = true;
+
+
+    function validateRadiusLive() {
+
+        if (!radiusInput) {
+            return true;
+        }
+
+        const raw =
+            radiusInput.value;
+
+        if (raw === "") {
+            setFieldError(radiusInput, radiusError, true);
+            lastRadiusWasValid = true;
+            return false;
+        }
+
+        const numericPattern =
+            /^[0-9]+$/;
+
+        const value =
+            Number(raw);
+
+        const isValid =
+            numericPattern.test(raw) &&
+            !Number.isNaN(value) &&
+            value >= 1 &&
+            value <= 1000;
+
+        setFieldError(radiusInput, radiusError, isValid);
+
+        // Only fire the popup the moment it becomes invalid,
+        // not on every keystroke while it stays invalid.
+        if (!isValid && lastRadiusWasValid) {
+
+            if (numericPattern.test(raw) && value > 1000) {
+
+                showToast(
+                    "Operating radius can't be more than 1000 km."
+                );
+
+            } else if (numericPattern.test(raw) && value < 1) {
+
+                showToast(
+                    "Operating radius must be at least 1 km."
+                );
+
+            } else if (!numericPattern.test(raw)) {
+
+                showToast(
+                    "Operating radius must be a number — letters and symbols aren't allowed."
+                );
+
+            }
+
+        }
+
+        lastRadiusWasValid = isValid;
+
+        return isValid;
+
+    }
+
+
+    if (phoneInput) {
+
+        phoneInput.addEventListener("input", validatePhoneLive);
+
+    }
+
+
+    if (radiusInput) {
+
+        radiusInput.addEventListener("input", validateRadiusLive);
+
+    }
+
+
     form.addEventListener("submit", (event) => {
 
         event.preventDefault();
@@ -104,11 +290,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 .trim();
 
 
+        const operatingRadiusRaw =
+            document
+                .getElementById("operatingRadius")
+                .value
+                .trim();
+
+
         const operatingRadius =
             parseInt(
-                document
-                    .getElementById("operatingRadius")
-                    .value,
+                operatingRadiusRaw,
                 10
             );
 
@@ -201,12 +392,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           6. GET AGREEMENT
+           6. GET AGREEMENTS
            ===================================================== */
 
         const agreement =
             document.getElementById(
                 "ngoAgreement"
+            );
+
+
+        const termsAgreement =
+            document.getElementById(
+                "ngoTermsAgreement"
             );
 
 
@@ -234,6 +431,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return;
         }
+
+
+        /* =====================================================
+           7b. PHONE — NUMBERS ONLY
+           ===================================================== */
+
+        const phonePattern =
+            /^[0-9]{10}$/;
+
+
+        if (!phone) {
+
+            setFieldError(phoneInput, phoneError, false);
+
+            showResult(
+                "error",
+                "Please enter a phone number."
+            );
+
+            return;
+        }
+
+
+        if (!phonePattern.test(phone)) {
+
+            setFieldError(phoneInput, phoneError, false);
+
+            showResult(
+                "error",
+                "Phone number must contain 10 digits and no letters or symbols."
+            );
+
+            return;
+        }
+
+        setFieldError(phoneInput, phoneError, true);
+
+
+        /* =====================================================
+           7c. OPERATING RADIUS — NUMBERS ONLY, MAX 1000 KM
+           ===================================================== */
+
+        const radiusPattern =
+            /^[0-9]+$/;
+
+
+        if (
+            !operatingRadiusRaw ||
+            !radiusPattern.test(operatingRadiusRaw)
+        ) {
+
+            setFieldError(radiusInput, radiusError, false);
+
+            showResult(
+                "error",
+                "Operating radius must be a number, not letters or symbols."
+            );
+
+            return;
+        }
+
+
+        if (operatingRadius < 1 || operatingRadius > 1000) {
+
+            setFieldError(radiusInput, radiusError, false);
+
+            showResult(
+                "error",
+                "Operating radius must be between 1 and 1000 km."
+            );
+
+            return;
+        }
+
+        setFieldError(radiusInput, radiusError, true);
 
 
         if (!darpanId) {
@@ -459,7 +731,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           15. AGREEMENT
+           15. TERMS & CONDITIONS
+           ===================================================== */
+
+        if (!termsAgreement.checked) {
+
+            showResult(
+                "error",
+                "You must read and agree to the Terms & Conditions before submitting."
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           16. ACCURACY AGREEMENT
            ===================================================== */
 
         if (!agreement.checked) {
@@ -474,7 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           16. GET EXISTING NGOs
+           17. GET EXISTING NGOs
            ===================================================== */
 
         const ngos =
@@ -484,7 +771,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           17. DUPLICATE EMAIL
+           18. DUPLICATE EMAIL
            ===================================================== */
 
         const emailExists =
@@ -507,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           18. DUPLICATE REGISTRATION NUMBER
+           19. DUPLICATE REGISTRATION NUMBER
            ===================================================== */
 
         const registrationExists =
@@ -532,7 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           19. DUPLICATE DARPAN ID
+           20. DUPLICATE DARPAN ID
            ===================================================== */
 
         const darpanExists =
@@ -556,7 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           20. DUPLICATE PAN
+           21. DUPLICATE PAN
            ===================================================== */
 
         const panExists =
@@ -580,7 +867,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           21. DOCUMENT METADATA
+           22. DOCUMENT METADATA
            ===================================================== */
 
         const registrationCertificateData = {
@@ -618,7 +905,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           22. CREATE NGO OBJECT
+           23. CREATE NGO OBJECT
            ===================================================== */
 
         const ngo = {
@@ -733,6 +1020,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /* -------------------------------
+               AGREEMENTS
+               ------------------------------- */
+
+            termsAccepted:
+                true,
+
+            termsAcceptedAt:
+                Date.now(),
+
+
+            /* -------------------------------
                TIMESTAMPS
                ------------------------------- */
 
@@ -751,7 +1049,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           23. SAVE NGO
+           24. SAVE NGO
            ===================================================== */
 
         ngos.push(ngo);
@@ -764,7 +1062,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           24. SUCCESS MESSAGE
+           25. SUCCESS MESSAGE
            ===================================================== */
 
         showResult(
@@ -777,7 +1075,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /* =====================================================
-           25. RESET FORM
+           26. RESET FORM
            ===================================================== */
 
         form.reset();
@@ -837,6 +1135,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 "nearest"
 
         });
+
+
+        if (type === "error") {
+
+            showToast(message);
+
+        }
 
     }
 
