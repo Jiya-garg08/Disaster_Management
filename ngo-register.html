@@ -16,12 +16,36 @@
 
     <style>
 
+        /* =========================================================
+           BASE READABILITY FIXES
+           (bumped up from the previous, much smaller sizes)
+           ========================================================= */
+
+        .ngo-register-page {
+            font-size: 15px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="password"],
+        .form-group input[type="number"] {
+            font-size: 14px;
+            padding: 12px 14px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
         .verification-help {
             display: block;
             margin-top: 7px;
-            color: #8a9298;
-            font-size: 9px;
-            line-height: 1.5;
+            color: #6d7a86;
+            font-size: 12px;
+            line-height: 1.6;
         }
 
         .ngo-verification-notice {
@@ -35,15 +59,15 @@
             display: block;
             margin-bottom: 7px;
             color: #071525;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 800;
             letter-spacing: .04em;
         }
 
         .ngo-verification-notice p {
             margin: 0;
-            color: #65778a;
-            font-size: 10px;
+            color: #5a6b7c;
+            font-size: 13px;
             line-height: 1.7;
         }
 
@@ -54,12 +78,537 @@
             background: #fffdf8;
             border: 1px solid #d8d2c7;
             font-family: inherit;
-            font-size: 10px;
+            font-size: 13px;
         }
 
         .form-group input[type="file"]:focus {
             outline: none;
             border-color: #071525;
+        }
+
+        /* -----------------------------------------------------------
+           ALIGNMENT FIXES for the form layout
+           ----------------------------------------------------------- */
+
+        .ngo-form-section {
+            display: grid;
+            grid-template-columns: 1.7fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .ngo-form-card {
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 18px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            letter-spacing: .03em;
+        }
+
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-with-unit input {
+            flex: 1;
+            /* hide native number spinner so it can't overlap the "km" label */
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .input-with-unit input::-webkit-outer-spin-button,
+        .input-with-unit input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-with-unit span {
+            flex-shrink: 0;
+            padding: 0 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #5a6b7c;
+            white-space: nowrap;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .service-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-sizing: border-box;
+        }
+
+        .service-option strong {
+            font-size: 14px;
+        }
+
+        .service-option small {
+            font-size: 12px;
+        }
+
+        .availability-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .availability-options label {
+            font-size: 13px;
+        }
+
+        .ngo-agreement {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .field-error {
+            display: none;
+            margin-top: 6px;
+            color: #b43b32;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .field-error.show {
+            display: block;
+        }
+
+        .form-group input.invalid {
+            border-color: #b43b32;
+        }
+
+        /* -----------------------------------------------------------
+           POPUP TOAST — for validation warnings that need to
+           grab attention immediately (e.g. radius over 1000 km)
+           ----------------------------------------------------------- */
+
+        .ngo-toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 999;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 340px;
+            padding: 16px 18px;
+            background: #071525;
+            border-left: 4px solid #b43b32;
+            box-shadow: 0 20px 45px rgba(7, 21, 37, .25);
+            color: #fff;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform .3s ease, opacity .3s ease;
+            pointer-events: none;
+        }
+
+        .ngo-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .ngo-toast-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            background: #b43b32;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .ngo-toast-text {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #dfe4e9;
+        }
+
+        .ngo-toast-text strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        @media (max-width: 560px) {
+
+            .ngo-toast {
+                left: 16px;
+                right: 16px;
+                top: 16px;
+                max-width: none;
+            }
+
+        }
+
+        @media (max-width: 900px) {
+
+            .ngo-form-section {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 560px) {
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        /* -----------------------------------------------------------
+           REGISTRATION INTRO — clean two-column section header
+           ----------------------------------------------------------- */
+
+        .ngo-registration-intro {
+            width: min(1320px, 90%);
+            margin: 10px auto 55px;
+            padding-top: 50px;
+            border-top: 1px solid #d9d3c8;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: end;
+        }
+
+        .ngo-registration-intro h2 {
+            margin: 0;
+            color: #071525;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: clamp(34px, 3.4vw, 46px);
+            line-height: 1.05;
+            letter-spacing: -.035em;
+        }
+
+        .ngo-registration-intro h2 em {
+            color: #b43b32;
+            font-style: italic;
+        }
+
+        .ngo-registration-intro > p {
+            margin: 0;
+            color: #5a6b7c;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 900px) {
+
+            .ngo-registration-intro {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+        }
+
+        /* -----------------------------------------------------------
+           FORM SECTION — card polish
+           ----------------------------------------------------------- */
+
+        .ngo-form-section {
+            width: min(1320px, 90%);
+            margin: 0 auto 90px;
+        }
+
+        .ngo-form-card {
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+            box-shadow: 0 30px 70px rgba(7, 21, 37, .07);
+            padding: 44px 46px 50px;
+        }
+
+        .form-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 26px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #ece7db;
+        }
+
+        .form-heading.second {
+            margin-top: 44px;
+        }
+
+        .form-heading .section-number {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            background: #071525;
+            color: #f2c9c4;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .form-heading h2 {
+            margin: 0 0 4px;
+            color: #071525;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: 21px;
+            letter-spacing: -.02em;
+        }
+
+        .form-heading p {
+            margin: 0;
+            color: #7a8794;
+            font-size: 13px;
+        }
+
+        .form-group input:focus,
+        .ngo-form-card select:focus,
+        .ngo-form-card textarea:focus {
+            outline: none;
+            border-color: #b43b32;
+            box-shadow: 0 0 0 3px rgba(180, 59, 50, .1);
+        }
+
+        .service-option {
+            padding: 14px 16px;
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+            cursor: pointer;
+            transition: border-color .2s ease, background .2s ease;
+        }
+
+        .service-option:hover {
+            border-color: #b43b32;
+        }
+
+        .service-option:has(input:checked) {
+            border-color: #b43b32;
+            background: #f9efec;
+        }
+
+        .service-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .availability-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+            cursor: pointer;
+            transition: border-color .2s ease, background .2s ease;
+        }
+
+        .availability-options label:has(input:checked) {
+            border-color: #071525;
+            background: #eef1f4;
+            font-weight: 700;
+        }
+
+        .ngo-submit-btn {
+            margin-top: 34px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 17px;
+            background: #071525;
+            color: #fff;
+            border: none;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .2s ease, transform .2s ease;
+        }
+
+        .ngo-submit-btn:hover {
+            background: #b43b32;
+            transform: translateY(-2px);
+        }
+
+        .ngo-result {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .ngo-result.show {
+            display: block;
+        }
+
+        .ngo-result.success {
+            background: #eaf3ea;
+            border-left: 3px solid #397044;
+            color: #245030;
+        }
+
+        .ngo-result.error {
+            background: #fbeceb;
+            border-left: 3px solid #b43b32;
+            color: #7a2a23;
+        }
+
+        .ngo-info-card {
+            background: #071525;
+            color: #d7dee5;
+            padding: 36px 32px;
+            position: sticky;
+            top: 24px;
+        }
+
+        .ngo-info-card .info-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            background: #397044;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        .ngo-info-card h3 {
+            margin: 0 0 12px;
+            color: #fff;
+            font-family: "Fraunces", Georgia, serif;
+            font-size: 20px;
+        }
+
+        .ngo-info-card p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.75;
+            color: #aebdca;
+        }
+
+        .ngo-info-card .info-line {
+            height: 1px;
+            margin: 24px 0;
+            background: rgba(255, 255, 255, .12);
+        }
+
+        .ngo-info-card h4 {
+            margin: 0 0 14px;
+            color: #fff;
+            font-size: 13px;
+            letter-spacing: .04em;
+        }
+
+        .ngo-info-card ol {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13px;
+            line-height: 1.9;
+            color: #aebdca;
+        }
+
+        .ngo-info-card ol li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 900px) {
+
+            .ngo-form-card {
+                padding: 30px 24px 36px;
+            }
+
+            .ngo-info-card {
+                position: static;
+            }
+
+        }
+
+        /* -----------------------------------------------------------
+           TERMS & CONDITIONS BOX
+           ----------------------------------------------------------- */
+
+        .ngo-terms-box {
+            margin-top: 26px;
+            border: 1px solid #ddd8ce;
+            background: #fffdf8;
+        }
+
+        .ngo-terms-heading {
+            padding: 14px 18px;
+            border-bottom: 1px solid #ddd8ce;
+            font-size: 14px;
+            font-weight: 800;
+            color: #071525;
+            letter-spacing: .03em;
+        }
+
+        .ngo-terms-scroll {
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 16px 18px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #5a6b7c;
+        }
+
+        .ngo-terms-scroll ol {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .ngo-terms-scroll li {
+            margin-bottom: 10px;
+        }
+
+        .ngo-terms-agree {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px 18px;
+            border-top: 1px solid #ddd8ce;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .ngo-terms-agree input {
+            margin-top: 3px;
         }
 
     </style>
@@ -86,7 +635,7 @@
 
         .ngo-premium-kicker {
             color: #b43b32;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 800;
             letter-spacing: .18em;
             text-transform: uppercase;
@@ -112,8 +661,8 @@
         .ngo-premium-copy > p {
             max-width: 590px;
             margin: 27px 0 0;
-            color: #60758a;
-            font-size: 14px;
+            color: #4c6072;
+            font-size: 16px;
             line-height: 1.8;
         }
 
@@ -133,7 +682,7 @@
             background: #071525;
             color: #fff;
             text-decoration: none;
-            font-size: 9px;
+            font-size: 12px;
             font-weight: 800;
             letter-spacing: .1em;
             transition: all .25s ease;
@@ -157,8 +706,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #788895;
-            font-size: 9px;
+            color: #5f7080;
+            font-size: 12px;
         }
 
         .ngo-trust-check {
@@ -169,6 +718,7 @@
             background: #e7f0e8;
             color: #397044;
             font-weight: 800;
+            flex-shrink: 0;
         }
 
         .ngo-premium-visual {
@@ -225,7 +775,7 @@
             display: block;
             margin-bottom: 8px;
             color: #e46b61;
-            font-size: 8px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: .15em;
         }
@@ -269,13 +819,13 @@
             flex-shrink: 0;
             background: #071525;
             color: #fff;
-            font-size: 8px;
+            font-size: 11px;
             font-weight: 800;
         }
 
         .ngo-mini-check {
             background: #397044;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .ngo-mini-card strong,
@@ -285,14 +835,14 @@
 
         .ngo-mini-card strong {
             color: #071525;
-            font-size: 10px;
+            font-size: 13px;
             margin-bottom: 3px;
         }
 
         .ngo-mini-card small {
-            max-width: 145px;
-            color: #82909c;
-            font-size: 8px;
+            max-width: 150px;
+            color: #6b7a87;
+            font-size: 11px;
             line-height: 1.45;
         }
 
@@ -326,20 +876,23 @@
             margin-top: 38px;
             display: grid;
             grid-template-columns: 1fr auto 1fr auto 1fr;
-            align-items: center;
+            align-items: stretch;
             gap: 22px;
         }
 
         .ngo-process-item {
-            min-height: 145px;
+            min-height: 160px;
             padding: 23px;
             background: #fffdf8;
             border: 1px solid #ddd8ce;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
 
         .ngo-process-item > span {
             color: #b43b32;
-            font-size: 9px;
+            font-size: 12px;
             font-weight: 800;
             letter-spacing: .12em;
         }
@@ -347,13 +900,13 @@
         .ngo-process-item h3 {
             margin: 22px 0 8px;
             color: #071525;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .ngo-process-item p {
             margin: 0;
-            color: #6d7e8d;
-            font-size: 10px;
+            color: #5a6b7c;
+            font-size: 13px;
             line-height: 1.65;
         }
 
@@ -361,6 +914,7 @@
             width: 30px;
             height: 1px;
             background: #cfc8bc;
+            align-self: center;
         }
 
         .ngo-benefits {
@@ -372,6 +926,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
+            align-items: stretch;
         }
 
         .ngo-benefit {
@@ -379,6 +934,7 @@
             background: #071525;
             color: #fff;
             transition: transform .25s ease;
+            box-sizing: border-box;
         }
 
         .ngo-benefit:hover {
@@ -390,7 +946,7 @@
             justify-content: space-between;
             align-items: center;
             color: #d85a50;
-            font-size: 9px;
+            font-size: 12px;
             font-weight: 800;
         }
 
@@ -407,8 +963,8 @@
 
         .ngo-benefit p {
             margin: 0;
-            color: #aebdca;
-            font-size: 10px;
+            color: #c3cfda;
+            font-size: 13px;
             line-height: 1.75;
         }
 
@@ -504,6 +1060,13 @@
 
 
 <body>
+
+
+<!-- POPUP TOAST (used for validation warnings, e.g. radius > 1000 km) -->
+<div class="ngo-toast" id="ngoToast">
+    <span class="ngo-toast-icon">!</span>
+    <span class="ngo-toast-text" id="ngoToastText"></span>
+</div>
 
 
 <!-- =========================================================
@@ -840,12 +1403,14 @@
 
     <!-- =========================================================
          REGISTRATION INTRO
+         (single, clean section — replaces the old duplicate
+          hero that used to sit here on top of it)
     ========================================================= -->
     <section class="ngo-registration-intro">
 
-        <div>
+        <div class="ngo-registration-intro-copy">
 
-            <div class="ngo-hero-eyebrow">
+            <div class="ngo-premium-kicker">
                 READY TO HELP?
             </div>
 
@@ -857,37 +1422,10 @@
         </div>
 
         <p>
-            Submit your organization details and verification credentials.
-            Our team will review them before your organization enters
-            the verified relief network.
-        </p>
-
-    </section>
-
-
-
-    <!-- HERO -->
-
-    <section class="ngo-register-hero">
-
-        <div class="eyebrow">
-            RELIEF PARTNER NETWORK
-        </div>
-
-
-        <h1>
-            Help us connect
-            <em>people in need</em>
-            with organizations that can help.
-        </h1>
-
-
-        <p>
-
-            Relief Resolver connects emergency requests with
-            verified relief organizations based on location,
-            assistance type and availability.
-
+            Submit your organization's details and verification
+            credentials below. Our team reviews every application
+            before your organization enters the verified relief
+            network and starts receiving matched requests.
         </p>
 
     </section>
@@ -924,7 +1462,7 @@
 
 
 
-            <form id="ngoRegisterForm">
+            <form id="ngoRegisterForm" novalidate>
 
 
                 <!-- ORGANIZATION NAME -->
@@ -1020,8 +1558,14 @@
                             type="tel"
                             id="ngoPhone"
                             placeholder="e.g. 9876543210"
+                            inputmode="numeric"
+                            maxlength="10"
                             required
                         >
+
+                        <small class="field-error" id="ngoPhoneError">
+                            Phone number must contain digits only (10 digits).
+                        </small>
 
                     </div>
 
@@ -1136,6 +1680,10 @@
                             </span>
 
                         </div>
+
+                        <small class="field-error" id="operatingRadiusError">
+                            Operating radius must be a number between 1 and 1000 km.
+                        </small>
 
                     </div>
 
@@ -1450,7 +1998,6 @@
 
                         <label for="darpanId">
                             NGO DARPAN ID
-                            <span>*</span>
                         </label>
 
                         <input
@@ -1625,7 +2172,87 @@
 
 
 
-                <!-- TERMS -->
+                <!-- =========================================================
+                     TERMS & CONDITIONS
+                ========================================================= -->
+
+                <div class="ngo-terms-box">
+
+                    <div class="ngo-terms-heading">
+                        Terms &amp; Conditions
+                    </div>
+
+                    <div class="ngo-terms-scroll">
+
+                        <ol>
+
+                            <li>
+                                All information, credentials and documents submitted
+                                in this form must be accurate, current and belong to
+                                the organization registering. Submitting false or
+                                misleading details may result in permanent rejection
+                                from the Relief Partner Network.
+                            </li>
+
+                            <li>
+                                Registration alone does not verify or approve your
+                                organization. Relief Resolver staff will review your
+                                DARPAN ID, PAN and uploaded documents before your
+                                organization can receive or respond to any emergency
+                                request.
+                            </li>
+
+                            <li>
+                                Your organization is responsible for keeping its
+                                contact details, service offerings and availability
+                                status up to date so that requests are matched
+                                correctly.
+                            </li>
+
+                            <li>
+                                Relief Resolver acts only as a coordination platform
+                                connecting requests with relief organizations. It is
+                                not responsible for the quality, timeliness or outcome
+                                of assistance provided by any partner organization.
+                            </li>
+
+                            <li>
+                                Uploaded documents and organization data will be used
+                                solely for verification and coordination purposes and
+                                will not be shared outside the review process without
+                                consent.
+                            </li>
+
+                            <li>
+                                Relief Resolver reserves the right to suspend or
+                                remove any organization from the network at its
+                                discretion, including for inaccurate information,
+                                inactivity, or reports of misconduct.
+                            </li>
+
+                        </ol>
+
+                    </div>
+
+                    <label class="ngo-terms-agree">
+
+                        <input
+                            type="checkbox"
+                            id="ngoTermsAgreement"
+                            required
+                        >
+
+                        <span>
+                            I have read and agree to the Relief Resolver
+                            Terms &amp; Conditions for relief partner organizations.
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- ACCURACY AGREEMENT -->
 
                 <label class="ngo-agreement">
 
