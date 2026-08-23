@@ -18,6 +18,1371 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAll();
 });
 
+/* ============================================================
+   RELIEF COORDINATION MAP
+
+   Shows:
+
+   👤 Verified Individual Requests
+
+   🏠 Verified NGOs
+
+   ─ ─ ─ Assigned NGO ↔ Individual Request
+
+   Data sources:
+
+       relief_requests
+       drr_ngos
+============================================================ */
+
+
+/* ------------------------------------------------------------
+   MAP STATE
+------------------------------------------------------------ */
+
+let coordinationMap = null;
+
+let coordinationRequestMarkers = [];
+
+let coordinationNgoMarkers = [];
+
+let coordinationLines = [];
+
+let coordinationDistanceLabels = [];
+
+
+/* ------------------------------------------------------------
+   PERSON ICON
+------------------------------------------------------------ */
+
+const coordinationPersonIcon =
+    L.divIcon({
+
+        className:
+            "coordination-map-icon",
+
+        html: `
+            <div class="coordination-person-icon">
+                👤
+            </div>
+        `,
+
+        iconSize: [
+            42,
+            42
+        ],
+
+        iconAnchor: [
+            21,
+            42
+        ],
+
+        popupAnchor: [
+            0,
+            -42
+        ]
+
+    });
+
+
+/* ------------------------------------------------------------
+   NGO ICON
+------------------------------------------------------------ */
+
+const coordinationNgoIcon =
+    L.divIcon({
+
+        className:
+            "coordination-map-icon",
+
+        html: `
+            <div class="coordination-ngo-icon">
+                🏠
+            </div>
+        `,
+
+        iconSize: [
+            46,
+            46
+        ],
+
+        iconAnchor: [
+            23,
+            46
+        ],
+
+        popupAnchor: [
+            0,
+            -46
+        ]
+
+    });
+
+
+/* ------------------------------------------------------------
+   SAFE HTML
+------------------------------------------------------------ */
+
+function coordinationSafe(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   NUMBER
+------------------------------------------------------------ */
+
+function coordinationNumber(
+    value
+) {
+
+    const number =
+        Number(value);
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : null;
+
+}
+
+
+/* ------------------------------------------------------------
+   GET NGO LATITUDE
+------------------------------------------------------------ */
+
+function getCoordinationNgoLat(
+    ngo
+) {
+
+    return coordinationNumber(
+        ngo?.lat ??
+        ngo?.latitude ??
+        ngo?.location?.lat ??
+        ngo?.coordinates?.lat
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   GET NGO LONGITUDE
+------------------------------------------------------------ */
+
+function getCoordinationNgoLng(
+    ngo
+) {
+
+    return coordinationNumber(
+        ngo?.lng ??
+        ngo?.longitude ??
+        ngo?.location?.lng ??
+        ngo?.coordinates?.lng
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   GET REQUEST LATITUDE
+------------------------------------------------------------ */
+
+function getCoordinationRequestLat(
+    request
+) {
+
+    return coordinationNumber(
+        request?.lat ??
+        request?.latitude ??
+        request?.location?.lat
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   GET REQUEST LONGITUDE
+------------------------------------------------------------ */
+
+function getCoordinationRequestLng(
+    request
+) {
+
+    return coordinationNumber(
+        request?.lng ??
+        request?.longitude ??
+        request?.location?.lng
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   GET VERIFIED REQUESTS
+------------------------------------------------------------ */
+
+function getCoordinationVerifiedRequests() {
+
+    const requests =
+        readRequests();
+
+
+    return requests.filter(
+        request => {
+
+            if (
+                request.verified !== true
+            ) {
+
+                return false;
+
+            }
+
+
+            const lat =
+                getCoordinationRequestLat(
+                    request
+                );
+
+
+            const lng =
+                getCoordinationRequestLng(
+                    request
+                );
+
+
+            return (
+                lat !== null &&
+                lng !== null
+            );
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   GET VERIFIED NGOS
+------------------------------------------------------------ */
+
+function getCoordinationVerifiedNGOs() {
+
+    const ngos =
+        readNGOs();
+
+
+    return ngos.filter(
+        ngo => {
+
+            if (
+                ngo.status !==
+                "verified"
+            ) {
+
+                return false;
+
+            }
+
+
+            const lat =
+                getCoordinationNgoLat(
+                    ngo
+                );
+
+
+            const lng =
+                getCoordinationNgoLng(
+                    ngo
+                );
+
+
+            return (
+                lat !== null &&
+                lng !== null
+            );
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   INITIALIZE MAP
+------------------------------------------------------------ */
+
+function initializeCoordinationMap() {
+
+    const mapElement =
+        document.getElementById(
+            "coordinationMap"
+        );
+
+
+    if (!mapElement) {
+
+        return;
+
+    }
+
+
+    if (
+        typeof L ===
+        "undefined"
+    ) {
+
+        console.error(
+            "Leaflet is not loaded."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        coordinationMap
+    ) {
+
+        return;
+
+    }
+
+
+    coordinationMap =
+        L.map(
+            "coordinationMap"
+        ).setView(
+            [
+                22.5,
+                79.0
+            ],
+            5
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+
+            maxZoom: 18,
+
+            attribution:
+                "&copy; OpenStreetMap contributors"
+
+        }
+    ).addTo(
+        coordinationMap
+    );
+
+
+    renderCoordinationMap();
+
+}
+
+
+/* ------------------------------------------------------------
+   CLEAR MAP LAYERS
+------------------------------------------------------------ */
+
+function clearCoordinationMapLayers() {
+
+    coordinationRequestMarkers
+        .forEach(
+            marker => {
+
+                if (
+                    coordinationMap
+                        .hasLayer(marker)
+                ) {
+
+                    coordinationMap
+                        .removeLayer(marker);
+
+                }
+
+            }
+        );
+
+
+    coordinationNgoMarkers
+        .forEach(
+            marker => {
+
+                if (
+                    coordinationMap
+                        .hasLayer(marker)
+                ) {
+
+                    coordinationMap
+                        .removeLayer(marker);
+
+                }
+
+            }
+        );
+
+
+    coordinationLines
+        .forEach(
+            line => {
+
+                if (
+                    coordinationMap
+                        .hasLayer(line)
+                ) {
+
+                    coordinationMap
+                        .removeLayer(line);
+
+                }
+
+            }
+        );
+
+
+    coordinationDistanceLabels
+        .forEach(
+            label => {
+
+                if (
+                    coordinationMap
+                        .hasLayer(label)
+                ) {
+
+                    coordinationMap
+                        .removeLayer(label);
+
+                }
+
+            }
+        );
+
+
+    coordinationRequestMarkers = [];
+
+    coordinationNgoMarkers = [];
+
+    coordinationLines = [];
+
+    coordinationDistanceLabels = [];
+
+}
+
+
+/* ------------------------------------------------------------
+   INDIVIDUAL POPUP
+------------------------------------------------------------ */
+
+function createIndividualPopup(
+    request
+) {
+
+    const requestId =
+        request.id ||
+        request.requestNumber ||
+        "Unknown";
+
+
+    const personName =
+        request.reporterName ||
+        request.submittedByName ||
+        "Affected individual";
+
+
+    const location =
+        request.shelterName ||
+        "Affected location";
+
+
+    const victims =
+        Number(
+            request.victims || 0
+        ).toLocaleString();
+
+
+    const need =
+        request.supplyType ||
+        "Relief support";
+
+
+    const status =
+        request.status ||
+        "verified";
+
+
+    return `
+
+        <div class="coordination-popup">
+
+            <div class="
+                coordination-popup-label
+                person
+            ">
+                VERIFIED INDIVIDUAL REQUEST
+            </div>
+
+
+            <div class="
+                coordination-popup-title
+            ">
+                👤
+                ${coordinationSafe(
+                    personName
+                )}
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Request ID</span>
+
+                <strong>
+                    ${coordinationSafe(
+                        requestId
+                    )}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Location</span>
+
+                <strong>
+                    ${coordinationSafe(
+                        location
+                    )}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>People affected</span>
+
+                <strong>
+                    ${victims}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Relief needed</span>
+
+                <strong>
+                    ${coordinationSafe(
+                        need
+                    )}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Status</span>
+
+                <strong>
+                    ✓ Verified
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-status
+            ">
+
+                ${
+                    request.assignedNgoId
+                        ? "🏠 NGO assigned for coordination"
+                        : "Waiting for NGO assignment"
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ------------------------------------------------------------
+   NGO POPUP
+------------------------------------------------------------ */
+
+function createNgoPopup(
+    ngo
+) {
+
+    const ngoName =
+        ngo.name ||
+        "Verified NGO";
+
+
+    const services =
+        Array.isArray(
+            ngo.services
+        )
+            ? ngo.services.join(
+                ", "
+            )
+            : (
+                ngo.services ||
+                "Relief support"
+            );
+
+
+    const radius =
+        Number(
+            ngo.operatingRadiusKm ??
+            ngo.operatingRadius ??
+            ngo.radiusKm ??
+            0
+        );
+
+
+    return `
+
+        <div class="coordination-popup">
+
+            <div class="
+                coordination-popup-label
+                ngo
+            ">
+                VERIFIED NGO
+            </div>
+
+
+            <div class="
+                coordination-popup-title
+            ">
+                🏠
+                ${coordinationSafe(
+                    ngoName
+                )}
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Organization</span>
+
+                <strong>
+                    ${coordinationSafe(
+                        ngoName
+                    )}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Services</span>
+
+                <strong>
+                    ${coordinationSafe(
+                        services
+                    )}
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Operating radius</span>
+
+                <strong>
+                    ${
+                        radius > 0
+                            ? radius + " km"
+                            : "Not specified"
+                    }
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-row
+            ">
+                <span>Status</span>
+
+                <strong>
+                    ✓ Verified
+                </strong>
+            </div>
+
+
+            <div class="
+                coordination-popup-status
+            ">
+
+                Available for relief coordination
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ------------------------------------------------------------
+   DRAW VERIFIED INDIVIDUAL REQUESTS
+------------------------------------------------------------ */
+
+function renderCoordinationRequests() {
+
+    const requests =
+        getCoordinationVerifiedRequests();
+
+
+    requests.forEach(
+        request => {
+
+            const lat =
+                getCoordinationRequestLat(
+                    request
+                );
+
+
+            const lng =
+                getCoordinationRequestLng(
+                    request
+                );
+
+
+            if (
+                lat === null ||
+                lng === null
+            ) {
+
+                return;
+
+            }
+
+
+            const marker =
+                L.marker(
+                    [
+                        lat,
+                        lng
+                    ],
+                    {
+                        icon:
+                            coordinationPersonIcon
+                    }
+                )
+                .addTo(
+                    coordinationMap
+                );
+
+
+            marker.bindPopup(
+                createIndividualPopup(
+                    request
+                )
+            );
+
+
+            coordinationRequestMarkers.push(
+                marker
+            );
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   DRAW VERIFIED NGOS
+------------------------------------------------------------ */
+
+function renderCoordinationNGOs() {
+
+    const ngos =
+        getCoordinationVerifiedNGOs();
+
+
+    ngos.forEach(
+        ngo => {
+
+            const lat =
+                getCoordinationNgoLat(
+                    ngo
+                );
+
+
+            const lng =
+                getCoordinationNgoLng(
+                    ngo
+                );
+
+
+            if (
+                lat === null ||
+                lng === null
+            ) {
+
+                return;
+
+            }
+
+
+            const marker =
+                L.marker(
+                    [
+                        lat,
+                        lng
+                    ],
+                    {
+                        icon:
+                            coordinationNgoIcon
+                    }
+                )
+                .addTo(
+                    coordinationMap
+                );
+
+
+            marker.bindPopup(
+                createNgoPopup(
+                    ngo
+                )
+            );
+
+
+            coordinationNgoMarkers.push(
+                marker
+            );
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   HAVERSINE DISTANCE
+
+   Used only for the visual coordination line.
+------------------------------------------------------------ */
+
+function coordinationDistanceKm(
+    lat1,
+    lng1,
+    lat2,
+    lng2
+) {
+
+    const earthRadius =
+        6371;
+
+
+    const dLat =
+        (
+            lat2 -
+            lat1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const dLng =
+        (
+            lng2 -
+            lng1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const a =
+        Math.sin(
+            dLat / 2
+        ) ** 2
+        +
+        Math.cos(
+            lat1 *
+            Math.PI /
+            180
+        )
+        *
+        Math.cos(
+            lat2 *
+            Math.PI /
+            180
+        )
+        *
+        Math.sin(
+            dLng / 2
+        ) ** 2;
+
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(
+                1 - a
+            )
+        );
+
+
+    return (
+        earthRadius *
+        c
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   FIND VERIFIED NGO
+------------------------------------------------------------ */
+
+function getVerifiedNgoById(
+    ngoId
+) {
+
+    if (!ngoId) {
+
+        return null;
+
+    }
+
+
+    return (
+        getCoordinationVerifiedNGOs()
+            .find(
+                ngo =>
+                    String(
+                        ngo.id
+                    ) ===
+                    String(
+                        ngoId
+                    )
+            )
+        ||
+        null
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   DRAW ASSIGNMENT CONNECTIONS
+
+   IMPORTANT:
+   We ONLY draw a line when the request has an
+   assignedNgoId.
+
+   We do NOT connect every request to every NGO.
+------------------------------------------------------------ */
+
+function renderCoordinationConnections() {
+
+    const requests =
+        getCoordinationVerifiedRequests();
+
+
+    requests.forEach(
+        request => {
+
+            if (
+                !request.assignedNgoId
+            ) {
+
+                return;
+
+            }
+
+
+            const ngo =
+                getVerifiedNgoById(
+                    request.assignedNgoId
+                );
+
+
+            if (!ngo) {
+
+                return;
+
+            }
+
+
+            const requestLat =
+                getCoordinationRequestLat(
+                    request
+                );
+
+
+            const requestLng =
+                getCoordinationRequestLng(
+                    request
+                );
+
+
+            const ngoLat =
+                getCoordinationNgoLat(
+                    ngo
+                );
+
+
+            const ngoLng =
+                getCoordinationNgoLng(
+                    ngo
+                );
+
+
+            if (
+                requestLat === null ||
+                requestLng === null ||
+                ngoLat === null ||
+                ngoLng === null
+            ) {
+
+                return;
+
+            }
+
+
+            const distance =
+                coordinationDistanceKm(
+                    requestLat,
+                    requestLng,
+                    ngoLat,
+                    ngoLng
+                );
+
+
+            const line =
+                L.polyline(
+                    [
+                        [
+                            requestLat,
+                            requestLng
+                        ],
+                        [
+                            ngoLat,
+                            ngoLng
+                        ]
+                    ],
+                    {
+
+                        color:
+                            "#071525",
+
+                        weight:
+                            2.5,
+
+                        opacity:
+                            0.75,
+
+                        dashArray:
+                            "7 8"
+
+                    }
+                )
+                .addTo(
+                    coordinationMap
+                );
+
+
+            line.bindPopup(`
+
+                <div class="
+                    coordination-popup
+                ">
+
+                    <div class="
+                        coordination-popup-label
+                        ngo
+                    ">
+                        ACTIVE COORDINATION
+                    </div>
+
+                    <div class="
+                        coordination-popup-title
+                    ">
+                        👤 ↔ 🏠
+                    </div>
+
+                    <div class="
+                        coordination-popup-row
+                    ">
+                        <span>Request</span>
+
+                        <strong>
+                            ${coordinationSafe(
+                                request.id
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="
+                        coordination-popup-row
+                    ">
+                        <span>NGO</span>
+
+                        <strong>
+                            ${coordinationSafe(
+                                ngo.name
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="
+                        coordination-popup-row
+                    ">
+                        <span>Distance</span>
+
+                        <strong>
+                            ${distance.toFixed(1)}
+                            km
+                        </strong>
+                    </div>
+
+                </div>
+
+            `);
+
+
+            coordinationLines.push(
+                line
+            );
+
+
+            /* ----------------------------------------------------
+               DISTANCE LABEL
+            ---------------------------------------------------- */
+
+            const middleLat =
+                (
+                    requestLat +
+                    ngoLat
+                ) / 2;
+
+
+            const middleLng =
+                (
+                    requestLng +
+                    ngoLng
+                ) / 2;
+
+
+            const distanceLabel =
+                L.marker(
+                    [
+                        middleLat,
+                        middleLng
+                    ],
+                    {
+
+                        interactive:
+                            false,
+
+                        icon:
+                            L.divIcon({
+
+                                className:
+                                    "coordination-distance-label",
+
+                                html:
+                                    `
+                                    <span>
+                                        ${distance.toFixed(1)}
+                                        km
+                                    </span>
+                                    `,
+
+                                iconSize:
+                                    null,
+
+                                iconAnchor:
+                                    [0, 0]
+
+                            })
+
+                    }
+                )
+                .addTo(
+                    coordinationMap
+                );
+
+
+            coordinationDistanceLabels.push(
+                distanceLabel
+            );
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   FIT MAP TO MARKERS
+------------------------------------------------------------ */
+
+function fitCoordinationMap() {
+
+    const allMarkers = [
+
+        ...coordinationRequestMarkers,
+
+        ...coordinationNgoMarkers
+
+    ];
+
+
+    if (
+        allMarkers.length === 0
+    ) {
+
+        coordinationMap.setView(
+            [
+                22.5,
+                79.0
+            ],
+            5
+        );
+
+        return;
+
+    }
+
+
+    const bounds =
+        L.latLngBounds(
+            allMarkers.map(
+                marker =>
+                    marker.getLatLng()
+            )
+        );
+
+
+    coordinationMap.fitBounds(
+        bounds,
+        {
+            padding: [
+                50,
+                50
+            ],
+
+            maxZoom: 12
+        }
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   RENDER COMPLETE MAP
+------------------------------------------------------------ */
+
+function renderCoordinationMap() {
+
+    if (
+        !coordinationMap
+    ) {
+
+        return;
+
+    }
+
+
+    clearCoordinationMapLayers();
+
+
+    renderCoordinationRequests();
+
+    renderCoordinationNGOs();
+
+    renderCoordinationConnections();
+
+    fitCoordinationMap();
+
+}
+
+
+/* ------------------------------------------------------------
+   REFRESH WHEN LOCAL STORAGE CHANGES
+------------------------------------------------------------ */
+
+window.addEventListener(
+    "storage",
+    function(event) {
+
+        if (
+            event.key ===
+            "relief_requests"
+            ||
+            event.key ===
+            "drr_ngos"
+        ) {
+
+            renderCoordinationMap();
+
+        }
+
+    }
+);
+
+
+/* ------------------------------------------------------------
+   INITIALIZE AFTER DOM LOAD
+------------------------------------------------------------ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        initializeCoordinationMap();
+
+    }
+);
 
 /* ============================================================
    MAIN RENDER
@@ -29,6 +1394,7 @@ function renderAll() {
     renderCoordinationQueue();
     renderAlerts();
     renderNGOs();
+    renderCoordinationMap();
 }
 
 
