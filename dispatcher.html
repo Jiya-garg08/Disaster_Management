@@ -1,867 +1,4882 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Room — Relief Resolver</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
 
-<style>
-:root{
-    --ink:#071525;
-    --muted:#687789;
-    --paper:#f7f4ed;
-    --card:#fffdf9;
-    --line:#e3ded3;
-    --red:#b43b32;
-    --green:#2f7a4a;
-    --green-bg:#eaf5ed;
-    --amber:#a36f08;
-    --amber-bg:#fff4d8;
-    --blue:#285f96;
-    --blue-bg:#edf5fc;
-    --shadow:0 18px 55px rgba(7,21,37,.07);
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Control Room — Relief Resolver</title>
+
+
+    <!-- ============================================================
+         FONTS
+    ============================================================ -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- EXISTING WEBSITE CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+
+    <!-- ============================================================
+         LEAFLET MAP
+    ============================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"
+    >
+
+
+    <style>
+
+        :root{
+
+            --ink:#071525;
+
+            --muted:#687789;
+
+            --paper:#f7f4ed;
+
+            --card:#fffdf9;
+
+            --line:#e3ded3;
+
+            --red:#b43b32;
+
+            --green:#2f7a4a;
+
+            --green-bg:#eaf5ed;
+
+            --amber:#a36f08;
+
+            --amber-bg:#fff4d8;
+
+            --blue:#285f96;
+
+            --blue-bg:#edf5fc;
+
+            --shadow:
+                0 18px 55px rgba(7,21,37,.07);
+        }
+
+
+        *{
+            box-sizing:border-box;
+        }
+
+
+        body{
+
+            margin:0;
+
+            background:
+                radial-gradient(
+                    circle at 85% 0%,
+                    rgba(180,59,50,.06),
+                    transparent 28%
+                ),
+                var(--paper);
+
+            color:var(--ink);
+
+            font-family:
+                "DM Sans",
+                Arial,
+                sans-serif;
+        }
+
+
+        button{
+            font:inherit;
+        }
+
+
+        /* =========================================================
+           STAFF LOGOUT
+        ========================================================= */
+
+        .staff-logout-btn{
+
+            border:1px solid #d8d2c7;
+
+            background:transparent;
+
+            color:var(--ink);
+
+            padding:9px 13px;
+
+            margin-left:5px;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+
+            cursor:pointer;
+
+            transition:.2s ease;
+        }
+
+
+        .staff-logout-btn:hover{
+
+            background:var(--ink);
+
+            color:#fff;
+        }
+
+
+        /* =========================================================
+           MAIN CONTROL ROOM
+        ========================================================= */
+
+        .control-page{
+
+            min-height:
+                calc(100vh - 72px);
+
+            padding:
+                44px 4vw 80px;
+        }
+
+
+        .control-shell{
+
+            max-width:1450px;
+
+            margin:0 auto;
+        }
+
+
+        .control-header{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:flex-end;
+
+            gap:35px;
+
+            margin-bottom:28px;
+        }
+
+
+        .control-eyebrow{
+
+            color:var(--red);
+
+            font-size:11px;
+
+            font-weight:800;
+
+            letter-spacing:.16em;
+
+            text-transform:uppercase;
+
+            margin-bottom:9px;
+        }
+
+
+        .control-header h1{
+
+            margin:0;
+
+            font-family:
+                "Fraunces",
+                Georgia,
+                serif;
+
+            font-size:
+                clamp(46px,6vw,70px);
+
+            line-height:.94;
+
+            letter-spacing:-.045em;
+        }
+
+
+        .control-header h1 em{
+
+            color:var(--red);
+        }
+
+
+        .control-header p{
+
+            max-width:650px;
+
+            margin:14px 0 0;
+
+            color:var(--muted);
+
+            font-size:15px;
+
+            line-height:1.7;
+        }
+
+
+        .live-indicator{
+
+            flex-shrink:0;
+
+            display:flex;
+
+            align-items:center;
+
+            gap:9px;
+
+            padding:11px 14px;
+
+            border:1px solid var(--line);
+
+            background:
+                rgba(255,253,249,.75);
+
+            color:#566371;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.09em;
+
+            text-transform:uppercase;
+        }
+
+
+        .live-dot{
+
+            width:8px;
+
+            height:8px;
+
+            border-radius:50%;
+
+            background:#42a764;
+
+            box-shadow:
+                0 0 0 5px
+                rgba(66,167,100,.12);
+        }
+
+
+        /* =========================================================
+           MESSAGE
+        ========================================================= */
+
+        #controlMessage{
+
+            display:none;
+
+            margin:0 0 18px;
+
+            padding:14px 17px;
+
+            border:1px solid #cfe4d4;
+
+            border-left:4px solid var(--green);
+
+            background:var(--green-bg);
+
+            color:#235a37;
+
+            font-size:13px;
+
+            font-weight:700;
+        }
+
+
+        #controlMessage.show{
+
+            display:block;
+        }
+
+
+        #controlMessage.error{
+
+            border-color:#ead0cc;
+
+            border-left-color:var(--red);
+
+            background:#fff1ef;
+
+            color:#8f3028;
+        }
+
+
+        /* =========================================================
+           STAT CARDS
+        ========================================================= */
+
+        .stats-grid{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap:12px;
+
+            margin-bottom:25px;
+        }
+
+
+        .stat-card{
+
+            background:var(--card);
+
+            border:1px solid var(--line);
+
+            padding:18px 19px;
+
+            box-shadow:
+                0 8px 28px
+                rgba(7,21,37,.035);
+        }
+
+
+        .stat-top{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            gap:12px;
+        }
+
+
+        .stat-label{
+
+            color:#89929b;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.1em;
+
+            text-transform:uppercase;
+        }
+
+
+        .stat-value{
+
+            margin-top:7px;
+
+            font-size:29px;
+
+            font-weight:800;
+
+            letter-spacing:-.04em;
+        }
+
+
+        .stat-note{
+
+            margin-top:5px;
+
+            color:#89929b;
+
+            font-size:11px;
+        }
+
+
+        /* =========================================================
+           ZONES
+        ========================================================= */
+
+        .zone{
+
+            margin-bottom:36px;
+        }
+
+
+        .zone-header{
+
+            display:flex;
+
+            align-items:flex-start;
+
+            gap:16px;
+
+            padding:22px 24px;
+
+            margin-bottom:18px;
+
+            background:var(--card);
+
+            border:1px solid var(--line);
+
+            border-left:5px solid var(--blue);
+        }
+
+
+        .zone-ngo .zone-header{
+
+            border-left-color:var(--green);
+        }
+
+
+        .zone-icon{
+
+            flex-shrink:0;
+
+            width:42px;
+
+            height:42px;
+
+            display:grid;
+
+            place-items:center;
+
+            background:var(--blue-bg);
+
+            color:var(--blue);
+
+            font-size:19px;
+        }
+
+
+        .zone-ngo .zone-icon{
+
+            background:var(--green-bg);
+
+            color:var(--green);
+        }
+
+
+        .zone-tag{
+
+            display:inline-block;
+
+            color:var(--blue);
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.12em;
+
+            text-transform:uppercase;
+
+            margin-bottom:5px;
+        }
+
+
+        .zone-ngo .zone-tag{
+
+            color:var(--green);
+        }
+
+
+        .zone-header h2{
+
+            margin:0;
+
+            font-family:
+                "Fraunces",
+                Georgia,
+                serif;
+
+            font-size:23px;
+
+            letter-spacing:-.03em;
+        }
+
+
+        .zone-header p{
+
+            margin:5px 0 0;
+
+            color:var(--muted);
+
+            font-size:13px;
+
+            line-height:1.6;
+
+            max-width:640px;
+        }
+
+
+        /* =========================================================
+           SECTIONS
+        ========================================================= */
+
+        .section{
+
+            background:var(--card);
+
+            border:1px solid var(--line);
+
+            box-shadow:var(--shadow);
+
+            margin-bottom:22px;
+        }
+
+
+        .section-heading{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            gap:20px;
+
+            padding:20px 22px;
+
+            border-bottom:1px solid var(--line);
+        }
+
+
+        .section-heading h2{
+
+            margin:0 0 4px;
+
+            font-size:19px;
+
+            letter-spacing:-.025em;
+        }
+
+
+        .section-heading p{
+
+            margin:0;
+
+            color:#8b949d;
+
+            font-size:12px;
+        }
+
+
+        .section-badge{
+
+            flex-shrink:0;
+
+            padding:7px 10px;
+
+            background:#f0ece4;
+
+            color:#606b75;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+        }
+
+
+        .request-list{
+
+            display:flex;
+
+            flex-direction:column;
+        }
+
+
+        .request-card{
+
+            padding:24px;
+
+            border-bottom:1px solid #ebe6dc;
+        }
+
+
+        .request-card:last-child{
+
+            border-bottom:0;
+        }
+
+
+        .request-head{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            gap:20px;
+
+            align-items:flex-start;
+        }
+
+
+        .request-id{
+
+            color:var(--red);
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+
+            text-transform:uppercase;
+        }
+
+
+        .request-title{
+
+            margin:6px 0 4px;
+
+            font-size:22px;
+
+            letter-spacing:-.035em;
+        }
+
+
+        .request-location{
+
+            color:#697784;
+
+            font-size:12px;
+        }
+
+
+        .priority{
+
+            display:inline-flex;
+
+            align-items:center;
+
+            padding:6px 9px;
+
+            margin-left:7px;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.07em;
+        }
+
+
+        .priority.critical{
+
+            background:#fde5e2;
+
+            color:#9b3027;
+        }
+
+
+        .priority.high{
+
+            background:#fff0e0;
+
+            color:#9a5b13;
+        }
+
+
+        .priority.medium{
+
+            background:#fff5d9;
+
+            color:#8d6809;
+        }
+
+
+        .priority.normal{
+
+            background:#edf1f4;
+
+            color:#5e6974;
+        }
+
+
+        .urgency-box{
+
+            min-width:92px;
+
+            text-align:right;
+        }
+
+
+        .urgency-box span{
+
+            display:block;
+
+            color:#9099a1;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.09em;
+        }
+
+
+        .urgency-box strong{
+
+            display:block;
+
+            font-size:25px;
+
+            line-height:1.1;
+        }
+
+
+        .detail-grid{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap:8px;
+
+            margin:19px 0 12px;
+        }
+
+
+        .detail{
+
+            padding:12px;
+
+            background:#f6f2ea;
+        }
+
+
+        .detail span{
+
+            display:block;
+
+            color:#8b949d;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+
+            margin-bottom:6px;
+        }
+
+
+        .detail strong{
+
+            display:block;
+
+            font-size:13px;
+
+            line-height:1.35;
+        }
+
+
+        .reporter-row{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:11px;
+
+            padding:12px 13px;
+
+            background:#f9f7f2;
+
+            border:1px solid #eee9df;
+        }
+
+
+        .reporter-avatar{
+
+            width:34px;
+
+            height:34px;
+
+            display:grid;
+
+            place-items:center;
+
+            border-radius:50%;
+
+            background:var(--ink);
+
+            color:white;
+
+            font-size:12px;
+
+            font-weight:800;
+        }
+
+
+        .reporter-main strong{
+
+            display:block;
+
+            font-size:13px;
+        }
+
+
+        .reporter-main span{
+
+            display:block;
+
+            color:#7c8791;
+
+            font-size:11px;
+
+            margin-top:3px;
+        }
+
+
+        .situation{
+
+            margin-top:10px;
+
+            padding:13px 14px;
+
+            border-left:3px solid var(--ink);
+
+            background:#f9f7f2;
+        }
+
+
+        .situation-label{
+
+            color:#8b949d;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+        }
+
+
+        .situation p{
+
+            margin:6px 0 0;
+
+            color:#52606c;
+
+            font-size:12px;
+
+            line-height:1.6;
+        }
+
+
+        .verification-row{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            gap:15px;
+
+            margin-top:13px;
+
+            padding:12px 13px;
+
+            border:1px solid #ecd9a8;
+
+            background:var(--amber-bg);
+        }
+
+
+        .verification-row.verified{
+
+            border-color:#cfe4d4;
+
+            background:var(--green-bg);
+        }
+
+
+        .status-main span{
+
+            display:block;
+
+            color:#7f7461;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+        }
+
+
+        .status-main strong{
+
+            display:block;
+
+            margin-top:4px;
+
+            font-size:12px;
+        }
+
+
+        .actions{
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+
+            margin-top:12px;
+        }
+
+
+        .btn{
+
+            border:0;
+
+            padding:11px 15px;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+
+            cursor:pointer;
+
+            transition:.18s ease;
+        }
+
+
+        .btn:hover{
+
+            transform:translateY(-1px);
+        }
+
+
+        .btn-primary{
+
+            background:var(--ink);
+
+            color:#fff;
+        }
+
+
+        .btn-green{
+
+            background:var(--green);
+
+            color:#fff;
+        }
+
+
+        .btn-light{
+
+            background:#f0ece4;
+
+            color:#44515d;
+
+            border:1px solid var(--line);
+        }
+
+
+        .btn-disabled{
+
+            background:#eef0f2;
+
+            color:#9aa2a9;
+
+            cursor:not-allowed;
+        }
+
+
+        /* =========================================================
+           COORDINATION
+        ========================================================= */
+
+        .coordination-wrap{
+
+            padding:18px 24px 24px;
+
+            background:#fbfaf7;
+
+            border-top:1px solid #ece7dd;
+        }
+
+
+        .coordination-head{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:flex-end;
+
+            gap:15px;
+
+            margin-bottom:12px;
+        }
+
+
+        .coordination-head h3{
+
+            margin:0;
+
+            font-size:15px;
+        }
+
+
+        .coordination-head p{
+
+            margin:4px 0 0;
+
+            color:#8a949d;
+
+            font-size:11px;
+        }
+
+
+        .match-list{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap:10px;
+        }
+
+
+        .ngo-match{
+
+            padding:15px;
+
+            border:1px solid #dce6df;
+
+            background:#fff;
+        }
+
+
+        .ngo-match-top{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            gap:12px;
+        }
+
+
+        .ngo-match h4{
+
+            margin:0;
+
+            font-size:14px;
+        }
+
+
+        .available{
+
+            white-space:nowrap;
+
+            padding:5px 7px;
+
+            background:var(--green-bg);
+
+            color:var(--green);
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+        }
+
+
+        .match-meta{
+
+            margin-top:8px;
+
+            color:#687580;
+
+            font-size:11px;
+
+            line-height:1.55;
+        }
+
+
+        .match-services{
+
+            margin-top:9px;
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:5px;
+        }
+
+
+        .service-chip{
+
+            padding:4px 6px;
+
+            background:#eef5fa;
+
+            color:#376487;
+
+            font-size:9px;
+
+            font-weight:800;
+        }
+
+
+        .match-action{
+
+            margin-top:12px;
+
+            width:100%;
+        }
+
+
+        /* =========================================================
+           NGO
+        ========================================================= */
+
+        .ngo-grid{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+        }
+
+
+        .ngo-card{
+
+            padding:21px;
+
+            border-right:1px solid #ebe6dc;
+
+            border-bottom:1px solid #ebe6dc;
+        }
+
+
+        .ngo-card:nth-child(2n){
+
+            border-right:0;
+        }
+
+
+        .ngo-card h3{
+
+            margin:5px 0 3px;
+
+            font-size:17px;
+        }
+
+
+        .ngo-id{
+
+            color:var(--red);
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+        }
+
+
+        .ngo-location{
+
+            color:#71808b;
+
+            font-size:11px;
+        }
+
+
+        .ngo-info{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap:7px;
+
+            margin-top:13px;
+        }
+
+
+        .ngo-info div{
+
+            padding:10px;
+
+            background:#f7f4ed;
+        }
+
+
+        .ngo-info span{
+
+            display:block;
+
+            color:#929ba2;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.07em;
+
+            margin-bottom:5px;
+        }
+
+
+        .ngo-info strong{
+
+            font-size:11px;
+
+            word-break:break-word;
+        }
+
+
+        .ngo-services{
+
+            margin-top:8px;
+
+            padding:10px 12px;
+
+            background:#f7f4ed;
+
+            border-left:3px solid var(--ink);
+
+            color:#5d6973;
+
+            font-size:11px;
+
+            line-height:1.6;
+        }
+
+
+        .ngo-actions{
+
+            display:flex;
+
+            gap:7px;
+
+            margin-top:11px;
+        }
+
+
+        /* =========================================================
+           EMPTY
+        ========================================================= */
+
+        .empty-state{
+
+            min-height:145px;
+
+            display:grid;
+
+            place-items:center;
+
+            text-align:center;
+
+            padding:25px;
+
+            color:#8b949d;
+
+            font-size:12px;
+        }
+
+
+        .empty-state .icon{
+
+            display:grid;
+
+            place-items:center;
+
+            width:42px;
+
+            height:42px;
+
+            border-radius:50%;
+
+            margin:0 auto 9px;
+
+            background:#f0ece4;
+
+            color:#65727d;
+
+            font-size:17px;
+        }
+
+
+        /* =========================================================
+           CONTACT MESSAGES
+        ========================================================= */
+
+        .contact-messages-panel{
+
+            margin-top:22px;
+        }
+
+
+        .contact-message{
+
+            padding:20px 22px;
+
+            border-bottom:1px solid #e7e2d9;
+
+            background:var(--card);
+        }
+
+
+        .contact-message:last-child{
+
+            border-bottom:0;
+        }
+
+
+        .contact-message.unread{
+
+            border-left:4px solid var(--red);
+        }
+
+
+        .contact-message-top{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:flex-start;
+
+            gap:20px;
+
+            margin-bottom:12px;
+        }
+
+
+        .contact-message-name{
+
+            font-size:15px;
+
+            font-weight:800;
+
+            color:var(--ink);
+        }
+
+
+        .contact-message-email{
+
+            margin-top:4px;
+
+            color:var(--red);
+
+            font-size:11px;
+        }
+
+
+        .contact-message-time{
+
+            color:#8a9298;
+
+            font-size:9px;
+
+            white-space:nowrap;
+        }
+
+
+        .contact-message-body{
+
+            padding:14px;
+
+            background:#f6f2ea;
+
+            border-left:3px solid var(--ink);
+
+            color:#4f5b64;
+
+            font-size:12px;
+
+            line-height:1.7;
+
+            white-space:pre-wrap;
+        }
+
+
+        .contact-message-actions{
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+
+            margin-top:13px;
+        }
+
+
+        .contact-reviewed{
+
+            padding:9px 13px;
+
+            background:var(--green-bg);
+
+            color:var(--green);
+
+            font-size:8px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+        }
+
+
+        /* =========================================================
+           =========================================================
+           DISASTER ZONE MANAGEMENT
+           =========================================================
+        ========================================================= */
+
+        .disaster-zone-section{
+
+            margin-top:20px;
+
+            margin-bottom:40px;
+        }
+
+
+        .disaster-zone-header{
+
+            display:flex;
+
+            align-items:flex-start;
+
+            gap:16px;
+
+            padding:22px 24px;
+
+            margin-bottom:18px;
+
+            background:var(--card);
+
+            border:1px solid var(--line);
+
+            border-left:5px solid var(--red);
+        }
+
+
+        .disaster-zone-icon{
+
+            flex-shrink:0;
+
+            width:42px;
+
+            height:42px;
+
+            display:grid;
+
+            place-items:center;
+
+            background:#fde5e2;
+
+            color:var(--red);
+
+            font-size:20px;
+        }
+
+
+        .disaster-zone-tag{
+
+            display:inline-block;
+
+            color:var(--red);
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.12em;
+
+            text-transform:uppercase;
+
+            margin-bottom:5px;
+        }
+
+
+        .disaster-zone-header h2{
+
+            margin:0;
+
+            font-family:
+                "Fraunces",
+                Georgia,
+                serif;
+
+            font-size:23px;
+
+            letter-spacing:-.03em;
+        }
+
+
+        .disaster-zone-header p{
+
+            margin:5px 0 0;
+
+            color:var(--muted);
+
+            font-size:13px;
+
+            line-height:1.6;
+
+            max-width:700px;
+        }
+
+
+        /* =========================================================
+           MAP CONTAINER
+        ========================================================= */
+
+        .disaster-map-wrap{
+
+            display:grid;
+
+            grid-template-columns:
+                minmax(0,1.6fr)
+                minmax(300px,.7fr);
+
+            background:var(--card);
+
+            border:1px solid var(--line);
+
+            box-shadow:var(--shadow);
+        }
+
+
+        #disasterZoneMap{
+
+            width:100%;
+
+            height:560px;
+
+            min-height:450px;
+
+            background:#dfe7ec;
+        }
+
+
+        /* =========================================================
+           MAP SIDEBAR
+        ========================================================= */
+
+        .disaster-zone-panel{
+
+            padding:23px;
+
+            border-left:1px solid var(--line);
+
+            background:#fbfaf7;
+
+            overflow-y:auto;
+
+            max-height:560px;
+        }
+
+
+        .disaster-zone-panel h3{
+
+            margin:0 0 5px;
+
+            font-size:18px;
+        }
+
+
+        .disaster-zone-panel-description{
+
+            margin:0 0 20px;
+
+            color:var(--muted);
+
+            font-size:12px;
+
+            line-height:1.6;
+        }
+
+
+        /* =========================================================
+           ADD BUTTON
+        ========================================================= */
+
+        .zone-add-btn{
+
+            width:100%;
+
+            border:0;
+
+            background:var(--ink);
+
+            color:white;
+
+            padding:13px;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.07em;
+
+            text-transform:uppercase;
+
+            cursor:pointer;
+
+            margin-bottom:15px;
+        }
+
+
+        .zone-add-btn:hover{
+
+            background:#18314a;
+        }
+
+
+        /* =========================================================
+           DRAWING INSTRUCTION
+        ========================================================= */
+
+        .zone-instruction{
+
+            display:none;
+
+            margin-bottom:15px;
+
+            padding:12px;
+
+            background:#fff4d8;
+
+            border-left:3px solid var(--amber);
+
+            color:#725c28;
+
+            font-size:11px;
+
+            line-height:1.5;
+        }
+
+
+        .zone-instruction.show{
+
+            display:block;
+        }
+
+
+        /* =========================================================
+           ZONE FORM
+        ========================================================= */
+
+        .zone-form{
+
+            display:none;
+
+            padding:18px;
+
+            margin-bottom:20px;
+
+            background:#fff;
+
+            border:1px solid var(--line);
+        }
+
+
+        .zone-form.show{
+
+            display:block;
+        }
+
+
+        .zone-field{
+
+            margin-bottom:13px;
+        }
+
+
+        .zone-field label{
+
+            display:block;
+
+            margin-bottom:6px;
+
+            color:#687789;
+
+            font-size:9px;
+
+            font-weight:800;
+
+            letter-spacing:.08em;
+
+            text-transform:uppercase;
+        }
+
+
+        .zone-field input,
+        .zone-field select,
+        .zone-field textarea{
+
+            width:100%;
+
+            border:1px solid #d9d3c9;
+
+            background:#fffdf9;
+
+            padding:11px 12px;
+
+            color:var(--ink);
+
+            font:inherit;
+
+            font-size:12px;
+
+            outline:none;
+        }
+
+
+        .zone-field textarea{
+
+            min-height:75px;
+
+            resize:vertical;
+        }
+
+
+        .zone-field input:focus,
+        .zone-field select:focus,
+        .zone-field textarea:focus{
+
+            border-color:var(--red);
+        }
+
+
+        .zone-actions{
+
+            display:flex;
+
+            gap:7px;
+
+            flex-wrap:wrap;
+        }
+
+
+        .zone-save-btn{
+
+            border:0;
+
+            background:var(--red);
+
+            color:#fff;
+
+            padding:11px 14px;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+
+            cursor:pointer;
+        }
+
+
+        .zone-cancel-btn{
+
+            border:1px solid var(--line);
+
+            background:#f0ece4;
+
+            color:#44515d;
+
+            padding:11px 14px;
+
+            font-size:10px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+
+            cursor:pointer;
+        }
+
+
+        /* =========================================================
+           ZONE LIST
+        ========================================================= */
+
+        .zone-list{
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:9px;
+        }
+
+
+        .zone-list-empty{
+
+            padding:30px 10px;
+
+            text-align:center;
+
+            color:#8b949d;
+
+            font-size:11px;
+
+            line-height:1.6;
+        }
+
+
+        .zone-item{
+
+            padding:14px;
+
+            border:1px solid var(--line);
+
+            background:#fff;
+        }
+
+
+        .zone-item-top{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            gap:10px;
+        }
+
+
+        .zone-item-name{
+
+            font-size:14px;
+
+            font-weight:800;
+        }
+
+
+        .zone-item-type{
+
+            margin-top:3px;
+
+            color:#74818c;
+
+            font-size:10px;
+        }
+
+
+        .zone-severity{
+
+            flex-shrink:0;
+
+            padding:5px 7px;
+
+            font-size:8px;
+
+            font-weight:800;
+
+            letter-spacing:.06em;
+
+            text-transform:uppercase;
+        }
+
+
+        .zone-severity.moderate{
+
+            background:#fff4c9;
+
+            color:#8b6908;
+        }
+
+
+        .zone-severity.high{
+
+            background:#ffe9d2;
+
+            color:#9a5912;
+        }
+
+
+        .zone-severity.critical{
+
+            background:#fde5e2;
+
+            color:#9b3027;
+        }
+
+
+        .zone-item-description{
+
+            margin-top:10px;
+
+            color:#687580;
+
+            font-size:10px;
+
+            line-height:1.5;
+        }
+
+
+        .zone-item-actions{
+
+            display:flex;
+
+            gap:6px;
+
+            margin-top:11px;
+        }
+
+
+        .zone-mini-btn{
+
+            border:1px solid var(--line);
+
+            background:#f5f1e9;
+
+            color:#46535f;
+
+            padding:7px 9px;
+
+            font-size:8px;
+
+            font-weight:800;
+
+            letter-spacing:.05em;
+
+            text-transform:uppercase;
+
+            cursor:pointer;
+        }
+
+
+        .zone-mini-btn:hover{
+
+            background:var(--ink);
+
+            color:#fff;
+        }
+
+
+        .zone-mini-btn.delete{
+
+            color:#9b3027;
+        }
+
+
+        .zone-mini-btn.delete:hover{
+
+            background:var(--red);
+
+            color:#fff;
+
+            border-color:var(--red);
+        }
+
+
+        /* =========================================================
+           LEGEND
+        ========================================================= */
+
+        .zone-legend{
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:12px;
+
+            padding:13px 18px;
+
+            border-top:1px solid var(--line);
+
+            background:#fff;
+        }
+
+
+        .zone-legend-item{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:6px;
+
+            color:#687580;
+
+            font-size:9px;
+
+            font-weight:700;
+        }
+
+
+        .zone-legend-color{
+
+            width:12px;
+
+            height:12px;
+
+            border-radius:2px;
+        }
+
+
+        .zone-legend-color.moderate{
+
+            background:#eab308;
+        }
+
+
+        .zone-legend-color.high{
+
+            background:#f97316;
+        }
+
+
+        .zone-legend-color.critical{
+
+            background:#dc2626;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media(max-width:950px){
+
+            .disaster-map-wrap{
+
+                grid-template-columns:1fr;
+            }
+
+
+            .disaster-zone-panel{
+
+                border-left:0;
+
+                border-top:1px solid var(--line);
+
+                max-height:none;
+            }
+
+
+            #disasterZoneMap{
+
+                height:450px;
+            }
+
+        }
+
+
+        @media(max-width:900px){
+
+            .control-header{
+
+                align-items:flex-start;
+
+                flex-direction:column;
+            }
+
+
+            .stats-grid{
+
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+
+            .detail-grid{
+
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+
+            .match-list,
+            .ngo-grid{
+
+                grid-template-columns:1fr;
+            }
+
+
+            .ngo-card{
+
+                border-right:0;
+            }
+
+
+            .zone-header{
+
+                flex-direction:column;
+            }
+
+        }
+
+
+        @media(max-width:600px){
+
+            .control-page{
+
+                padding:
+                    30px 16px 60px;
+            }
+
+
+            .stats-grid{
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap:8px;
+            }
+
+
+            .stat-card{
+
+                padding:14px;
+            }
+
+
+            .stat-value{
+
+                font-size:23px;
+            }
+
+
+            .request-card{
+
+                padding:18px;
+            }
+
+
+            .detail-grid,
+            .ngo-info{
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .request-head{
+
+                flex-direction:column;
+            }
+
+
+            .urgency-box{
+
+                text-align:left;
+            }
+
+
+            .section-heading{
+
+                align-items:flex-start;
+
+                flex-direction:column;
+            }
+
+
+            #disasterZoneMap{
+
+                height:380px;
+
+                min-height:380px;
+            }
+
+
+            .disaster-zone-header{
+
+                flex-direction:column;
+            }
+
+
+            .contact-message-top{
+
+                flex-direction:column;
+
+                gap:7px;
+            }
+
+
+            .contact-message-time{
+
+                white-space:normal;
+            }
+
+        }
+
+/* ============================================================
+   DELETE CONFIRMATION MODAL
+============================================================ */
+
+.delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(7, 21, 37, 0.58);
+
+    backdrop-filter: blur(5px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
 }
 
-*{box-sizing:border-box}
 
-body{
-    margin:0;
-    background:
-        radial-gradient(circle at 85% 0%, rgba(180,59,50,.06), transparent 28%),
-        var(--paper);
-    color:var(--ink);
-    font-family:"DM Sans",Arial,sans-serif;
+.delete-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
 }
 
-button{font:inherit}
 
-.staff-logout-btn{
-    border:1px solid #d8d2c7;
-    background:transparent;
-    color:var(--ink);
-    padding:9px 13px;
-    margin-left:5px;
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.08em;
-    cursor:pointer;
-    transition:.2s ease;
-}
-.staff-logout-btn:hover{background:var(--ink);color:#fff}
+.delete-modal {
+    width: min(430px, 100%);
 
-.control-page{
-    min-height:calc(100vh - 72px);
-    padding:44px 4vw 80px;
+    background: #fffdf9;
+
+    border: 1px solid #e3ded3;
+
+    box-shadow:
+        0 25px 80px rgba(7, 21, 37, .22);
+
+    transform:
+        translateY(15px)
+        scale(.97);
+
+    transition:
+        transform .2s ease;
 }
 
-.control-shell{max-width:1450px;margin:0 auto}
 
-.control-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:35px;
-    margin-bottom:28px;
+.delete-modal-overlay.show .delete-modal {
+    transform:
+        translateY(0)
+        scale(1);
 }
 
-.control-eyebrow{
-    color:var(--red);
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    margin-bottom:9px;
+
+/* ------------------------------------------------------------
+   TOP
+------------------------------------------------------------ */
+
+.delete-modal-top {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 22px 23px;
+
+    border-bottom: 1px solid #e8e3da;
 }
 
-.control-header h1{
-    margin:0;
-    font-family:"Fraunces",Georgia,serif;
-    font-size:clamp(46px,6vw,70px);
-    line-height:.94;
-    letter-spacing:-.045em;
-}
-.control-header h1 em{color:var(--red)}
-.control-header p{
-    max-width:650px;
-    margin:14px 0 0;
-    color:var(--muted);
-    font-size:15px;
-    line-height:1.7;
+
+.delete-modal-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    background: #fde5e2;
+
+    color: #b43b32;
+
+    font-size: 20px;
 }
 
-.live-indicator{
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:11px 14px;
-    border:1px solid var(--line);
-    background:rgba(255,253,249,.75);
-    color:#566371;
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.09em;
-    text-transform:uppercase;
-}
-.live-dot{
-    width:8px;height:8px;border-radius:50%;
-    background:#42a764;
-    box-shadow:0 0 0 5px rgba(66,167,100,.12);
+
+.delete-modal-eyebrow {
+    margin-bottom: 4px;
+
+    color: #b43b32;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .12em;
+
+    text-transform: uppercase;
 }
 
-#controlMessage{
-    display:none;
-    margin:0 0 18px;
-    padding:14px 17px;
-    border:1px solid #cfe4d4;
-    border-left:4px solid var(--green);
-    background:var(--green-bg);
-    color:#235a37;
-    font-size:13px;
-    font-weight:700;
-}
-#controlMessage.show{display:block}
-#controlMessage.error{
-    border-color:#ead0cc;
-    border-left-color:var(--red);
-    background:#fff1ef;
-    color:#8f3028;
+
+.delete-modal-title {
+    margin: 0;
+
+    color: #071525;
+
+    font-family:
+        "Fraunces",
+        Georgia,
+        serif;
+
+    font-size: 22px;
+
+    letter-spacing: -.025em;
 }
 
-.stats-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
-    margin-bottom:25px;
-}
-.stat-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    padding:18px 19px;
-    box-shadow:0 8px 28px rgba(7,21,37,.035);
-}
-.stat-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-}
-.stat-label{
-    color:#89929b;
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.1em;
-    text-transform:uppercase;
-}
-.stat-value{
-    margin-top:7px;
-    font-size:29px;
-    font-weight:800;
-    letter-spacing:-.04em;
-}
-.stat-note{
-    margin-top:5px;
-    color:#89929b;
-    font-size:11px;
+
+/* ------------------------------------------------------------
+   BODY
+------------------------------------------------------------ */
+
+.delete-modal-body {
+    padding: 22px 23px;
 }
 
-/* =========================================================
-   ZONES — split the Control Room into two clear halves:
-   one for people/emergency requests, one for NGO partners
-   ========================================================= */
 
-.zone{
-    margin-bottom:36px;
-}
+.delete-modal-message {
+    margin: 0;
 
-.zone-header{
-    display:flex;
-    align-items:flex-start;
-    gap:16px;
-    padding:22px 24px;
-    margin-bottom:18px;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-left:5px solid var(--blue);
+    color: #687580;
+
+    font-size: 13px;
+
+    line-height: 1.65;
 }
 
-.zone-ngo .zone-header{
-    border-left-color:var(--green);
+
+.delete-modal-zone {
+    margin-top: 15px;
+
+    padding: 13px 14px;
+
+    background: #f7f4ed;
+
+    border-left: 3px solid #b43b32;
 }
 
-.zone-icon{
-    flex-shrink:0;
-    width:42px;
-    height:42px;
-    display:grid;
-    place-items:center;
-    background:var(--blue-bg);
-    color:var(--blue);
-    font-size:19px;
+
+.delete-modal-zone-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #929ba2;
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    letter-spacing: .09em;
+
+    text-transform: uppercase;
 }
 
-.zone-ngo .zone-icon{
-    background:var(--green-bg);
-    color:var(--green);
+
+.delete-modal-zone-name {
+    display: block;
+
+    color: #071525;
+
+    font-size: 14px;
+
+    font-weight: 800;
 }
 
-.zone-tag{
-    display:inline-block;
-    color:var(--blue);
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    margin-bottom:5px;
+
+/* ------------------------------------------------------------
+   WARNING
+------------------------------------------------------------ */
+
+.delete-modal-warning {
+    display: flex;
+
+    gap: 9px;
+
+    margin-top: 14px;
+
+    padding: 11px 12px;
+
+    background: #fff4d8;
+
+    border: 1px solid #ecd9a8;
+
+    color: #765f27;
+
+    font-size: 10px;
+
+    line-height: 1.5;
 }
 
-.zone-ngo .zone-tag{color:var(--green)}
 
-.zone-header h2{
-    margin:0;
-    font-family:"Fraunces",Georgia,serif;
-    font-size:23px;
-    letter-spacing:-.03em;
+.delete-modal-warning-icon {
+    flex-shrink: 0;
+
+    font-size: 13px;
 }
 
-.zone-header p{
-    margin:5px 0 0;
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.6;
-    max-width:640px;
+
+/* ------------------------------------------------------------
+   ACTIONS
+------------------------------------------------------------ */
+
+.delete-modal-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 16px 23px;
+
+    border-top: 1px solid #e8e3da;
+
+    background: #fbfaf7;
 }
 
-.section{
-    background:var(--card);
-    border:1px solid var(--line);
-    box-shadow:var(--shadow);
-    margin-bottom:22px;
-}
-.section-heading{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    padding:20px 22px;
-    border-bottom:1px solid var(--line);
-}
-.section-heading h2{
-    margin:0 0 4px;
-    font-size:19px;
-    letter-spacing:-.025em;
-}
-.section-heading p{
-    margin:0;
-    color:#8b949d;
-    font-size:12px;
-}
-.section-badge{
-    flex-shrink:0;
-    padding:7px 10px;
-    background:#f0ece4;
-    color:#606b75;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.06em;
-    text-transform:uppercase;
+
+.delete-modal-cancel {
+    border: 1px solid #d8d2c7;
+
+    background: #fff;
+
+    color: #44515d;
+
+    padding: 11px 17px;
+
+    font-family: inherit;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .06em;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition: .18s ease;
 }
 
-.request-list{display:flex;flex-direction:column}
 
-.request-card{
-    padding:24px;
-    border-bottom:1px solid #ebe6dc;
-}
-.request-card:last-child{border-bottom:0}
-
-.request-head{
-    display:flex;
-    justify-content:space-between;
-    gap:20px;
-    align-items:flex-start;
-}
-.request-id{
-    color:var(--red);
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-}
-.request-title{
-    margin:6px 0 4px;
-    font-size:22px;
-    letter-spacing:-.035em;
-}
-.request-location{
-    color:#697784;
-    font-size:12px;
-}
-.priority{
-    display:inline-flex;
-    align-items:center;
-    padding:6px 9px;
-    margin-left:7px;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.07em;
-}
-.priority.critical{background:#fde5e2;color:#9b3027}
-.priority.high{background:#fff0e0;color:#9a5b13}
-.priority.medium{background:#fff5d9;color:#8d6809}
-.priority.normal{background:#edf1f4;color:#5e6974}
-
-.urgency-box{
-    min-width:92px;
-    text-align:right;
-}
-.urgency-box span{
-    display:block;
-    color:#9099a1;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.09em;
-}
-.urgency-box strong{display:block;font-size:25px;line-height:1.1}
-
-.detail-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
-    margin:19px 0 12px;
-}
-.detail{
-    padding:12px;
-    background:#f6f2ea;
-}
-.detail span{
-    display:block;
-    color:#8b949d;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.08em;
-    margin-bottom:6px;
-}
-.detail strong{
-    display:block;
-    font-size:13px;
-    line-height:1.35;
+.delete-modal-cancel:hover {
+    background: #f0ece4;
 }
 
-.reporter-row{
-    display:flex;
-    align-items:center;
-    gap:11px;
-    padding:12px 13px;
-    background:#f9f7f2;
-    border:1px solid #eee9df;
-}
-.reporter-avatar{
-    width:34px;height:34px;
-    display:grid;place-items:center;
-    border-radius:50%;
-    background:var(--ink);
-    color:white;
-    font-size:12px;
-    font-weight:800;
-}
-.reporter-main strong{display:block;font-size:13px}
-.reporter-main span{display:block;color:#7c8791;font-size:11px;margin-top:3px}
 
-.situation{
-    margin-top:10px;
-    padding:13px 14px;
-    border-left:3px solid var(--ink);
-    background:#f9f7f2;
-}
-.situation-label{
-    color:#8b949d;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.08em;
-}
-.situation p{margin:6px 0 0;color:#52606c;font-size:12px;line-height:1.6}
+.delete-modal-delete {
+    border: 0;
 
-.verification-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    margin-top:13px;
-    padding:12px 13px;
-    border:1px solid #ecd9a8;
-    background:var(--amber-bg);
-}
-.verification-row.verified{
-    border-color:#cfe4d4;
-    background:var(--green-bg);
-}
-.status-main span{
-    display:block;
-    color:#7f7461;
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.08em;
-}
-.verification-row.verified .status-main span{color:#64816d}
-.status-main strong{display:block;margin-top:4px;font-size:12px}
+    background: #b43b32;
 
-.actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:12px;
-}
-.btn{
-    border:0;
-    padding:11px 15px;
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    cursor:pointer;
-    transition:.18s ease;
-}
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--ink);color:#fff}
-.btn-primary:hover{background:#18314a}
-.btn-green{background:var(--green);color:#fff}
-.btn-green:hover{background:#24623a}
-.btn-light{background:#f0ece4;color:#44515d;border:1px solid var(--line)}
-.btn-light:hover{background:#e7e1d7}
-.btn-disabled{background:#eef0f2;color:#9aa2a9;cursor:not-allowed}
+    color: #fff;
 
-.coordination-wrap{
-    padding:18px 24px 24px;
-    background:#fbfaf7;
-    border-top:1px solid #ece7dd;
-}
-.coordination-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:15px;
-    margin-bottom:12px;
-}
-.coordination-head h3{margin:0;font-size:15px}
-.coordination-head p{margin:4px 0 0;color:#8a949d;font-size:11px}
-.match-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.ngo-match{
-    padding:15px;
-    border:1px solid #dce6df;
-    background:#fff;
-}
-.ngo-match-top{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-}
-.ngo-match h4{margin:0;font-size:14px}
-.available{
-    white-space:nowrap;
-    padding:5px 7px;
-    background:var(--green-bg);
-    color:var(--green);
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-}
-.match-meta{margin-top:8px;color:#687580;font-size:11px;line-height:1.55}
-.match-services{margin-top:9px;display:flex;flex-wrap:wrap;gap:5px}
-.service-chip{
-    padding:4px 6px;
-    background:#eef5fa;
-    color:#376487;
-    font-size:9px;
-    font-weight:800;
-}
-.match-action{margin-top:12px;width:100%}
+    padding: 11px 17px;
 
-.coordinating-card{
-    border-left:4px solid var(--green);
-}
-.coordination-state{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    padding:13px 14px;
-    margin-top:14px;
-    background:var(--green-bg);
-    border:1px solid #cfe4d4;
-}
-.coordination-state strong{font-size:13px}
-.coordination-state span{display:block;color:#5e7866;font-size:11px;margin-top:3px}
+    font-family: inherit;
 
-.ngo-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-}
-.ngo-card{
-    padding:21px;
-    border-right:1px solid #ebe6dc;
-    border-bottom:1px solid #ebe6dc;
-}
-.ngo-card:nth-child(2n){border-right:0}
-.ngo-card h3{margin:5px 0 3px;font-size:17px}
-.ngo-id{
-    color:var(--red);
-    font-size:9px;
-    font-weight:800;
-    letter-spacing:.08em;
-}
-.ngo-location{color:#71808b;font-size:11px}
-.ngo-info{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:7px;
-    margin-top:13px;
-}
-.ngo-info div{padding:10px;background:#f7f4ed}
-.ngo-info span{
-    display:block;color:#929ba2;font-size:9px;font-weight:800;
-    letter-spacing:.07em;margin-bottom:5px;
-}
-.ngo-info strong{font-size:11px;word-break:break-word}
-.ngo-services{
-    margin-top:8px;padding:10px 12px;
-    background:#f7f4ed;border-left:3px solid var(--ink);
-    color:#5d6973;font-size:11px;line-height:1.6;
-}
-.ngo-actions{display:flex;gap:7px;margin-top:11px}
+    font-size: 9px;
 
-.empty-state{
-    min-height:145px;
-    display:grid;
-    place-items:center;
-    text-align:center;
-    padding:25px;
-    color:#8b949d;
-    font-size:12px;
-}
-.empty-state .icon{
-    display:grid;place-items:center;
-    width:42px;height:42px;border-radius:50%;
-    margin:0 auto 9px;
-    background:#f0ece4;
-    color:#65727d;
-    font-size:17px;
+    font-weight: 800;
+
+    letter-spacing: .06em;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition: .18s ease;
 }
 
-.flagged-item{
-    padding:17px 22px;
-    border-bottom:1px solid #eee8de;
-    display:flex;
-    gap:12px;
-}
-.flagged-item:last-child{border-bottom:0}
-.flag-dot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-top:5px;flex-shrink:0}
-.flagged-item strong{font-size:12px}
-.flagged-item p{margin:4px 0 0;color:#77838e;font-size:11px;line-height:1.6}
 
-footer{margin-top:40px}
+.delete-modal-delete:hover {
+    background: #8f3028;
 
-@media(max-width:900px){
-    .control-header{align-items:flex-start;flex-direction:column}
-    .stats-grid{grid-template-columns:repeat(2,1fr)}
-    .detail-grid{grid-template-columns:repeat(2,1fr)}
-    .match-list,.ngo-grid{grid-template-columns:1fr}
-    .ngo-card{border-right:0}
-    .zone-header{flex-direction:column}
+    transform: translateY(-1px);
 }
-@media(max-width:600px){
-    .control-page{padding:30px 16px 60px}
-    .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
-    .stat-card{padding:14px}
-    .stat-value{font-size:23px}
-    .request-card{padding:18px}
-    .detail-grid,.ngo-info{grid-template-columns:1fr 1fr}
-    .request-head{flex-direction:column}
-    .urgency-box{text-align:left}
-    .section-heading{align-items:flex-start;flex-direction:column}
-}
-/* =========================================================
-   CONTACT MESSAGES
-   ========================================================= */
-.contact-messages-panel{margin-top:22px}
-.contact-message{padding:20px 22px;border-bottom:1px solid #e7e2d9;background:var(--card)}
-.contact-message:last-child{border-bottom:0}
-.contact-message.unread{border-left:4px solid var(--red)}
-.contact-message-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:12px}
-.contact-message-name{font-size:15px;font-weight:800;color:var(--ink)}
-.contact-message-email{margin-top:4px;color:var(--red);font-size:11px}
-.contact-message-time{color:#8a9298;font-size:9px;white-space:nowrap}
-.contact-message-body{padding:14px;background:#f6f2ea;border-left:3px solid var(--ink);color:#4f5b64;font-size:12px;line-height:1.7;white-space:pre-wrap}
-.contact-message-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
-.contact-reviewed{padding:9px 13px;background:var(--green-bg);color:var(--green);font-size:8px;font-weight:800;letter-spacing:.08em}
-@media(max-width:600px){.contact-message-top{flex-direction:column;gap:7px}.contact-message-time{white-space:normal}}
 
-</style>
+
+@media(max-width:600px) {
+
+    .delete-modal {
+        width: 100%;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .delete-modal-cancel,
+    .delete-modal-delete {
+        width: 100%;
+    }
+
+}
+/* ============================================================
+   RELIEF COORDINATION MAP
+============================================================ */
+
+.coordination-map-section {
+    margin-bottom: 28px;
+}
+
+.coordination-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 22px 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-bottom: 0;
+}
+
+.coordination-map-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-family: "Fraunces", Georgia, serif;
+    letter-spacing: -.03em;
+}
+
+.coordination-map-header p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.coordination-map-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    background: #f5f2ec;
+    color: #65727d;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.coordination-map-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2d7a42;
+}
+
+#coordinationMap {
+    width: 100%;
+    height: 560px;
+    min-height: 450px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    z-index: 1;
+}
+
+
+/* ============================================================
+   MAP LEGEND
+============================================================ */
+
+.coordination-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 13px 18px;
+    background: #fbfaf7;
+    border: 1px solid var(--line);
+    border-top: 0;
+}
+
+.coordination-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #66717a;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.coordination-legend-icon {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
+
+.coordination-legend-person {
+    background: #b43b32;
+}
+
+.coordination-legend-ngo {
+    background: #2d7a42;
+    border-radius: 7px;
+}
+
+.coordination-legend-line {
+    width: 30px;
+    height: 0;
+    border-top: 2px dashed #6c7880;
+}
+
+
+/* ============================================================
+   CUSTOM MAP ICONS
+============================================================ */
+
+.coordination-map-icon {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.coordination-person-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #b43b32;
+    border: 3px solid white;
+    border-radius: 50%;
+
+    color: white;
+    font-size: 20px;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.35);
+}
+
+.coordination-ngo-icon {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #2d7a42;
+    border: 3px solid white;
+    border-radius: 10px;
+
+    color: white;
+    font-size: 21px;
+
+    box-shadow:
+        0 3px 12px rgba(0,0,0,.35);
+}
+
+
+/* ============================================================
+   MAP POPUPS
+============================================================ */
+
+.coordination-popup {
+    min-width: 210px;
+    font-family: "DM Sans", Arial, sans-serif;
+}
+
+.coordination-popup-label {
+    display: inline-block;
+    margin-bottom: 7px;
+    padding: 4px 7px;
+
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.coordination-popup-label.person {
+    background: #f8e3e0;
+    color: #a52f27;
+}
+
+.coordination-popup-label.ngo {
+    background: #e4f0e6;
+    color: #2d7a42;
+}
+
+.coordination-popup-title {
+    margin-bottom: 7px;
+    color: #071525;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.coordination-popup-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee9e0;
+    color: #65717a;
+    font-size: 10px;
+}
+
+.coordination-popup-row:last-child {
+    border-bottom: 0;
+}
+
+.coordination-popup-row strong {
+    color: #27343d;
+    text-align: right;
+}
+
+.coordination-popup-status {
+    margin-top: 9px;
+    padding: 7px 9px;
+    background: #f4f1ea;
+    color: #53616a;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   COORDINATION LINE LABEL
+============================================================ */
+
+.coordination-distance-label {
+    background: #071525 !important;
+    color: white !important;
+    border: 0 !important;
+    border-radius: 4px !important;
+
+    padding: 4px 7px !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+
+    box-shadow:
+        0 2px 7px rgba(0,0,0,.25);
+}
+
+.coordination-distance-label::before {
+    display: none !important;
+}
+
+
+/* ============================================================
+   MAP EMPTY MESSAGE
+============================================================ */
+
+.coordination-map-empty {
+    position: absolute;
+    z-index: 500;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    padding: 9px 14px;
+
+    background: rgba(255,255,255,.94);
+    border: 1px solid #ddd7cd;
+    box-shadow: 0 3px 12px rgba(0,0,0,.12);
+
+    color: #66717a;
+    font-size: 10px;
+    font-weight: 700;
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .coordination-map-header {
+        flex-direction: column;
+    }
+
+    .coordination-map-status {
+        width: fit-content;
+    }
+
+    #coordinationMap {
+        height: 440px;
+    }
+
+}
+
+
+    </style>
+
 </head>
+
 
 <body>
 
-<script>
-if (sessionStorage.getItem("reliefStaffLoggedIn") !== "true") {
-    window.location.replace("staff-login.html");
-}
-</script>
 
-<header class="topbar">
-    <div class="brand">
-        <span class="pulse-dot"></span>
-        RELIEF RESOLVER
-    </div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="request.html">Report Emergency</a>
-        <a href="dispatcher.html" class="active">Control Room</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <button type="button" onclick="staffLogout()" class="staff-logout-btn">LOG OUT</button>
-    </nav>
-</header>
+    <!-- ============================================================
+         STAFF AUTH
+    ============================================================ -->
 
-<main class="control-page">
-<div class="control-shell">
+    <script>
 
-    <section class="control-header">
-        <div>
-            <div class="control-eyebrow">Relief Coordination Centre</div>
-            <h1>Control <em>Room.</em></h1>
-            <p>
-                Verify genuine emergency requests first. Once a request is verified,
-                identify verified NGOs that can help and coordinate their response.
-                No vehicle dispatch is used in this workflow.
-            </p>
+        if (
+            sessionStorage.getItem(
+                "reliefStaffLoggedIn"
+            ) !== "true"
+        ){
+
+            window.location.replace(
+                "staff-login.html"
+            );
+
+        }
+
+    </script>
+
+
+    <!-- ============================================================
+         NAVBAR
+    ============================================================ -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <span class="pulse-dot"></span>
+
+            RELIEF RESOLVER
+
         </div>
-        <div class="live-indicator"><span class="live-dot"></span> Coordination system online</div>
-    </section>
 
-    <div id="controlMessage"></div>
 
-    <section class="stats-grid">
-        <article class="stat-card">
-            <div class="stat-top"><span class="stat-label">Needs review</span><span>01</span></div>
-            <div class="stat-value" id="reviewCount">0</div>
-            <div class="stat-note">Emergency requests awaiting verification</div>
-        </article>
-        <article class="stat-card">
-            <div class="stat-top"><span class="stat-label">Verified requests</span><span>02</span></div>
-            <div class="stat-value" id="verifiedCount">0</div>
-            <div class="stat-note">Ready for NGO coordination</div>
-        </article>
-        <article class="stat-card">
-            <div class="stat-top"><span class="stat-label">NGO partners</span><span>03</span></div>
-            <div class="stat-value" id="verifiedNgoCount">0</div>
-            <div class="stat-note">Verified organizations in the network</div>
-        </article>
-        <article class="stat-card">
-            <div class="stat-top"><span class="stat-label">NGO responses</span><span>04</span></div>
-            <div class="stat-value" id="coordinationCount">0</div>
-            <div class="stat-note">Requests currently being coordinated</div>
-        </article>
-    </section>
+        <nav>
 
-    <!-- =====================================================
-         ZONE — PEOPLE / EMERGENCY REQUESTS
-    ====================================================== -->
+            <a href="index.html">
+                Home
+            </a>
 
-    <div class="zone zone-people">
+            <a href="request.html">
+                Report Emergency
+            </a>
 
-        <div class="zone-header">
+            <a
+                href="dispatcher.html"
+                class="active"
+            >
+                Control Room
+            </a>
 
-            <div class="zone-icon">🆘</div>
+            <a href="about.html">
+                About
+            </a>
 
-            <div>
-                <div class="zone-tag">People needing help</div>
-                <h2>Emergency requests</h2>
+            <a href="contact.html">
+                Contact
+            </a>
+
+            <button
+                type="button"
+                onclick="staffLogout()"
+                class="staff-logout-btn"
+            >
+                LOG OUT
+            </button>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ============================================================
+         MAIN
+    ============================================================ -->
+
+    <main class="control-page">
+
+        <div class="control-shell">
+
+
+            <!-- ====================================================
+                 HEADER
+            ==================================================== -->
+
+            <section class="control-header">
+
+                <div>
+
+                    <div class="control-eyebrow">
+                        Relief Coordination Centre
+                    </div>
+
+
+                    <h1>
+                        Control
+                        <em>Room.</em>
+                    </h1>
+
+
+                    <p>
+
+                        Verify genuine emergency requests first.
+                        Once a request is verified, identify verified
+                        NGOs that can help and coordinate their response.
+                        No vehicle dispatch is used in this workflow.
+
+                    </p>
+
+                </div>
+
+
+                <div class="live-indicator">
+
+                    <span class="live-dot"></span>
+
+                    Coordination system online
+
+                </div>
+
+            </section>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="controlMessage"
+            ></div>
+
+
+            <!-- ====================================================
+                 STATS
+            ==================================================== -->
+
+            <section class="stats-grid">
+
+                <article class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Needs review
+                        </span>
+
+                        <span>
+                            01
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="stat-value"
+                        id="reviewCount"
+                    >
+                        0
+                    </div>
+
+
+                    <div class="stat-note">
+                        Emergency requests awaiting verification
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Verified requests
+                        </span>
+
+                        <span>
+                            02
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="stat-value"
+                        id="verifiedCount"
+                    >
+                        0
+                    </div>
+
+
+                    <div class="stat-note">
+                        Ready for NGO coordination
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            NGO partners
+                        </span>
+
+                        <span>
+                            03
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="stat-value"
+                        id="verifiedNgoCount"
+                    >
+                        0
+                    </div>
+
+
+                    <div class="stat-note">
+                        Verified organizations in the network
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            NGO responses
+                        </span>
+
+                        <span>
+                            04
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="stat-value"
+                        id="coordinationCount"
+                    >
+                        0
+                    </div>
+
+
+                    <div class="stat-note">
+                        Requests currently being coordinated
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- ====================================================
+                 EMERGENCY REQUESTS
+            ==================================================== -->
+
+            <div class="zone zone-people">
+
+                <div class="zone-header">
+
+                    <div class="zone-icon">
+                        🆘
+                    </div>
+
+
+                    <div>
+
+                        <div class="zone-tag">
+                            People needing help
+                        </div>
+
+
+                        <h2>
+                            Emergency requests
+                        </h2>
+
+
+                        <p>
+
+                            Everything reported by people on the
+                            ground — inspect the evidence, verify
+                            genuine requests, and track them through
+                            to NGO coordination.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VERIFY -->
+
+                <section class="section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                1. Verify Emergency Requests
+                            </h2>
+
+                            <p>
+                                Inspect the evidence before a request
+                                enters the relief network.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="reviewBadge"
+                        >
+                            0 awaiting review
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="reviewList"
+                        class="request-list"
+                    ></div>
+
+                </section>
+
+
+                <!-- COORDINATION -->
+
+                <section class="section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                2. Coordinate Verified Requests
+                            </h2>
+
+                            <p>
+                                After verification, choose a suitable
+                                verified NGO and notify them.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="coordinationBadge"
+                        >
+                            0 active
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="coordinationList"
+                        class="request-list"
+                    ></div>
+
+                </section>
+
+
+                <!-- ALERTS -->
+
+                <section class="section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                Verification Alerts
+                            </h2>
+
+                            <p>
+                                Requests automatically flagged for
+                                additional manual attention.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="alertCount"
+                        >
+                            0 flagged
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="alertList"
+                    ></div>
+
+                </section>
+
+            </div>
+
+
+            <!-- ====================================================
+                 NGO SECTION
+            ==================================================== -->
+
+            <div class="zone zone-ngo">
+
+                <div class="zone-header">
+
+                    <div class="zone-icon">
+                        🤝
+                    </div>
+
+
+                    <div>
+
+                        <div class="zone-tag">
+                            Relief partners
+                        </div>
+
+
+                        <h2>
+                            NGOs &amp; relief organizations
+                        </h2>
+
+
+                        <p>
+
+                            Everyone offering help — review new NGO
+                            applications, verify their credentials,
+                            and keep an eye on the partners currently
+                            active in the network.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NGO VERIFICATION -->
+
+                <section class="section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                3. Verify Relief Organizations
+                            </h2>
+
+                            <p>
+                                Only verified NGOs appear as eligible
+                                coordination partners.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="ngoPendingCount"
+                        >
+                            0 pending
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="ngoVerificationList"
+                    ></div>
+
+                </section>
+
+
+                <!-- VERIFIED NGO NETWORK -->
+
+                <section class="section">
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                Available NGO Network
+                            </h2>
+
+                            <p>
+                                Verified organizations currently
+                                available for emergency coordination.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="ngoNetworkBadge"
+                        >
+                            0 verified
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="verifiedNgoList"
+                        class="ngo-grid"
+                    ></div>
+
+                </section>
+
+
+                <!-- CONTACT MESSAGES -->
+
+                <section
+                    class="section contact-messages-panel"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <h2>
+                                Messages &amp; Feedback
+                            </h2>
+
+                            <p>
+                                Messages received through the Contact page.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="section-badge"
+                            id="contactMessageCount"
+                        >
+                            0 new
+                        </span>
+
+                    </div>
+
+
+                    <div id="contactMessageList">
+
+                        <div class="empty-state">
+
+                            <div>
+
+                                <div class="icon">
+                                    ✓
+                                </div>
+
+                                No messages have been received yet.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- LIVE RELIEF COORDINATION MAP -->
+            <section class="coordination-map-section">
+                <div class="coordination-map-header">
+                    <div>
+                        <div class="control-eyebrow">Live Field View</div>
+                        <h2>Relief Coordination Map</h2>
+                        <p>Verified emergency requests and verified NGOs shown together for faster coordination.</p>
+                    </div>
+                    <div class="coordination-map-status"><span class="coordination-map-status-dot"></span>Live coordination view</div>
+                </div>
+                <div id="coordinationMap"></div>
+                <div class="coordination-map-legend">
+                    <div class="coordination-legend-item"><span class="coordination-legend-icon coordination-legend-person">👤</span>Verified Individual Request</div>
+                    <div class="coordination-legend-item"><span class="coordination-legend-icon coordination-legend-ngo">🏠</span>Verified NGO</div>
+                    <div class="coordination-legend-item"><span class="coordination-legend-line"></span>Assigned NGO ↔ Request</div>
+                </div>
+            </section>
+
+            <!-- ====================================================
+                 NEW — DISASTER ZONE MANAGEMENT
+            ==================================================== -->
+
+            <section
+                class="disaster-zone-section"
+            >
+
+                <div
+                    class="disaster-zone-header"
+                >
+
+                    <div class="disaster-zone-icon">
+                        🗺️
+                    </div>
+
+
+                    <div>
+
+                        <div class="disaster-zone-tag">
+                            Situation Mapping
+                        </div>
+
+
+                        <h2>
+                            Disaster Zone Management
+                        </h2>
+
+
+                        <p>
+
+                            Control Room staff can mark areas affected
+                            by floods, landslides, earthquakes, cyclones
+                            and other disasters. These zones will be
+                            stored and used to identify emergency
+                            requests coming from affected areas.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="disaster-map-wrap">
+
+
+                    <!-- =================================================
+                         MAP
+                    ================================================= -->
+
+                    <div>
+
+                        <div
+                            id="disasterZoneMap"
+                        ></div>
+
+
+                        <div class="zone-legend">
+
+                            <div class="zone-legend-item">
+
+                                <span
+                                    class="zone-legend-color moderate"
+                                ></span>
+
+                                Moderate
+
+                            </div>
+
+
+                            <div class="zone-legend-item">
+
+                                <span
+                                    class="zone-legend-color high"
+                                ></span>
+
+                                High
+
+                            </div>
+
+
+                            <div class="zone-legend-item">
+
+                                <span
+                                    class="zone-legend-color critical"
+                                ></span>
+
+                                Critical
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SIDEBAR
+                    ================================================= -->
+
+                    <aside
+                        class="disaster-zone-panel"
+                    >
+
+                        <h3>
+                            Active Disaster Areas
+                        </h3>
+
+
+                        <p
+                            class="disaster-zone-panel-description"
+                        >
+
+                            Draw an affected area on the map and
+                            save it as an active disaster zone.
+
+                        </p>
+
+
+                        <button
+                            type="button"
+                            id="addDisasterZoneButton"
+                            class="zone-add-btn"
+                        >
+                            + Add Disaster Zone
+                        </button>
+
+
+                        <div
+                            id="zoneInstruction"
+                            class="zone-instruction"
+                        >
+
+                            Use the polygon or rectangle tool
+                            on the map to mark the affected area.
+
+                        </div>
+
+
+                        <!-- =================================================
+                             FORM
+                        ================================================= -->
+
+                        <div
+                            id="disasterZoneForm"
+                            class="zone-form"
+                        >
+
+                            <div class="zone-field">
+
+                                <label for="zoneName">
+                                    Zone Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="zoneName"
+                                    placeholder="Example: Uttarakhand Landslide Zone"
+                                >
+
+                            </div>
+
+
+                            <div class="zone-field">
+
+                                <label for="zoneType">
+                                    Disaster Type
+                                </label>
+
+                                <select
+                                    id="zoneType"
+                                >
+
+                                    <option value="Flood">
+                                        Flood
+                                    </option>
+
+                                    <option value="Landslide">
+                                        Landslide
+                                    </option>
+
+                                    <option value="Earthquake">
+                                        Earthquake
+                                    </option>
+
+                                    <option value="Cyclone">
+                                        Cyclone
+                                    </option>
+
+                                    <option value="Wildfire">
+                                        Wildfire
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="zone-field">
+
+                                <label for="zoneSeverity">
+                                    Severity
+                                </label>
+
+                                <select
+                                    id="zoneSeverity"
+                                >
+
+                                    <option value="moderate">
+                                        Moderate
+                                    </option>
+
+                                    <option value="high">
+                                        High
+                                    </option>
+
+                                    <option value="critical">
+                                        Critical
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="zone-field">
+
+                                <label for="zoneDescription">
+                                    Situation Description
+                                </label>
+
+                                <textarea
+                                    id="zoneDescription"
+                                    placeholder="Describe what is happening in this area..."
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="zone-actions">
+
+                                <button
+                                    type="button"
+                                    id="saveDisasterZoneButton"
+                                    class="zone-save-btn"
+                                >
+                                    Save Zone
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    id="cancelDisasterZoneButton"
+                                    class="zone-cancel-btn"
+                                >
+                                    Cancel
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             ZONE LIST
+                        ================================================= -->
+
+                        <div
+                            id="disasterZoneList"
+                            class="zone-list"
+                        >
+
+                            <div class="zone-list-empty">
+
+                                No disaster zones have been
+                                marked yet.
+
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+
+    <footer class="site-footer">
+
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+
+                <div
+                    class="brand"
+                    style="margin-bottom:10px;"
+                >
+
+                    <span class="pulse-dot"></span>
+
+                    RELIEF RESOLVER
+
+                </div>
+
+
                 <p>
-                    Everything reported by people on the ground — inspect the
-                    evidence, verify genuine requests, and track them through
-                    to NGO coordination.
+                    A disaster-relief coordination platform
+                    connecting people in need with verified
+                    relief organizations.
                 </p>
+
+            </div>
+
+
+            <div class="footer-col">
+
+                <h4>
+                    Product
+                </h4>
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a href="request.html">
+                    Report Emergency
+                </a>
+
+                <a href="dispatcher.html">
+                    Control Room
+                </a>
+
+            </div>
+
+
+            <div class="footer-col">
+
+                <h4>
+                    Company
+                </h4>
+
+                <a href="about.html">
+                    About
+                </a>
+
+                <a href="contact.html">
+                    Contact
+                </a>
+
+            </div>
+
+
+            <div class="footer-col">
+
+                <h4>
+                    Status
+                </h4>
+
+                <span>
+                    Coordination system online
+                </span>
+
+                <span>
+                    v2.0 — NGO coordination workflow
+                </span>
+
             </div>
 
         </div>
 
-        <!-- REQUESTS TO VERIFY -->
-        <section class="section">
-            <div class="section-heading">
-                <div>
-                    <h2>1. Verify Emergency Requests</h2>
-                    <p>Inspect the evidence before a request enters the relief network.</p>
-                </div>
-                <span class="section-badge" id="reviewBadge">0 awaiting review</span>
-            </div>
-            <div id="reviewList" class="request-list"></div>
-        </section>
 
-        <!-- NGO COORDINATION -->
-        <section class="section">
-            <div class="section-heading">
-                <div>
-                    <h2>2. Coordinate Verified Requests</h2>
-                    <p>After verification, choose a suitable verified NGO and notify them.</p>
-                </div>
-                <span class="section-badge" id="coordinationBadge">0 active</span>
-            </div>
-            <div id="coordinationList" class="request-list"></div>
-        </section>
+        <div class="footer-bottom">
 
-        <!-- ALERTS -->
-        <section class="section">
-            <div class="section-heading">
-                <div>
-                    <h2>Verification Alerts</h2>
-                    <p>Requests automatically flagged for additional manual attention.</p>
-                </div>
-                <span class="section-badge" id="alertCount">0 flagged</span>
-            </div>
-            <div id="alertList"></div>
-        </section>
-
-    </div>
-
-
-    <!-- =====================================================
-         ZONE — NGO PARTNERS
-    ====================================================== -->
-
-    <div class="zone zone-ngo">
-
-        <div class="zone-header">
-
-            <div class="zone-icon">🤝</div>
-
-            <div>
-                <div class="zone-tag">Relief partners</div>
-                <h2>NGOs &amp; relief organizations</h2>
-                <p>
-                    Everyone offering help — review new NGO applications,
-                    verify their credentials, and keep an eye on the
-                    partners currently active in the network.
-                </p>
-            </div>
+            © 2026 Relief Resolver.
+            Not affiliated with any government emergency service.
+            Sample data shown in this demo.
 
         </div>
 
-        <!-- NGO VERIFICATION -->
-        <section class="section">
-            <div class="section-heading">
-                <div>
-                    <h2>3. Verify Relief Organizations</h2>
-                    <p>Only verified NGOs appear as eligible coordination partners.</p>
+    </footer>
+
+
+    <!-- ============================================================
+         LEAFLET
+    ============================================================ -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <script
+        src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"
+    ></script>
+
+
+    <!-- ============================================================
+         EXISTING PROJECT JS
+    ============================================================ -->
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/data.js"></script>
+
+    <script src="js/geofence.js"></script>
+
+    <script src="js/priority.js"></script>
+
+    <script src="js/storage.js"></script>
+
+    <script src="js/dispatcher.js"></script>
+
+
+    <!-- LIVE RELIEF COORDINATION MAP -->
+    <script>
+    (function(){
+        let map = null;
+        let reqMarkers = [];
+        let ngoMarkers = [];
+        let lines = [];
+        let labels = [];
+        let geocodingInProgress = false;
+
+        const person = L.divIcon({
+            className: "coordination-map-icon",
+            html: '<div class="coordination-person-icon">👤</div>',
+            iconSize: [42,42],
+            iconAnchor: [21,42],
+            popupAnchor: [0,-42]
+        });
+
+        const ngoIcon = L.divIcon({
+            className: "coordination-map-icon",
+            html: '<div class="coordination-ngo-icon">🏠</div>',
+            iconSize: [46,46],
+            iconAnchor: [23,46],
+            popupAnchor: [0,-46]
+        });
+
+        const esc = v => String(v ?? "").replace(
+            /[&<>"']/g,
+            c => ({
+                '&':'&amp;',
+                '<':'&lt;',
+                '>':'&gt;',
+                '"':'&quot;',
+                "'":'&#039;'
+            }[c])
+        );
+
+        const num = v => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : null;
+        };
+
+        function requests(){
+            try{
+                return typeof readRequests === 'function'
+                    ? (readRequests() || [])
+                    : JSON.parse(
+                        localStorage.getItem('relief_requests') || '[]'
+                    );
+            }catch(e){
+                console.error('Could not read requests:', e);
+                return [];
+            }
+        }
+
+        function ngos(){
+            try{
+                return typeof readNGOs === 'function'
+                    ? (readNGOs() || [])
+                    : JSON.parse(
+                        localStorage.getItem('drr_ngos') || '[]'
+                    );
+            }catch(e){
+                console.error('Could not read NGOs:', e);
+                return [];
+            }
+        }
+
+        const rlat = r => num(
+            r?.lat ??
+            r?.latitude ??
+            r?.location?.lat
+        );
+
+        const rlng = r => num(
+            r?.lng ??
+            r?.longitude ??
+            r?.location?.lng
+        );
+
+        const nlat = n => num(
+            n?.lat ??
+            n?.latitude ??
+            n?.location?.lat ??
+            n?.coordinates?.lat
+        );
+
+        const nlng = n => num(
+            n?.lng ??
+            n?.longitude ??
+            n?.location?.lng ??
+            n?.coordinates?.lng
+        );
+
+        function verifiedRequests(){
+            return requests().filter(r =>
+                r.verified === true &&
+                rlat(r) !== null &&
+                rlng(r) !== null
+            );
+        }
+
+        function verifiedNGOs(){
+            return ngos().filter(n =>
+                String(n.status || '').trim().toLowerCase() === 'verified'
+            );
+        }
+
+        /* ============================================================
+           NGO MAP LOCATION
+           NGOs may have only city/state in older records. Use a local
+           city fallback first, then Nominatim, and keep the coordinates
+           on the NGO object so the marker is rendered immediately.
+        ============================================================ */
+        const CITY_COORDINATES = {
+            'bathinda, punjab': [30.2110, 74.9455],
+            'gwalior, madhya pradesh': [26.2183, 78.1828],
+            'new delhi, delhi': [28.6139, 77.2090],
+            'delhi, delhi': [28.6139, 77.2090],
+            'jaipur, rajasthan': [26.9124, 75.7873],
+            'amritsar, punjab': [31.6340, 74.8723],
+            'chandigarh, chandigarh': [30.7333, 76.7794],
+            'lucknow, uttar pradesh': [26.8467, 80.9462],
+            'varanasi, uttar pradesh': [25.3176, 82.9739],
+            'patna, bihar': [25.5941, 85.1376],
+            'kolkata, west bengal': [22.5726, 88.3639],
+            'guwahati, assam': [26.1445, 91.7362],
+            'siliguri, west bengal': [26.7271, 88.3953],
+            'bhopal, madhya pradesh': [23.2599, 77.4126],
+            'indore, madhya pradesh': [22.7196, 75.8577],
+            'mumbai, maharashtra': [19.0760, 72.8777],
+            'pune, maharashtra': [18.5204, 73.8567],
+            'ahmedabad, gujarat': [23.0225, 72.5714],
+            'surat, gujarat': [21.1702, 72.8311],
+            'bengaluru, karnataka': [12.9716, 77.5946],
+            'hyderabad, telangana': [17.3850, 78.4867],
+            'chennai, tamil nadu': [13.0827, 80.2707],
+            'kochi, kerala': [9.9312, 76.2673],
+            'ranchi, jharkhand': [23.3441, 85.3096],
+            'dehradun, uttarakhand': [30.3165, 78.0322]
+        };
+
+        function cityFallback(ngo){
+            const city = String(ngo.city || '').trim().toLowerCase();
+            const state = String(ngo.state || '').trim().toLowerCase();
+            const key = `${city}, ${state}`;
+            const coords = CITY_COORDINATES[key];
+            if(!coords) return null;
+            return { lat: coords[0], lng: coords[1] };
+        }
+
+        async function geocodeNGO(ngo){
+            if(nlat(ngo) !== null && nlng(ngo) !== null){
+                return ngo;
+            }
+
+            /* First use a reliable local city coordinate when available. */
+            const fallback = cityFallback(ngo);
+            if(fallback){
+                ngo.lat = fallback.lat;
+                ngo.lng = fallback.lng;
+                return ngo;
+            }
+
+            const city = String(ngo.city || '').trim();
+            const state = String(ngo.state || '').trim();
+            if(!city && !state) return ngo;
+
+            try{
+                const query = [city, state, 'India']
+                    .filter(Boolean)
+                    .join(', ');
+
+                const response = await fetch(
+                    'https://nominatim.openstreetmap.org/search?' +
+                    new URLSearchParams({
+                        q: query,
+                        format: 'json',
+                        limit: '1'
+                    }),
+                    { headers: { 'Accept': 'application/json' } }
+                );
+
+                if(!response.ok) return ngo;
+
+                const results = await response.json();
+                if(!results.length) return ngo;
+
+                const latitude = Number(results[0].lat);
+                const longitude = Number(results[0].lon);
+
+                if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
+                    return ngo;
+                }
+
+                ngo.lat = Number(latitude.toFixed(6));
+                ngo.lng = Number(longitude.toFixed(6));
+                return ngo;
+            }catch(error){
+                console.warn('NGO geocoding failed:', ngo.name, error);
+                return ngo;
+            }
+        }
+
+        function persistNGOCoordinates(updatedNGOs){
+            try{
+                const stored = JSON.parse(
+                    localStorage.getItem('drr_ngos') || '[]'
+                );
+
+                if(!Array.isArray(stored)) return;
+
+                updatedNGOs.forEach(updated => {
+                    const index = stored.findIndex(item =>
+                        String(item.id) === String(updated.id)
+                    );
+
+                    if(index !== -1 && nlat(updated) !== null && nlng(updated) !== null){
+                        stored[index].lat = nlat(updated);
+                        stored[index].lng = nlng(updated);
+                    }
+                });
+
+                localStorage.setItem('drr_ngos', JSON.stringify(stored));
+            }catch(error){
+                console.warn('Could not persist NGO map coordinates:', error);
+            }
+        }
+
+        async function prepareNGOs(){
+            const verified = verifiedNGOs();
+
+            for(const ngo of verified){
+                await geocodeNGO(ngo);
+            }
+
+            persistNGOCoordinates(verified);
+
+            /* IMPORTANT: return the same mutated objects.
+               Do not reread storage here, otherwise coordinates can be lost. */
+            return verified;
+        }
+
+        function clear(){
+            [
+                ...reqMarkers,
+                ...ngoMarkers,
+                ...lines,
+                ...labels
+            ].forEach(x => {
+                if(map && map.hasLayer(x)){
+                    map.removeLayer(x);
+                }
+            });
+
+            reqMarkers = [];
+            ngoMarkers = [];
+            lines = [];
+            labels = [];
+        }
+
+        function dist(a,b,c,d){
+            const R = 6371;
+            const x = (c-a) * Math.PI / 180;
+            const y = (d-b) * Math.PI / 180;
+
+            const z =
+                Math.sin(x/2) ** 2 +
+                Math.cos(a * Math.PI / 180) *
+                Math.cos(c * Math.PI / 180) *
+                Math.sin(y/2) ** 2;
+
+            return R * 2 * Math.atan2(
+                Math.sqrt(z),
+                Math.sqrt(1-z)
+            );
+        }
+
+        function requestPopup(r){
+            return `
+                <div class="coordination-popup">
+                    <div class="coordination-popup-label person">
+                        VERIFIED INDIVIDUAL REQUEST
+                    </div>
+                    <div class="coordination-popup-title">
+                        👤 ${esc(
+                            r.reporterName ||
+                            r.submittedByName ||
+                            'Affected individual'
+                        )}
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Request ID</span>
+                        <strong>${esc(r.id || 'Unknown')}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Location</span>
+                        <strong>${esc(
+                            r.shelterName ||
+                            r.locationName ||
+                            'Affected location'
+                        )}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>People affected</span>
+                        <strong>${Number(r.victims || 0).toLocaleString()}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Relief needed</span>
+                        <strong>${esc(r.supplyType || 'Relief support')}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Status</span>
+                        <strong>✓ Verified</strong>
+                    </div>
+                    <div class="coordination-popup-status">
+                        ${r.assignedNgoId
+                            ? '🏠 NGO assigned for coordination'
+                            : 'Waiting for NGO assignment'}
+                    </div>
                 </div>
-                <span class="section-badge" id="ngoPendingCount">0 pending</span>
-            </div>
-            <div id="ngoVerificationList"></div>
-        </section>
+            `;
+        }
 
-        <!-- VERIFIED NGO NETWORK -->
-        <section class="section">
-            <div class="section-heading">
-                <div>
-                    <h2>Available NGO Network</h2>
-                    <p>Verified organizations currently available for emergency coordination.</p>
+        function ngoPopup(n){
+            const services = Array.isArray(n.services)
+                ? n.services.join(', ')
+                : (n.services || 'Relief support');
+
+            const radius = Number(
+                n.operatingRadiusKm ??
+                n.operatingRadius ??
+                n.radiusKm ??
+                0
+            );
+
+            return `
+                <div class="coordination-popup">
+                    <div class="coordination-popup-label ngo">
+                        VERIFIED NGO
+                    </div>
+                    <div class="coordination-popup-title">
+                        🏠 ${esc(n.name || 'Verified NGO')}
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Organization</span>
+                        <strong>${esc(n.name || 'Verified NGO')}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Location</span>
+                        <strong>${esc(
+                            [n.city, n.state].filter(Boolean).join(', ') ||
+                            'Verified location'
+                        )}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Services</span>
+                        <strong>${esc(services)}</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Operating radius</span>
+                        <strong>${
+                            radius > 0 ? radius + ' km' : 'Not specified'
+                        }</strong>
+                    </div>
+                    <div class="coordination-popup-row">
+                        <span>Status</span>
+                        <strong>✓ Verified</strong>
+                    </div>
+                    <div class="coordination-popup-status">
+                        Available for relief coordination
+                    </div>
                 </div>
-                <span class="section-badge" id="ngoNetworkBadge">0 verified</span>
-            </div>
-            <div id="verifiedNgoList" class="ngo-grid"></div>
-        </section>
+            `;
+        }
+
+        async function render(){
+            if(!map) return;
+
+            clear();
+
+            const rs = verifiedRequests();
+            const ns = await prepareNGOs();
+
+            /* INDIVIDUAL MARKERS */
+            rs.forEach(r => {
+                const marker = L.marker(
+                    [rlat(r), rlng(r)],
+                    { icon: person }
+                ).addTo(map);
+
+                marker.bindPopup(requestPopup(r));
+                reqMarkers.push(marker);
+            });
+
+            /* NGO MARKERS */
+            ns.forEach(n => {
+                if(nlat(n) === null || nlng(n) === null){
+                    return;
+                }
+
+                const marker = L.marker(
+                    [nlat(n), nlng(n)],
+                    { icon: ngoIcon }
+                ).addTo(map);
+
+                marker.bindPopup(ngoPopup(n));
+                ngoMarkers.push(marker);
+            });
+
+            /* ASSIGNED NGO ↔ REQUEST CONNECTION */
+            rs.forEach(r => {
+                if(!r.assignedNgoId) return;
+
+                const ngo = ns.find(x =>
+                    String(x.id) === String(r.assignedNgoId)
+                );
+
+                if(!ngo) return;
+                if(nlat(ngo) === null || nlng(ngo) === null) return;
+
+                const a = rlat(r);
+                const b = rlng(r);
+                const c = nlat(ngo);
+                const d = nlng(ngo);
+                const km = dist(a,b,c,d);
+
+                const line = L.polyline(
+                    [[a,b],[c,d]],
+                    {
+                        color:'#071525',
+                        weight:2.5,
+                        opacity:.75,
+                        dashArray:'7 8'
+                    }
+                ).addTo(map);
+
+                line.bindPopup(`
+                    <div class="coordination-popup">
+                        <div class="coordination-popup-label ngo">
+                            ACTIVE COORDINATION
+                        </div>
+                        <div class="coordination-popup-title">
+                            👤 ↔ 🏠
+                        </div>
+                        <div class="coordination-popup-row">
+                            <span>Request</span>
+                            <strong>${esc(r.id)}</strong>
+                        </div>
+                        <div class="coordination-popup-row">
+                            <span>NGO</span>
+                            <strong>${esc(ngo.name)}</strong>
+                        </div>
+                        <div class="coordination-popup-row">
+                            <span>Distance</span>
+                            <strong>${km.toFixed(1)} km</strong>
+                        </div>
+                    </div>
+                `);
+
+                lines.push(line);
+
+                labels.push(
+                    L.marker(
+                        [(a+c)/2,(b+d)/2],
+                        {
+                            interactive:false,
+                            icon:L.divIcon({
+                                className:'coordination-distance-label',
+                                html:`<span>${km.toFixed(1)} km</span>`
+                            })
+                        }
+                    ).addTo(map)
+                );
+            });
+
+            const all = [
+                ...reqMarkers,
+                ...ngoMarkers
+            ];
+
+            if(all.length){
+                map.fitBounds(
+                    L.latLngBounds(
+                        all.map(m => m.getLatLng())
+                    ),
+                    {
+                        padding:[50,50],
+                        maxZoom:12
+                    }
+                );
+            }else{
+                map.setView([22.5,79],5);
+            }
+
+            setTimeout(() => map.invalidateSize(),100);
+        }
+
+        function init(){
+            const el = document.getElementById('coordinationMap');
+
+            if(!el || typeof L === 'undefined') return;
+
+            /*
+             * IMPORTANT:
+             * Leaflet throws "Map container is already initialized"
+             * if this initializer runs more than once.
+             * This can happen when the page/scripts are loaded again.
+             */
+            if(map || el._leaflet_id || window.__reliefCoordinationMapInitialized){
+                console.warn('Relief Coordination Map: already initialized; skipping duplicate init.');
+                return;
+            }
+
+            window.__reliefCoordinationMapInitialized = true;
+
+            map = L.map(el).setView(
+                [22.5,79],
+                5
+            );
+
+            L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom:18,
+                    attribution:'&copy; OpenStreetMap contributors'
+                }
+            ).addTo(map);
+
+            render();
+            window.renderCoordinationMap = render;
+        }
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            init
+        );
+
+        window.addEventListener(
+            'storage',
+            e => {
+                if(
+                    e.key === 'relief_requests' ||
+                    e.key === 'drr_ngos'
+                ){
+                    render();
+                }
+            }
+        );
+
+    })();
+    </script>
+
+    <!-- ============================================================
+         DISASTER ZONES
+    ============================================================ -->
+
+    <script src="js/disaster-zones.js"></script>
 
 
-        <!-- CONTACT MESSAGES -->
-        <section class="section contact-messages-panel">
-            <div class="section-heading">
-                <div>
-                    <h2>Messages &amp; Feedback</h2>
-                    <p>Messages received through the Contact page.</p>
-                </div>
-                <span class="section-badge" id="contactMessageCount">0 new</span>
-            </div>
-            <div id="contactMessageList">
-                <div class="empty-state"><div><div class="icon">✓</div>No messages have been received yet.</div></div>
-            </div>
-        </section>
+    <!-- ============================================================
+         CONTACT MESSAGES
+    ============================================================ -->
 
-    </div>
+    <script>
 
-</div>
-</main>
+        (function(){
 
-<footer class="site-footer">
-    <div class="footer-grid">
-        <div class="footer-brand">
-            <div class="brand" style="margin-bottom:10px;">
-                <span class="pulse-dot"></span> RELIEF RESOLVER
-            </div>
-            <p>A disaster-relief coordination platform connecting people in need with verified relief organizations.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Product</h4>
-            <a href="index.html">Home</a>
-            <a href="request.html">Report Emergency</a>
-            <a href="dispatcher.html">Control Room</a>
-        </div>
-        <div class="footer-col">
-            <h4>Company</h4>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-        </div>
-        <div class="footer-col">
-            <h4>Status</h4>
-            <span>Coordination system online</span>
-            <span>v2.0 — NGO coordination workflow</span>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        © 2026 Relief Resolver. Not affiliated with any government emergency service. Sample data shown in this demo.
-    </div>
-</footer>
+            const STORAGE_KEY =
+                "relief_contact_messages";
 
-<script src="js/auth.js"></script>
-<script src="js/data.js"></script>
-<script src="js/geofence.js"></script>
-<script src="js/priority.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/dispatcher.js"></script>
-<script>
-(function(){
-    const STORAGE_KEY = "relief_contact_messages";
-    function esc(v){return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-    function getMessages(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}catch(e){console.error(e);return [];}}
-    function saveMessages(messages){localStorage.setItem(STORAGE_KEY,JSON.stringify(messages));}
-    function notify(text){if(typeof showControlMessage==="function") showControlMessage(text); else alert(text);}
-    window.renderContactMessages=function(){
-        const list=document.getElementById("contactMessageList"), count=document.getElementById("contactMessageCount");
-        if(!list)return;
-        const messages=getMessages().slice().reverse();
-        const unread=messages.filter(m=>m.read!==true).length;
-        if(count) count.textContent=unread+" new";
-        if(!messages.length){list.innerHTML='<div class="empty-state"><div><div class="icon">✓</div>No messages have been received yet.</div></div>';return;}
-        list.innerHTML=messages.map(m=>{
-            const id=esc(m.id||"");
-            const when=m.submittedAt?new Date(m.submittedAt).toLocaleString():"Unknown time";
-            return `<div class="contact-message ${m.read===true?'':'unread'}">
-                <div class="contact-message-top"><div><div class="contact-message-name">${esc(m.name||'Unknown sender')}</div><div class="contact-message-email">${esc(m.email||'No email provided')}</div></div><div class="contact-message-time">${esc(when)}</div></div>
-                <div class="contact-message-body">${esc(m.message||'No message content.')}</div>
-                <div class="contact-message-actions">${m.read===true?'<span class="contact-reviewed">✓ REVIEWED</span>':`<button class="btn btn-primary" onclick="markContactMessageRead('${id}')">Mark as Reviewed</button>`}<button class="btn btn-light" onclick="deleteContactMessage('${id}')">Remove</button></div>
-            </div>`;
-        }).join('');
-    };
-    window.markContactMessageRead=function(id){const a=getMessages(),m=a.find(x=>String(x.id)===String(id));if(!m)return notify('Message could not be found.');m.read=true;m.status='reviewed';m.reviewedAt=Date.now();m.reviewedBy=sessionStorage.getItem('reliefStaffName')||'Control Room Staff';saveMessages(a);renderContactMessages();notify('✓ Message marked as reviewed.');};
-    window.deleteContactMessage=function(id){saveMessages(getMessages().filter(m=>String(m.id)!==String(id)));renderContactMessages();notify('Message removed.');};
-    document.addEventListener('DOMContentLoaded',renderContactMessages);
-    window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY)renderContactMessages();});
-})();
-</script>
+
+            function esc(value){
+
+                return String(
+                    value ?? ""
+                ).replace(
+                    /[&<>"']/g,
+                    function(c){
+
+                        return {
+
+                            "&":"&amp;",
+                            "<":"&lt;",
+                            ">":"&gt;",
+                            '"':"&quot;",
+                            "'":"&#039;"
+
+                        }[c];
+
+                    }
+                );
+
+            }
+
+
+            function getMessages(){
+
+                try{
+
+                    return JSON.parse(
+                        localStorage.getItem(
+                            STORAGE_KEY
+                        ) || "[]"
+                    );
+
+                }
+                catch(error){
+
+                    console.error(error);
+
+                    return [];
+
+                }
+
+            }
+
+
+            function saveMessages(
+                messages
+            ){
+
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(
+                        messages
+                    )
+                );
+
+            }
+
+
+            function notify(
+                text
+            ){
+
+                if(
+                    typeof showControlMessage ===
+                    "function"
+                ){
+
+                    showControlMessage(
+                        text
+                    );
+
+                }
+                else{
+
+                    alert(text);
+
+                }
+
+            }
+
+
+            window.renderContactMessages =
+                function(){
+
+                    const list =
+                        document.getElementById(
+                            "contactMessageList"
+                        );
+
+
+                    const count =
+                        document.getElementById(
+                            "contactMessageCount"
+                        );
+
+
+                    if(!list){
+
+                        return;
+
+                    }
+
+
+                    const messages =
+                        getMessages()
+                            .slice()
+                            .reverse();
+
+
+                    const unread =
+                        messages.filter(
+                            function(m){
+
+                                return (
+                                    m.read !== true
+                                );
+
+                            }
+                        ).length;
+
+
+                    if(count){
+
+                        count.textContent =
+                            unread + " new";
+
+                    }
+
+
+                    if(!messages.length){
+
+                        list.innerHTML =
+
+                            `
+                            <div class="empty-state">
+
+                                <div>
+
+                                    <div class="icon">
+                                        ✓
+                                    </div>
+
+                                    No messages have been
+                                    received yet.
+
+                                </div>
+
+                            </div>
+                            `;
+
+                        return;
+
+                    }
+
+
+                    list.innerHTML =
+                        messages
+                            .map(
+                                function(m){
+
+                                    const id =
+                                        esc(
+                                            m.id || ""
+                                        );
+
+
+                                    const when =
+                                        m.submittedAt
+                                            ?
+                                            new Date(
+                                                m.submittedAt
+                                            ).toLocaleString()
+                                            :
+                                            "Unknown time";
+
+
+                                    return `
+
+                                        <div
+                                            class="
+                                                contact-message
+                                                ${m.read === true ? "" : "unread"}
+                                            "
+                                        >
+
+                                            <div
+                                                class="contact-message-top"
+                                            >
+
+                                                <div>
+
+                                                    <div
+                                                        class="contact-message-name"
+                                                    >
+                                                        ${esc(
+                                                            m.name ||
+                                                            "Unknown sender"
+                                                        )}
+                                                    </div>
+
+
+                                                    <div
+                                                        class="contact-message-email"
+                                                    >
+                                                        ${esc(
+                                                            m.email ||
+                                                            "No email provided"
+                                                        )}
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div
+                                                    class="contact-message-time"
+                                                >
+                                                    ${esc(
+                                                        when
+                                                    )}
+                                                </div>
+
+                                            </div>
+
+
+                                            <div
+                                                class="contact-message-body"
+                                            >
+                                                ${esc(
+                                                    m.message ||
+                                                    "No message content."
+                                                )}
+                                            </div>
+
+
+                                            <div
+                                                class="contact-message-actions"
+                                            >
+
+                                                ${
+                                                    m.read === true
+                                                        ?
+                                                        `
+                                                        <span
+                                                            class="contact-reviewed"
+                                                        >
+                                                            ✓ REVIEWED
+                                                        </span>
+                                                        `
+                                                        :
+                                                        `
+                                                        <button
+                                                            class="btn btn-primary"
+                                                            onclick="
+                                                                markContactMessageRead('${id}')
+                                                            "
+                                                        >
+                                                            Mark as Reviewed
+                                                        </button>
+                                                        `
+                                                }
+
+
+                                                <button
+                                                    class="btn btn-light"
+                                                    onclick="
+                                                        deleteContactMessage('${id}')
+                                                    "
+                                                >
+                                                    Remove
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    `;
+
+                                }
+                            )
+                            .join("");
+
+                };
+
+
+            window.markContactMessageRead =
+                function(id){
+
+                    const messages =
+                        getMessages();
+
+
+                    const message =
+                        messages.find(
+                            function(x){
+
+                                return (
+                                    String(x.id) ===
+                                    String(id)
+                                );
+
+                            }
+                        );
+
+
+                    if(!message){
+
+                        notify(
+                            "Message could not be found."
+                        );
+
+                        return;
+
+                    }
+
+
+                    message.read =
+                        true;
+
+
+                    message.status =
+                        "reviewed";
+
+
+                    message.reviewedAt =
+                        Date.now();
+
+
+                    message.reviewedBy =
+                        sessionStorage.getItem(
+                            "reliefStaffName"
+                        ) ||
+                        "Control Room Staff";
+
+
+                    saveMessages(
+                        messages
+                    );
+
+
+                    renderContactMessages();
+
+
+                    notify(
+                        "✓ Message marked as reviewed."
+                    );
+
+                };
+
+
+            window.deleteContactMessage =
+                function(id){
+
+                    saveMessages(
+
+                        getMessages()
+                            .filter(
+                                function(x){
+
+                                    return (
+                                        String(x.id) !==
+                                        String(id)
+                                    );
+
+                                }
+                            )
+
+                    );
+
+
+                    renderContactMessages();
+
+
+                    notify(
+                        "Message removed."
+                    );
+
+                };
+
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                renderContactMessages
+            );
+
+
+            window.addEventListener(
+                "storage",
+                function(e){
+
+                    if(
+                        e.key ===
+                        STORAGE_KEY
+                    ){
+
+                        renderContactMessages();
+
+                    }
+
+                }
+            );
+
+        })();
+
+    </script>
+
 
 </body>
+
 </html>
