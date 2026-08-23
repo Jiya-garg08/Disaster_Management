@@ -778,25 +778,49 @@
 
         }
 
+.result-banner {
+    display: none;
+    margin-top: 20px;
+    padding: 22px 24px;
+    background: #e7f3e9;
+    border-left: 4px solid #2d7a42;
+    color: #245f35;
+    font-size: 16px;
+    line-height: 1.8;
+    white-space: pre-line;
+    border-radius: 4px;
+}
 
-        .result-banner {
+.result-banner.show {
+    display: block;
+    animation: requestResultIn 0.45s ease both;
+}
 
-            display: none;
+.result-banner.success {
+    background: #e7f3e9;
+    border-left-color: #2d7a42;
+    color: #245f35;
+}
 
-            margin-top: 15px;
+.result-banner.error {
+    background: #f9e8e5;
+    border-left-color: #b43b32;
+    color: #8d2922;
+}
 
-            padding: 13px;
+@keyframes requestResultIn {
 
-            background: #e7f3e9;
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
 
-            border-left: 3px solid #2d7a42;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-            color: #245f35;
-
-            font-size: 11px;
-
-        }
-
+}
 
         /* =====================================================
            DISCLAIMER
@@ -844,6 +868,134 @@
 
         }
 
+
+
+        /* =====================================================
+           ACCESSIBILITY / READABILITY
+        ===================================================== */
+
+        .request-page {
+            font-size: 16px;
+        }
+
+        .request-header p {
+            font-size: 16px;
+        }
+
+        .form-description {
+            font-size: 14px;
+        }
+
+        .field label,
+        .map-control-row label {
+            font-size: 13px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            font-size: 15px;
+            padding: 15px 15px;
+        }
+
+        .field textarea {
+            min-height: 120px;
+            line-height: 1.65;
+        }
+
+        .geo-btn {
+            font-size: 13px;
+            padding: 14px;
+        }
+
+        .map-control-row select {
+            font-size: 14px;
+            padding: 11px 12px;
+        }
+
+        .radius-value {
+            font-size: 16px;
+        }
+
+        .legend-item {
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+        }
+
+        .risk-details {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .submit-btn {
+            font-size: 14px;
+            padding: 17px;
+        }
+
+        .result-banner {
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-line;
+            border-radius: 4px;
+        }
+
+        .result-banner.show {
+            animation: requestResultIn .45s ease both;
+        }
+
+        @keyframes requestResultIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Priority-colored selected-location marker */
+        .priority-map-marker {
+            position: relative;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,.32);
+        }
+
+        .priority-map-marker.high {
+            background: #c0392b;
+        }
+
+        .priority-map-marker.medium {
+            background: #e67e22;
+        }
+
+        .priority-map-marker.low {
+            background: #3b9254;
+        }
+
+        .priority-map-marker::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        #priorityScore,
+        .priority-score {
+            display: none !important;
+        }
 
         /* =====================================================
            RESPONSIVE
@@ -930,7 +1082,193 @@
 
         }
 
-    </style>
+    
+
+        /* =====================================================
+           USER ACCOUNT DROPDOWN
+        ===================================================== */
+
+        .account-dropdown {
+            position: relative;
+            margin-left: 8px;
+        }
+
+        .account-button {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border: 1px solid #ddd8ce;
+            background: #fffdf8;
+            color: #071525;
+            padding: 7px 11px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .account-button:hover {
+            border-color: #b43b32;
+        }
+
+        .account-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #071525;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .account-name {
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .account-arrow {
+            font-size: 11px;
+            color: #66717d;
+        }
+
+        .account-menu {
+            position: absolute;
+            top: calc(100% + 9px);
+            right: 0;
+            width: 210px;
+            background: #fffdf8;
+            border: 1px solid #ddd8ce;
+            box-shadow: 0 18px 45px rgba(17, 28, 40, .14);
+            display: none;
+            z-index: 5000;
+        }
+
+        .account-menu.show {
+            display: block;
+        }
+
+        .account-menu-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5dfd5;
+        }
+
+        .account-menu-header small {
+            display: block;
+            color: #8a9198;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            margin-bottom: 5px;
+        }
+
+        .account-menu-header strong {
+            display: block;
+            color: #071525;
+            font-size: 13px;
+        }
+
+        .account-menu a,
+        .account-menu button {
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            color: #253341;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .account-menu a:hover,
+        .account-menu button:hover {
+            background: #f4f0e7;
+            color: #b43b32;
+        }
+
+        .account-menu button {
+            border-top: 1px solid #e5dfd5;
+            color: #b43b32;
+        }
+
+        @media (max-width: 900px) {
+            .account-name {
+                display: none;
+            }
+
+            .account-button {
+                padding: 6px;
+            }
+        }
+
+        /* Public request page: do not expose internal priority score. */
+        .priority-score {
+            display: none !important;
+        }
+
+        /* ============================================================
+   REPORTER SECTION
+============================================================ */
+
+.request-section-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 8px 0 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2ddd3;
+}
+
+.section-number {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #071525;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.request-section-title h3 {
+    margin: 0 0 5px;
+    color: #071525;
+    font-size: 18px;
+}
+
+.request-section-title p {
+    margin: 0;
+    color: #66717d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.reporter-note {
+    margin: -3px 0 24px;
+    padding: 12px 14px;
+
+    background: #f4f0e7;
+    border-left: 3px solid #b43b32;
+
+    color: #66717d;
+    font-size: 12px;
+    line-height: 1.6;
+}
+</style>
 
 </head>
 
@@ -971,10 +1309,6 @@
             Shelter Request
         </a>
 
-        <a href="dispatcher.html">
-            Control Room
-        </a>
-
         <a href="about.html">
             About
         </a>
@@ -982,6 +1316,79 @@
         <a href="contact.html">
             Contact
         </a>
+
+        <!-- USER ACCOUNT DROPDOWN -->
+        <div
+            class="account-dropdown"
+            id="accountDropdown"
+        >
+
+            <button
+                type="button"
+                class="account-button"
+                id="accountButton"
+                aria-expanded="false"
+            >
+
+                <span
+                    class="account-avatar"
+                    id="accountAvatar"
+                >
+                    U
+                </span>
+
+                <span
+                    class="account-name"
+                    id="accountName"
+                >
+                    Account
+                </span>
+
+                <span class="account-arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="account-menu"
+                id="accountMenu"
+            >
+
+                <div class="account-menu-header">
+
+                    <small>
+                        SIGNED IN AS
+                    </small>
+
+                    <strong
+                        id="accountMenuName"
+                    >
+                        User
+                    </strong>
+
+                </div>
+
+
+                <a href="individual-dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="request.html">
+                    My Requests
+                </a>
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
 
     </nav>
 
@@ -1094,7 +1501,7 @@
                 <div class="map-control-row">
 
                     <label>
-                        Relief Search Radius
+                        Relief Search Radius (max 50 km)
                     </label>
 
                 </div>
@@ -1105,16 +1512,18 @@
                     <input
                         type="range"
                         id="radiusSlider"
-                        min="10"
-                        max="150"
-                        value="70"
+                        min="5"
+                        max="50"
+                        value="50"
+                        step="1"
                     >
 
                     <div
                         class="radius-value"
                         id="radiusValue"
+                        aria-live="polite"
                     >
-                        70 km
+                        50 km
                     </div>
 
                 </div>
@@ -1123,38 +1532,28 @@
                 <div class="map-legend">
 
                     <div class="legend-item">
-
-                        <span
-                            class="legend-dot"
-                            style="background:#071525;"
-                        ></span>
-
+                        <span class="legend-dot" style="background:#071525;"></span>
                         Selected Location
-
                     </div>
 
-
                     <div class="legend-item">
-
-                        <span
-                            class="legend-dot"
-                            style="background:#b43b32;"
-                        ></span>
-
+                        <span class="legend-dot" style="background:#b43b32;"></span>
                         Relief Search Area
-
                     </div>
 
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#c0392b;"></span>
+                        High Priority
+                    </div>
 
                     <div class="legend-item">
+                        <span class="legend-dot" style="background:#e67e22;"></span>
+                        Medium Priority
+                    </div>
 
-                        <span
-                            class="legend-dot"
-                            style="background:#9b841c;"
-                        ></span>
-
-                        Live Verification Pending
-
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#3b9254;"></span>
+                        Low Priority
                     </div>
 
                 </div>
@@ -1188,6 +1587,128 @@
 
             <form id="requestForm">
 
+                <!-- ============================================================
+     REPORTER INFORMATION
+============================================================= -->
+
+<div class="request-section-title">
+    <span class="section-number">01</span>
+    <div>
+        <h3>Who is reporting this emergency?</h3>
+        <p>This information helps our coordination team contact the person requesting help.</p>
+    </div>
+</div>
+
+<div class="field">
+
+    <label for="reporterType">
+        Reporter Type
+        <span class="req-star">*</span>
+    </label>
+
+    <select id="reporterType" required>
+
+        <option value="">
+            Select who is submitting this request
+        </option>
+
+        <option value="Affected Person">
+            👤 Affected Person
+        </option>
+
+        <option value="Local Volunteer">
+            🤝 Local Volunteer
+        </option>
+
+        <option value="Shelter Coordinator">
+            🏠 Shelter Coordinator
+        </option>
+
+        <option value="NGO / Relief Worker">
+            🏥 NGO / Relief Worker
+        </option>
+
+        <option value="Community Member">
+            👥 Community Member
+        </option>
+
+    </select>
+
+</div>
+
+
+<div class="field-row">
+
+    <div class="field">
+
+        <label for="reporterName">
+            Your Name
+            <span class="req-star">*</span>
+        </label>
+
+        <input
+            type="text"
+            id="reporterName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            required
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label for="contactNumber">
+            Contact Number
+            <span class="req-star">*</span>
+        </label>
+
+        <input
+            type="tel"
+            id="contactNumber"
+            placeholder="10-digit mobile number"
+            autocomplete="tel"
+            maxlength="10"
+            required
+        >
+
+    </div>
+
+</div>
+
+
+<div class="field">
+
+    <label for="organization">
+        Organization / Group
+        <span
+            style="
+                color:#8a9198;
+                font-size:10px;
+                font-weight:500;
+                margin-left:5px;
+                text-transform:none;
+                letter-spacing:0;
+            "
+        >
+            Optional
+        </span>
+    </label>
+
+    <input
+        type="text"
+        id="organization"
+        placeholder="Enter NGO, volunteer group, shelter or community name"
+    >
+
+</div>
+
+
+<div class="reporter-note">
+    🔒 Your contact information is shared only with authorized Relief Resolver
+    coordinators for emergency coordination.
+</div>
 
                 <!-- SHELTER NAME -->
 
@@ -1196,6 +1717,17 @@
                     <label for="shelterName">
 
                         Shelter / Location Name
+
+                        <span
+                            style="
+                                color:#397044;
+                                font-size:8px;
+                                font-weight:600;
+                                margin-left:6px;
+                            "
+                        >
+                            AUTO-FILLED FROM MAP
+                        </span>
 
                         <span class="req-star">*</span>
 
@@ -1206,7 +1738,8 @@
                         type="text"
                         id="shelterName"
                         required
-                        placeholder="e.g. Govt. Higher Secondary School"
+                        autocomplete="street-address"
+                        placeholder="Select a location on the map"
                     >
 
                 </div>
@@ -1489,7 +2022,7 @@
                     <div class="priority-top">
 
                         <span>
-                            PRIORITY PREVIEW
+                            REQUEST PREVIEW
                         </span>
 
 
@@ -1727,7 +2260,13 @@
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
 
-
+<!-- PROJECT JAVASCRIPT
+     Keep this order: dependencies first, request flow last. -->
+<script src="js/data.js"></script>
+<script src="js/geofence.js"></script>
+<script src="js/priority.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/request.js"></script>
 
 <script>
 
@@ -1777,10 +2316,345 @@ let reliefCircle = null;
 
 
 /* ------------------------------------------------------------
+   LOCATION LOOKUP STATE
+
+   Every location selection gets a new lookup ID.
+   This prevents an older reverse-geocoding response from
+   overwriting a newer map/GPS selection.
+------------------------------------------------------------ */
+
+let locationLookupId = 0;
+
+
+/* ------------------------------------------------------------
+   ESCAPE TEXT BEFORE INSERTING IT INTO HTML
+------------------------------------------------------------ */
+
+function escapeLocationText(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value || "";
+
+    return div.innerHTML;
+
+}
+
+
+/* ------------------------------------------------------------
+   REVERSE GEOCODING
+
+   Latitude + longitude -> readable location name
+
+   Uses OpenStreetMap Nominatim for this prototype.
+------------------------------------------------------------ */
+
+async function reverseGeocode(lat, lng) {
+
+    const shelterNameInput =
+        document.getElementById("shelterName");
+
+    const locationStatus =
+        document.getElementById("locationStatus");
+
+
+    if (!shelterNameInput) {
+        return;
+    }
+
+
+    const currentLookupId =
+        ++locationLookupId;
+
+
+    try {
+
+        const url =
+            "https://nominatim.openstreetmap.org/reverse" +
+            "?format=jsonv2" +
+            "&lat=" + encodeURIComponent(lat) +
+            "&lon=" + encodeURIComponent(lng) +
+            "&zoom=18" +
+            "&addressdetails=1";
+
+
+        const response =
+            await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+
+        if (!response.ok) {
+            throw new Error(
+                "Reverse geocoding request failed."
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* Ignore an old response if the user selected
+           another location while this request was running. */
+
+        if (currentLookupId !== locationLookupId) {
+            return;
+        }
+
+
+        const address = data.address || {};
+
+        const parts = [];
+
+
+        /* Prefer an actual named place when available. */
+
+        if (data.name) {
+            parts.push(data.name);
+        }
+
+
+        /* Otherwise build a useful readable location. */
+
+        if (!data.name) {
+
+            const addressParts = [
+                address.amenity,
+                address.building,
+                address.road,
+                address.neighbourhood,
+                address.suburb,
+                address.village,
+                address.town,
+                address.city,
+                address.state
+            ];
+
+            addressParts.forEach(function(part) {
+
+                if (part && !parts.includes(part)) {
+                    parts.push(part);
+                }
+
+            });
+        }
+
+
+        let locationName =
+            parts.filter(Boolean).join(", ");
+
+
+        /* Final fallback if no structured name was returned. */
+
+        if (!locationName) {
+            locationName =
+                data.display_name ||
+                "Selected map location";
+        }
+
+
+        /* --------------------------------------------------------
+           FILL THE LOCATION NAME FIELD AUTOMATICALLY
+        -------------------------------------------------------- */
+
+        shelterNameInput.value =
+            locationName;
+
+
+        /* --------------------------------------------------------
+           UPDATE LOCATION STATUS
+        -------------------------------------------------------- */
+
+        if (locationStatus) {
+
+            locationStatus.innerHTML = `
+
+                <strong>
+                    📍 ${escapeLocationText(locationName)}
+                </strong>
+
+                <br>
+
+                Coordinates:
+                ${Number(lat).toFixed(6)},
+                ${Number(lng).toFixed(6)}
+
+            `;
+        }
+
+
+        /* --------------------------------------------------------
+           UPDATE MAP POPUP
+        -------------------------------------------------------- */
+
+        if (selectedMarker) {
+
+            selectedMarker.bindPopup(`
+
+                <strong>
+                    ${escapeLocationText(locationName)}
+                </strong>
+
+                <br>
+
+                ${Number(lat).toFixed(6)},
+                ${Number(lng).toFixed(6)}
+
+            `).openPopup();
+        }
+
+
+        /* --------------------------------------------------------
+           UPDATE DETAILS PANEL
+        -------------------------------------------------------- */
+
+        const details =
+            document.getElementById("riskDetails");
+
+        if (details) {
+
+            details.innerHTML = `
+
+                <strong>
+                    Location captured successfully.
+                </strong>
+
+                <br><br>
+
+                <strong>
+                    ${escapeLocationText(locationName)}
+                </strong>
+
+                <br><br>
+
+                Coordinates:
+                ${Number(lat).toFixed(5)},
+                ${Number(lng).toFixed(5)}
+
+                <br><br>
+
+                Location name detected automatically
+                from the selected coordinates.
+
+            `;
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Reverse geocoding error:",
+            error
+        );
+
+
+        /* Keep the coordinates even if the naming service fails. */
+
+        if (locationStatus) {
+
+            locationStatus.innerHTML = `
+
+                <strong>
+                    📍 Location selected.
+                </strong>
+
+                <br>
+
+                Coordinates:
+                ${Number(lat).toFixed(6)},
+                ${Number(lng).toFixed(6)}
+
+                <br>
+
+                <span>
+                    Location name could not be detected.
+                    Please enter it manually.
+                </span>
+
+            `;
+        }
+
+    }
+
+}
+
+
+/* ------------------------------------------------------------
+   PRIORITY COLOR FOR SELECTED MAP LOCATION
+
+   HIGH   >= 80
+   MEDIUM >= 50
+   LOW    < 50
+
+   The numeric score is internal and is never shown publicly.
+------------------------------------------------------------ */
+
+function getMapPriorityClass() {
+
+    const victims =
+        Number(
+            document.getElementById("victims")?.value
+        ) || 0;
+
+    const days =
+        Number(
+            document.getElementById("days")?.value
+        ) || 0;
+
+    const score =
+        victims + (days * 40);
+
+    if (score >= 80) {
+        return "high";
+    }
+
+    if (score >= 50) {
+        return "medium";
+    }
+
+    return "low";
+}
+
+
+function createPriorityMarkerIcon() {
+
+    const priority =
+        getMapPriorityClass();
+
+    return L.divIcon({
+        className: "",
+        html:
+            '<div class="priority-map-marker ' +
+            priority +
+            '"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
+    });
+}
+
+
+function refreshSelectedMarkerColor() {
+
+    if (!selectedMarker) {
+        return;
+    }
+
+    selectedMarker.setIcon(
+        createPriorityMarkerIcon()
+    );
+}
+
+
+/* ------------------------------------------------------------
    SET LOCATION
 ------------------------------------------------------------ */
 
-function setLocation(lat, lng) {
+async function setLocation(lat, lng) {
 
     document.getElementById("lat").value =
         lat.toFixed(6);
@@ -1795,13 +2669,17 @@ function setLocation(lat, lng) {
 
 
     selectedMarker = L.marker(
-        [lat, lng]
+        [lat, lng],
+        {
+            icon: createPriorityMarkerIcon(),
+            title: "Selected emergency location"
+        }
     ).addTo(map);
 
 
     selectedMarker
         .bindPopup(
-            "<strong>Selected Emergency Location</strong>"
+            "<strong>Finding location name...</strong>"
         )
         .openPopup();
 
@@ -1811,10 +2689,19 @@ function setLocation(lat, lng) {
     ).innerHTML = `
 
         <strong>
-            Location selected.
+            📍 Location selected.
         </strong>
 
-        ${lat.toFixed(4)}, ${lng.toFixed(4)}
+        <br>
+
+        Coordinates:
+        ${lat.toFixed(6)}, ${lng.toFixed(6)}
+
+        <br>
+
+        <span>
+            Finding location name...
+        </span>
 
     `;
 
@@ -1850,12 +2737,15 @@ function setLocation(lat, lng) {
 
             <br><br>
 
-            Live disaster verification is not connected
-            in Phase 1. The location is ready for relief
-            coordination.
+            Finding the location name...
 
         `;
     }
+
+
+    /* Automatically convert coordinates to a readable name. */
+
+    await reverseGeocode(lat, lng);
 
 }
 
@@ -1899,12 +2789,14 @@ document
 
 
             this.textContent =
-                "Getting your location...";
+                "📍 Getting your location...";
+
+            this.disabled = true;
 
 
             navigator.geolocation.getCurrentPosition(
 
-                function(position) {
+                async function(position) {
 
                     const lat =
                         position.coords.latitude;
@@ -1919,7 +2811,7 @@ document
                     );
 
 
-                    setLocation(
+                    await setLocation(
                         lat,
                         lng
                     );
@@ -1931,6 +2823,12 @@ document
                         )
                         .textContent =
                         "📍 Location Selected";
+
+                    document
+                        .getElementById(
+                            "useLocationBtn"
+                        )
+                        .disabled = false;
 
                 },
 
@@ -1948,6 +2846,12 @@ document
                         )
                         .textContent =
                         "📍 Use My Current Location";
+
+                    document
+                        .getElementById(
+                            "useLocationBtn"
+                        )
+                        .disabled = false;
 
                 }
 
@@ -2129,10 +3033,13 @@ function updatePriority() {
             : 0;
 
 
-    document.getElementById(
-        "priorityScore"
-    ).textContent =
-        score > 0 ? score : "—";
+    const priorityScoreElement =
+        document.getElementById("priorityScore");
+
+    if (priorityScoreElement) {
+        priorityScoreElement.textContent =
+            score > 0 ? score : "—";
+    }
 
 
     document.getElementById(
@@ -2177,156 +3084,18 @@ function updatePriority() {
     ).textContent =
         needNames[need] || "—";
 
+    refreshSelectedMarkerColor();
+
 }
-
-
-/* ------------------------------------------------------------
-   FORM SUBMIT
------------------------------------------------------------- */
-
-document
-    .getElementById("requestForm")
-    .addEventListener(
-        "submit",
-        function(event) {
-
-            event.preventDefault();
-
-
-            const lat =
-                document.getElementById("lat").value;
-
-
-            const lng =
-                document.getElementById("lng").value;
-
-
-            if (!lat || !lng) {
-
-                alert(
-                    "Please select the affected location on the map."
-                );
-
-                return;
-
-            }
-
-
-            const shelterName =
-                document.getElementById(
-                    "shelterName"
-                ).value.trim();
-
-
-            const victims =
-                Number(
-                    document.getElementById(
-                        "victims"
-                    ).value
-                );
-
-
-            const days =
-                Number(
-                    document.getElementById(
-                        "days"
-                    ).value
-                );
-
-
-            const supplyType =
-                document.getElementById(
-                    "supplyType"
-                ).value;
-
-
-            const score =
-                victims + (days * 40);
-
-
-            const banner =
-                document.getElementById(
-                    "resultBanner"
-                );
-
-
-            banner.style.display =
-                "block";
-
-
-            banner.innerHTML = `
-
-                <strong>
-                    ✓ Emergency request prepared successfully.
-                </strong>
-
-                <br><br>
-
-                Shelter:
-                ${shelterName}
-
-                <br>
-
-                Location:
-                ${Number(lat).toFixed(4)},
-                ${Number(lng).toFixed(4)}
-
-                <br>
-
-                People affected:
-                ${victims}
-
-                <br>
-
-                Days without adequate support:
-                ${days}
-
-                <br>
-
-                Immediate need:
-                ${supplyType}
-
-                <br>
-
-                Urgency Score:
-                <strong>
-                    ${score}
-                </strong>
-
-                <br>
-
-                Disaster Verification:
-                <strong>
-                    PENDING
-                </strong>
-
-                <br><br>
-
-                The request can now be reviewed
-                in the Control Room.
-
-            `;
-
-
-            window.scrollTo({
-
-                top:
-                    document.body.scrollHeight,
-
-                behavior:
-                    "smooth"
-
-            });
-
-        }
-    );
 
 
 /* ------------------------------------------------------------
    INITIAL DISPLAY
 ------------------------------------------------------------ */
 
-updatePriority();
+if (typeof updatePriority === "function") {
+    updatePriority();
+}
 
 </script>
 
