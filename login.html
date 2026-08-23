@@ -33,7 +33,6 @@
         href="css/style.css"
     >
 
-
     <style>
 
         * {
@@ -54,19 +53,16 @@
             padding: 55px 20px;
 
             background:
-
                 radial-gradient(
                     circle at 15% 15%,
                     rgba(180, 59, 50, 0.08),
                     transparent 30%
                 ),
-
                 radial-gradient(
                     circle at 90% 80%,
                     rgba(7, 21, 37, 0.06),
                     transparent 30%
                 ),
-
                 var(--paper);
 
         }
@@ -695,37 +691,11 @@
         }
 
 
-        .staff-note {
-
-            margin-top: 22px;
-
-            padding-top: 16px;
-
-            border-top: 1px solid var(--line);
-
-            color: #89939c;
-
-            text-align: center;
-
-            font-size: 9px;
-
-            line-height: 1.6;
-
-        }
-
-
-        .staff-note strong {
-
-            color: var(--ink);
-
-        }
-
-
         .back-home {
 
             display: block;
 
-            margin-top: 16px;
+            margin-top: 18px;
 
             color: var(--muted);
 
@@ -744,6 +714,10 @@
 
         }
 
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
 
         @media (max-width: 800px) {
 
@@ -854,6 +828,7 @@
 </header>
 
 
+
 <main class="login-page">
 
 
@@ -865,6 +840,7 @@
              ===================================================== -->
 
         <section class="login-intro">
+
 
             <div class="login-kicker">
                 RELIEF RESOLVER
@@ -884,10 +860,10 @@
 
             <p class="login-intro-text">
 
-                Sign in to continue your relief journey.
-                Individuals can manage their requests,
-                while verified organizations can respond
-                to people who need assistance.
+                Sign in to continue your Relief Resolver
+                journey. Individuals can manage their
+                emergency requests, while verified NGOs
+                can respond to people who need assistance.
 
             </p>
 
@@ -933,6 +909,7 @@
         </section>
 
 
+
         <!-- =====================================================
              RIGHT LOGIN
              ===================================================== -->
@@ -960,8 +937,9 @@
             </div>
 
 
+
             <!-- =================================================
-                 ROLE SWITCH
+                 INDIVIDUAL / NGO SWITCH
                  ================================================= -->
 
             <div
@@ -996,6 +974,7 @@
             </div>
 
 
+
             <!-- =================================================
                  LOGIN FORM
                  ================================================= -->
@@ -1009,9 +988,11 @@
                 <div class="field">
 
                     <label for="loginIdentifier">
+
                         <span id="identifierLabel">
                             Email
                         </span>
+
                     </label>
 
 
@@ -1024,6 +1005,7 @@
                     >
 
                 </div>
+
 
 
                 <div class="field">
@@ -1042,6 +1024,7 @@
                     >
 
                 </div>
+
 
 
                 <button
@@ -1069,8 +1052,9 @@
             </form>
 
 
+
             <!-- =================================================
-                 REGISTRATION LINKS
+                 REGISTRATION
                  ================================================= -->
 
             <div class="register-area">
@@ -1104,21 +1088,6 @@
             </div>
 
 
-            <!-- =================================================
-                 STAFF NOTE
-                 ================================================= -->
-
-            <div class="staff-note">
-
-                <strong>
-                    Authorized staff?
-                </strong>
-
-                Use your existing staff credentials
-                on this same login page.
-
-            </div>
-
 
             <a
                 href="index.html"
@@ -1135,6 +1104,7 @@
     </div>
 
 </main>
+
 
 
 <script src="js/auth.js"></script>
