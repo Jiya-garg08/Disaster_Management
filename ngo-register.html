@@ -12,14 +12,22 @@
 
     <title>Register Organization — Relief Resolver</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    >
 
     <style>
 
         /* =========================================================
-           BASE READABILITY FIXES
-           (bumped up from the previous, much smaller sizes)
-           ========================================================= */
+           BASE READABILITY
+        ========================================================= */
 
         .ngo-register-page {
             font-size: 15px;
@@ -86,9 +94,9 @@
             border-color: #071525;
         }
 
-        /* -----------------------------------------------------------
-           ALIGNMENT FIXES for the form layout
-           ----------------------------------------------------------- */
+        /* =========================================================
+           FORM ALIGNMENT
+        ========================================================= */
 
         .ngo-form-section {
             display: grid;
@@ -133,7 +141,6 @@
 
         .input-with-unit input {
             flex: 1;
-            /* hide native number spinner so it can't overlap the "km" label */
             -moz-appearance: textfield;
             appearance: textfield;
         }
@@ -206,10 +213,56 @@
             border-color: #b43b32;
         }
 
-        /* -----------------------------------------------------------
-           POPUP TOAST — for validation warnings that need to
-           grab attention immediately (e.g. radius over 1000 km)
-           ----------------------------------------------------------- */
+        /* =========================================================
+           EXACT MAP LOCATION
+        ========================================================= */
+
+        .ngo-coordinate-note {
+            margin: 4px 0 20px;
+            padding: 16px 18px;
+            background: #f5f1e8;
+            border-left: 3px solid #397044;
+        }
+
+        .ngo-coordinate-note strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #071525;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .ngo-coordinate-note p {
+            margin: 0;
+            color: #5a6b7c;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        /* =========================================================
+           NGO LOCATION MAP
+        ========================================================= */
+
+        .ngo-location-map-wrap { margin-top: 8px; }
+        .ngo-location-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+        .ngo-location-toolbar p { margin:0; color:#5a6b7c; font-size:12px; line-height:1.6; flex:1; min-width:240px; }
+        .ngo-location-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border:1px solid #071525; background:#071525; color:#fff; font-size:12px; font-weight:800; letter-spacing:.04em; cursor:pointer; transition:background .2s ease, transform .2s ease; white-space:nowrap; }
+        .ngo-location-btn:hover { background:#b43b32; transform:translateY(-1px); }
+        .ngo-location-btn:disabled { opacity:.65; cursor:wait; transform:none; }
+        #ngoLocationMap { width:100%; height:390px; border:1px solid #d8d2c7; box-sizing:border-box; background:#e9edf0; z-index:1; }
+        .ngo-location-status { margin-top:10px; padding:11px 14px; background:#f5f1e8; border-left:3px solid #d8d2c7; color:#5a6b7c; font-size:12px; line-height:1.55; }
+        .ngo-location-status.selected { background:#eaf3ea; border-left-color:#397044; color:#245030; }
+        .ngo-location-status.error { background:#fbeceb; border-left-color:#b43b32; color:#7a2a23; }
+        .ngo-coordinates-readonly { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; }
+        .ngo-coordinate-value { padding:11px 13px; background:#fffdf8; border:1px solid #ddd8ce; }
+        .ngo-coordinate-value span { display:block; margin-bottom:4px; color:#7a8794; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .ngo-coordinate-value strong { color:#071525; font-size:13px; font-variant-numeric:tabular-nums; }
+        .leaflet-container { font-family:inherit; }
+        @media (max-width:650px) { #ngoLocationMap { height:320px; } .ngo-coordinates-readonly { grid-template-columns:1fr; } }
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
 
         .ngo-toast {
             position: fixed;
@@ -227,7 +280,9 @@
             color: #fff;
             transform: translateX(120%);
             opacity: 0;
-            transition: transform .3s ease, opacity .3s ease;
+            transition:
+                transform .3s ease,
+                opacity .3s ease;
             pointer-events: none;
         }
 
@@ -253,51 +308,9 @@
             color: #dfe4e9;
         }
 
-        .ngo-toast-text strong {
-            display: block;
-            margin-bottom: 3px;
-            color: #fff;
-            font-size: 13px;
-        }
-
-        @media (max-width: 560px) {
-
-            .ngo-toast {
-                left: 16px;
-                right: 16px;
-                top: 16px;
-                max-width: none;
-            }
-
-        }
-
-        @media (max-width: 900px) {
-
-            .ngo-form-section {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .service-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-        }
-
-        @media (max-width: 560px) {
-
-            .service-grid {
-                grid-template-columns: 1fr;
-            }
-
-        }
-
-        /* -----------------------------------------------------------
-           REGISTRATION INTRO — clean two-column section header
-           ----------------------------------------------------------- */
+        /* =========================================================
+           REGISTRATION INTRO
+        ========================================================= */
 
         .ngo-registration-intro {
             width: min(1320px, 90%);
@@ -331,18 +344,9 @@
             line-height: 1.8;
         }
 
-        @media (max-width: 900px) {
-
-            .ngo-registration-intro {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-
-        }
-
-        /* -----------------------------------------------------------
-           FORM SECTION — card polish
-           ----------------------------------------------------------- */
+        /* =========================================================
+           FORM CARD
+        ========================================================= */
 
         .ngo-form-section {
             width: min(1320px, 90%);
@@ -403,12 +407,18 @@
             box-shadow: 0 0 0 3px rgba(180, 59, 50, .1);
         }
 
+        /* =========================================================
+           SERVICES
+        ========================================================= */
+
         .service-option {
             padding: 14px 16px;
             background: #fffdf8;
             border: 1px solid #ddd8ce;
             cursor: pointer;
-            transition: border-color .2s ease, background .2s ease;
+            transition:
+                border-color .2s ease,
+                background .2s ease;
         }
 
         .service-option:hover {
@@ -433,7 +443,9 @@
             background: #fffdf8;
             border: 1px solid #ddd8ce;
             cursor: pointer;
-            transition: border-color .2s ease, background .2s ease;
+            transition:
+                border-color .2s ease,
+                background .2s ease;
         }
 
         .availability-options label:has(input:checked) {
@@ -441,6 +453,10 @@
             background: #eef1f4;
             font-weight: 700;
         }
+
+        /* =========================================================
+           SUBMIT
+        ========================================================= */
 
         .ngo-submit-btn {
             margin-top: 34px;
@@ -458,7 +474,9 @@
             letter-spacing: .08em;
             text-transform: uppercase;
             cursor: pointer;
-            transition: background .2s ease, transform .2s ease;
+            transition:
+                background .2s ease,
+                transform .2s ease;
         }
 
         .ngo-submit-btn:hover {
@@ -489,6 +507,10 @@
             border-left: 3px solid #b43b32;
             color: #7a2a23;
         }
+
+        /* =========================================================
+           SIDE INFORMATION
+        ========================================================= */
 
         .ngo-info-card {
             background: #071525;
@@ -544,25 +566,9 @@
             color: #aebdca;
         }
 
-        .ngo-info-card ol li {
-            margin-bottom: 6px;
-        }
-
-        @media (max-width: 900px) {
-
-            .ngo-form-card {
-                padding: 30px 24px 36px;
-            }
-
-            .ngo-info-card {
-                position: static;
-            }
-
-        }
-
-        /* -----------------------------------------------------------
-           TERMS & CONDITIONS BOX
-           ----------------------------------------------------------- */
+        /* =========================================================
+           TERMS
+        ========================================================= */
 
         .ngo-terms-box {
             margin-top: 26px;
@@ -611,14 +617,9 @@
             margin-top: 3px;
         }
 
-    </style>
-
-
-
-    <style>
         /* =========================================================
-           NGO PARTNER EXPERIENCE — PREMIUM
-           ========================================================= */
+           PREMIUM HERO
+        ========================================================= */
 
         .ngo-premium-hero {
             width: min(1320px, 90%);
@@ -846,6 +847,10 @@
             line-height: 1.45;
         }
 
+        /* =========================================================
+           PROCESS
+        ========================================================= */
+
         .ngo-process,
         .ngo-benefits {
             width: min(1320px, 90%);
@@ -917,6 +922,10 @@
             align-self: center;
         }
 
+        /* =========================================================
+           BENEFITS
+        ========================================================= */
+
         .ngo-benefits {
             padding-top: 10px;
         }
@@ -972,12 +981,42 @@
             from {
                 transform: scale(1);
             }
+
             to {
                 transform: scale(1.06);
             }
         }
 
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
         @media (max-width: 900px) {
+
+            .ngo-form-section {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ngo-registration-intro {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .ngo-form-card {
+                padding: 30px 24px 36px;
+            }
+
+            .ngo-info-card {
+                position: static;
+            }
 
             .ngo-premium-hero {
                 grid-template-columns: 1fr;
@@ -1009,7 +1048,6 @@
             .ngo-benefit-grid {
                 grid-template-columns: 1fr;
             }
-
         }
 
         @media (max-width: 650px) {
@@ -1052,6 +1090,16 @@
                 font-size: 23px;
             }
 
+            .ngo-toast {
+                left: 16px;
+                right: 16px;
+                top: 16px;
+                max-width: none;
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
     </style>
@@ -1062,10 +1110,24 @@
 <body>
 
 
-<!-- POPUP TOAST (used for validation warnings, e.g. radius > 1000 km) -->
-<div class="ngo-toast" id="ngoToast">
-    <span class="ngo-toast-icon">!</span>
-    <span class="ngo-toast-text" id="ngoToastText"></span>
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    class="ngo-toast"
+    id="ngoToast"
+>
+
+    <span class="ngo-toast-icon">
+        !
+    </span>
+
+    <span
+        class="ngo-toast-text"
+        id="ngoToastText"
+    ></span>
+
 </div>
 
 
@@ -1094,7 +1156,10 @@
             Request Help
         </a>
 
-        <a href="ngo-register.html" class="active">
+        <a
+            href="ngo-register.html"
+            class="active"
+        >
             Join as NGO
         </a>
 
@@ -1111,7 +1176,6 @@
 </header>
 
 
-
 <!-- =========================================================
      MAIN
 ========================================================= -->
@@ -1120,7 +1184,7 @@
 
 
     <!-- =========================================================
-         NGO PARTNER HERO — PREMIUM VERSION
+         PREMIUM HERO
     ========================================================= -->
 
     <section class="ngo-premium-hero">
@@ -1154,8 +1218,13 @@
                 </a>
 
                 <div class="ngo-trust-line">
-                    <span class="ngo-trust-check">✓</span>
+
+                    <span class="ngo-trust-check">
+                        ✓
+                    </span>
+
                     Credentials reviewed before activation
+
                 </div>
 
             </div>
@@ -1170,7 +1239,12 @@
                 <img
                     src="images/help.jpg"
                     alt="Relief volunteers helping during an emergency"
-                    onerror="this.style.display='none'; this.parentElement.classList.add('ngo-photo-fallback');"
+                    onerror="
+                        this.style.display='none';
+                        this.parentElement.classList.add(
+                            'ngo-photo-fallback'
+                        );
+                    "
                 >
 
                 <div class="ngo-photo-shade"></div>
@@ -1198,6 +1272,7 @@
                 </span>
 
                 <div>
+
                     <strong>
                         Apply
                     </strong>
@@ -1205,6 +1280,7 @@
                     <small>
                         Tell us about your organization
                     </small>
+
                 </div>
 
             </div>
@@ -1217,6 +1293,7 @@
                 </span>
 
                 <div>
+
                     <strong>
                         Verified
                     </strong>
@@ -1224,6 +1301,7 @@
                     <small>
                         Review before receiving requests
                     </small>
+
                 </div>
 
             </div>
@@ -1234,7 +1312,7 @@
 
 
     <!-- =========================================================
-         SIMPLE PROCESS
+         PROCESS
     ========================================================= -->
 
     <section class="ngo-process">
@@ -1314,7 +1392,7 @@
 
 
     <!-- =========================================================
-         WHY JOIN
+         BENEFITS
     ========================================================= -->
 
     <section class="ngo-benefits">
@@ -1399,12 +1477,11 @@
 
     <!-- =========================================================
          REGISTRATION INTRO
-         (single, clean section — replaces the old duplicate
-          hero that used to sit here on top of it)
     ========================================================= -->
+
     <section class="ngo-registration-intro">
 
-        <div class="ngo-registration-intro-copy">
+        <div>
 
             <div class="ngo-premium-kicker">
                 READY TO HELP?
@@ -1427,8 +1504,9 @@
     </section>
 
 
-
-    <!-- FORM -->
+    <!-- =========================================================
+         REGISTRATION FORM
+    ========================================================= -->
 
     <section class="ngo-form-section">
 
@@ -1457,11 +1535,15 @@
             </div>
 
 
+            <form
+                id="ngoRegisterForm"
+                novalidate
+            >
 
-            <form id="ngoRegisterForm" novalidate>
 
-
-                <!-- ORGANIZATION NAME -->
+                <!-- =================================================
+                     ORGANIZATION
+                ================================================= -->
 
                 <div class="form-group">
 
@@ -1479,9 +1561,6 @@
 
                 </div>
 
-
-
-                <!-- REGISTRATION NUMBER -->
 
                 <div class="form-row">
 
@@ -1521,8 +1600,9 @@
                 </div>
 
 
-
-                <!-- CONTACT -->
+                <!-- =================================================
+                     CONTACT
+                ================================================= -->
 
                 <div class="form-row">
 
@@ -1559,8 +1639,12 @@
                             required
                         >
 
-                        <small class="field-error" id="ngoPhoneError">
-                            Phone number must contain digits only (10 digits).
+                        <small
+                            class="field-error"
+                            id="ngoPhoneError"
+                        >
+                            Phone number must contain digits only
+                            (10 digits).
                         </small>
 
                     </div>
@@ -1568,8 +1652,9 @@
                 </div>
 
 
-
-                <!-- LOCATION -->
+                <!-- =================================================
+                     LOCATION
+                ================================================= -->
 
                 <div class="form-heading second">
 
@@ -1592,9 +1677,9 @@
                 </div>
 
 
+                <!-- COUNTRY + STATE -->
 
                 <div class="form-row">
-
 
                     <div class="form-group">
 
@@ -1623,7 +1708,7 @@
                         <input
                             type="text"
                             id="ngoState"
-                            placeholder="e.g. Uttar Pradesh"
+                            placeholder="e.g. Punjab"
                             required
                         >
 
@@ -1632,9 +1717,9 @@
                 </div>
 
 
+                <!-- CITY + RADIUS -->
 
                 <div class="form-row">
-
 
                     <div class="form-group">
 
@@ -1646,7 +1731,7 @@
                         <input
                             type="text"
                             id="ngoCity"
-                            placeholder="e.g. Agra"
+                            placeholder="e.g. Bathinda"
                             required
                         >
 
@@ -1677,8 +1762,12 @@
 
                         </div>
 
-                        <small class="field-error" id="operatingRadiusError">
-                            Operating radius must be a number between 1 and 1000 km.
+                        <small
+                            class="field-error"
+                            id="operatingRadiusError"
+                        >
+                            Operating radius must be a number
+                            between 1 and 1000 km.
                         </small>
 
                     </div>
@@ -1686,8 +1775,56 @@
                 </div>
 
 
+                <!-- =================================================
+                     ORGANIZATION LOCATION FOR CONTROL ROOM MAP
+                ================================================= -->
 
-                <!-- SERVICES -->
+                <div class="ngo-location-map-wrap">
+                    <div class="ngo-location-toolbar">
+                        <p>
+                            Set the exact location where your organization
+                            operates or can respond. You do not need to enter
+                            latitude or longitude manually.
+                        </p>
+                        <button type="button" id="useNgoLocationBtn" class="ngo-location-btn">
+                            📍 Use My Location
+                        </button>
+                    </div>
+
+                    <div id="ngoLocationMap" aria-label="Select organization location on map"></div>
+
+                    <div id="ngoLocationStatus" class="ngo-location-status">
+                        <strong>Location not selected.</strong>
+                        Click anywhere on the map or use <strong>Use My Location</strong>
+                        to place your organization marker.
+                    </div>
+
+                    <div class="ngo-coordinates-readonly">
+                        <div class="ngo-coordinate-value">
+                            <span>Latitude</span>
+                            <strong id="ngoLatitudeDisplay">—</strong>
+                        </div>
+                        <div class="ngo-coordinate-value">
+                            <span>Longitude</span>
+                            <strong id="ngoLongitudeDisplay">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="ngo-coordinate-note" style="margin-top:14px;">
+                        <strong>📍 Exact map location required</strong>
+                        <p>
+                            The selected point is saved automatically and is used by the
+                            Relief Resolver Control Room to place your organization on the
+                            coordination map. You can click the map again or drag the marker
+                            to correct the position before submitting.
+                        </p>
+                    </div>
+                </div>
+
+
+                <!-- =================================================
+                     SERVICES
+                ================================================= -->
 
                 <div class="form-heading second">
 
@@ -1710,9 +1847,7 @@
                 </div>
 
 
-
                 <div class="service-grid">
-
 
                     <label class="service-option">
 
@@ -1727,19 +1862,14 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Food
-                            </strong>
+                            <strong>Food</strong>
 
                             <small>
                                 Meals and food supplies
                             </small>
-
                         </span>
 
                     </label>
-
 
 
                     <label class="service-option">
@@ -1755,19 +1885,14 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Water
-                            </strong>
+                            <strong>Water</strong>
 
                             <small>
                                 Drinking water
                             </small>
-
                         </span>
 
                     </label>
-
 
 
                     <label class="service-option">
@@ -1783,19 +1908,14 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Medicine
-                            </strong>
+                            <strong>Medicine</strong>
 
                             <small>
                                 Medical supplies
                             </small>
-
                         </span>
 
                     </label>
-
 
 
                     <label class="service-option">
@@ -1811,19 +1931,14 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Shelter
-                            </strong>
+                            <strong>Shelter</strong>
 
                             <small>
                                 Temporary accommodation
                             </small>
-
                         </span>
 
                     </label>
-
 
 
                     <label class="service-option">
@@ -1839,19 +1954,14 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Emergency Kits
-                            </strong>
+                            <strong>Emergency Kits</strong>
 
                             <small>
                                 Essential relief items
                             </small>
-
                         </span>
 
                     </label>
-
 
 
                     <label class="service-option">
@@ -1867,15 +1977,11 @@
                         </span>
 
                         <span>
-
-                            <strong>
-                                Other Relief
-                            </strong>
+                            <strong>Other Relief</strong>
 
                             <small>
                                 Other emergency support
                             </small>
-
                         </span>
 
                     </label>
@@ -1883,8 +1989,9 @@
                 </div>
 
 
-
-                <!-- AVAILABILITY -->
+                <!-- =================================================
+                     AVAILABILITY
+                ================================================= -->
 
                 <div class="form-heading second">
 
@@ -1899,7 +2006,8 @@
                         </h2>
 
                         <p>
-                            Let coordinators know whether your organization can currently accept requests.
+                            Let coordinators know whether your
+                            organization can currently accept requests.
                         </p>
 
                     </div>
@@ -1907,9 +2015,7 @@
                 </div>
 
 
-
                 <div class="availability-options">
-
 
                     <label>
 
@@ -1959,11 +2065,9 @@
                 </div>
 
 
-
-
-                <!-- =========================================================
-                     VERIFICATION CREDENTIALS
-                ========================================================= -->
+                <!-- =================================================
+                     VERIFICATION
+                ================================================= -->
 
                 <div class="form-heading second">
 
@@ -1978,7 +2082,8 @@
                         </h2>
 
                         <p>
-                            Provide official organization credentials for staff review.
+                            Provide official organization credentials
+                            for staff review.
                         </p>
 
                     </div>
@@ -1986,14 +2091,13 @@
                 </div>
 
 
-                <!-- DARPAN + PAN -->
-
                 <div class="form-row">
 
                     <div class="form-group">
 
                         <label for="darpanId">
                             NGO DARPAN ID
+                            <span>*</span>
                         </label>
 
                         <input
@@ -2005,7 +2109,8 @@
                         >
 
                         <small class="verification-help">
-                            Enter the official DARPAN ID associated with your organization.
+                            Enter the official DARPAN ID associated
+                            with your organization.
                         </small>
 
                     </div>
@@ -2035,8 +2140,6 @@
 
                 </div>
 
-
-                <!-- DOCUMENTS -->
 
                 <div class="form-row">
 
@@ -2084,8 +2187,6 @@
                 </div>
 
 
-                <!-- VERIFICATION NOTICE -->
-
                 <div class="ngo-verification-notice">
 
                     <strong>
@@ -2093,16 +2194,19 @@
                     </strong>
 
                     <p>
-                        Submitting these details does not automatically verify your
-                        organization. Relief Resolver staff will review the submitted
-                        credentials and documents before the organization can receive
+                        Submitting these details does not automatically
+                        verify your organization. Relief Resolver staff
+                        will review the submitted credentials and
+                        documents before the organization can receive
                         emergency requests.
                     </p>
 
                 </div>
 
 
-                <!-- PASSWORD -->
+                <!-- =================================================
+                     PASSWORD
+                ================================================= -->
 
                 <div class="form-heading second">
 
@@ -2117,7 +2221,8 @@
                         </h2>
 
                         <p>
-                            These credentials will be used after your organization is verified.
+                            These credentials will be used after your
+                            organization is verified.
                         </p>
 
                     </div>
@@ -2125,9 +2230,7 @@
                 </div>
 
 
-
                 <div class="form-row">
-
 
                     <div class="form-group">
 
@@ -2167,10 +2270,9 @@
                 </div>
 
 
-
-                <!-- =========================================================
-                     TERMS & CONDITIONS
-                ========================================================= -->
+                <!-- =================================================
+                     TERMS
+                ================================================= -->
 
                 <div class="ngo-terms-box">
 
@@ -2183,52 +2285,56 @@
                         <ol>
 
                             <li>
-                                All information, credentials and documents submitted
-                                in this form must be accurate, current and belong to
-                                the organization registering. Submitting false or
-                                misleading details may result in permanent rejection
+                                All information, credentials and documents
+                                submitted in this form must be accurate,
+                                current and belong to the organization
+                                registering. Submitting false or misleading
+                                details may result in permanent rejection
                                 from the Relief Partner Network.
                             </li>
 
                             <li>
-                                Registration alone does not verify or approve your
-                                organization. Relief Resolver staff will review your
-                                DARPAN ID, PAN and uploaded documents before your
-                                organization can receive or respond to any emergency
-                                request.
+                                Registration alone does not verify or approve
+                                your organization. Relief Resolver staff will
+                                review your DARPAN ID, PAN and uploaded
+                                documents before your organization can
+                                receive or respond to any emergency request.
                             </li>
 
                             <li>
-                                Your organization is responsible for keeping its
-                                contact details, service offerings and availability
-                                status up to date so that requests are matched
-                                correctly.
+                                Your organization is responsible for keeping
+                                its contact details, service offerings and
+                                availability status up to date so that
+                                requests are matched correctly.
                             </li>
 
                             <li>
-                                Relief Resolver acts only as a coordination platform
-                                connecting requests with relief organizations. It is
-                                not responsible for the quality, timeliness or outcome
-                                of assistance provided by any partner organization.
+                                Relief Resolver acts only as a coordination
+                                platform connecting requests with relief
+                                organizations. It is not responsible for the
+                                quality, timeliness or outcome of assistance
+                                provided by any partner organization.
                             </li>
 
                             <li>
-                                Uploaded documents and organization data will be used
-                                solely for verification and coordination purposes and
-                                will not be shared outside the review process without
-                                consent.
+                                Uploaded documents and organization data will
+                                be used solely for verification and
+                                coordination purposes and will not be shared
+                                outside the review process without consent.
                             </li>
 
                             <li>
-                                Relief Resolver reserves the right to suspend or
-                                remove any organization from the network at its
-                                discretion, including for inaccurate information,
-                                inactivity, or reports of misconduct.
+                                Relief Resolver reserves the right to suspend
+                                or remove any organization from the network
+                                at its discretion, including for inaccurate
+                                information, inactivity, or reports of
+                                misconduct.
                             </li>
 
                         </ol>
 
                     </div>
+
 
                     <label class="ngo-terms-agree">
 
@@ -2240,7 +2346,8 @@
 
                         <span>
                             I have read and agree to the Relief Resolver
-                            Terms &amp; Conditions for relief partner organizations.
+                            Terms &amp; Conditions for relief partner
+                            organizations.
                         </span>
 
                     </label>
@@ -2248,7 +2355,9 @@
                 </div>
 
 
-                <!-- ACCURACY AGREEMENT -->
+                <!-- =================================================
+                     ACCURACY AGREEMENT
+                ================================================= -->
 
                 <label class="ngo-agreement">
 
@@ -2259,19 +2368,18 @@
                     >
 
                     <span>
-
                         I confirm that the information provided is
                         accurate and that our organization agrees to
                         Relief Resolver verification before receiving
                         emergency requests.
-
                     </span>
 
                 </label>
 
 
-
-                <!-- SUBMIT -->
+                <!-- =================================================
+                     SUBMIT
+                ================================================= -->
 
                 <button
                     type="submit"
@@ -2298,30 +2406,26 @@
         </div>
 
 
-
-        <!-- SIDE INFORMATION -->
+        <!-- =========================================================
+             SIDE INFORMATION
+        ========================================================= -->
 
         <aside class="ngo-info-card">
-
 
             <div class="info-icon">
                 ✓
             </div>
 
-
             <h3>
                 Why verification matters
             </h3>
 
-
             <p>
-
                 Relief Resolver does not automatically connect
                 emergency requests to unverified organizations.
 
                 Every organization must first be reviewed by
                 the Relief Coordination Centre.
-
             </p>
 
 
@@ -2331,7 +2435,6 @@
             <h4>
                 After registration
             </h4>
-
 
             <ol>
 
@@ -2348,7 +2451,8 @@
                 </li>
 
                 <li>
-                    Verified requests can then be matched to your organization.
+                    Verified requests can then be matched to
+                    your organization.
                 </li>
 
             </ol>
@@ -2358,7 +2462,6 @@
     </section>
 
 </main>
-
 
 
 <!-- =========================================================
@@ -2383,16 +2486,12 @@
 
             </div>
 
-
             <p>
-
                 Connecting verified emergency needs
                 with organizations capable of providing relief.
-
             </p>
 
         </div>
-
 
 
         <div class="footer-col">
@@ -2412,7 +2511,6 @@
         </div>
 
 
-
         <div class="footer-col">
 
             <h4>
@@ -2428,7 +2526,6 @@
             </a>
 
         </div>
-
 
 
         <div class="footer-col">
@@ -2447,7 +2544,6 @@
 
         </div>
 
-
     </div>
 
 
@@ -2462,7 +2558,7 @@
 </footer>
 
 
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="js/ngo-register.js"></script>
 
 </body>
