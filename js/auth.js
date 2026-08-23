@@ -1,31 +1,34 @@
 /* ============================================================
    auth.js
-   Relief Resolver — Common Authentication Helpers
+   Relief Resolver — Session Helpers
    ============================================================ */
 
 
 /* ============================================================
-   COMMON LOGOUT
+   STAFF LOGOUT
    ============================================================ */
 
-function logoutUser() {
-
-    /* Individual session */
+function staffLogout() {
 
     sessionStorage.removeItem(
-        "reliefUserLoggedIn"
+        "reliefStaffLoggedIn"
     );
 
     sessionStorage.removeItem(
-        "reliefUserName"
+        "reliefStaffName"
     );
 
-    sessionStorage.removeItem(
-        "reliefUserEmail"
-    );
+    window.location.href =
+        "login.html";
+}
 
 
-    /* NGO session */
+
+/* ============================================================
+   NGO LOGOUT
+   ============================================================ */
+
+function ngoLogout() {
 
     sessionStorage.removeItem(
         "reliefNgoLoggedIn"
@@ -39,37 +42,30 @@ function logoutUser() {
         "reliefNgoName"
     );
 
-
-    /* Staff session */
-
-    sessionStorage.removeItem(
-        "reliefStaffLoggedIn"
-    );
-
-    sessionStorage.removeItem(
-        "reliefStaffName"
-    );
-
-
-    /* Go to common login */
-
     window.location.href =
         "login.html";
 }
 
 
+
 /* ============================================================
-   OLD STAFF LOGOUT COMPATIBILITY
-
-   Existing dispatcher.html may still use:
-
-       onclick="staffLogout()"
-
-   So don't break it.
+   INDIVIDUAL LOGOUT
    ============================================================ */
 
-function staffLogout() {
+function userLogout() {
 
-    logoutUser();
+    sessionStorage.removeItem(
+        "reliefUserLoggedIn"
+    );
 
+    sessionStorage.removeItem(
+        "reliefUserName"
+    );
+
+    sessionStorage.removeItem(
+        "reliefUserEmail"
+    );
+
+    window.location.href =
+        "login.html";
 }
