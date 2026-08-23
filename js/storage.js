@@ -1,55 +1,395 @@
 /* ============================================================
-   storage.js — localStorage wrapper (stand-in for MongoDB)
-   Keys:
-     "drr_requests"      -> array of shelter requests
-     "drr_dispatch_log"  -> array of completed dispatch records
+   storage.js — Relief Resolver Storage
+   Phase 1
+
+   IMPORTANT:
+   Both request.js and dispatcher.js use this same
+   localStorage key.
+
+   REQUESTS:
+       relief_requests
+
+   DISPATCH LOG:
+       relief_dispatch_log
    ============================================================ */
 
-const STORE_KEYS = {
-  REQUESTS: "drr_requests",
-  DISPATCH_LOG: "drr_dispatch_log",
-};
+
+/* ============================================================
+   STORAGE KEYS
+   ============================================================ */
+
+const REQUESTS_STORAGE_KEY =
+    "relief_requests";
+
+const DISPATCH_LOG_STORAGE_KEY =
+    "relief_dispatch_log";
+
+
+/* ============================================================
+   GET ALL REQUESTS
+   ============================================================ */
 
 function getRequests() {
-  return JSON.parse(localStorage.getItem(STORE_KEYS.REQUESTS) || "[]");
+
+    try {
+
+        const stored =
+            localStorage.getItem(
+                REQUESTS_STORAGE_KEY
+            );
+
+        if (!stored) {
+            return [];
+        }
+
+        const requests =
+            JSON.parse(stored);
+
+        return Array.isArray(requests)
+            ? requests
+            : [];
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to read requests:",
+            error
+        );
+
+        return [];
+
+    }
+
 }
+
+
+/* ============================================================
+   SAVE ALL REQUESTS
+   ============================================================ */
 
 function saveRequests(requests) {
-  localStorage.setItem(STORE_KEYS.REQUESTS, JSON.stringify(requests));
+
+    if (!Array.isArray(requests)) {
+
+        console.error(
+            "saveRequests expected an array."
+        );
+
+        return;
+
+    }
+
+    localStorage.setItem(
+        REQUESTS_STORAGE_KEY,
+        JSON.stringify(requests)
+    );
+
 }
+
+
+/* ============================================================
+   ADD ONE REQUEST
+   ============================================================ */
 
 function addRequest(request) {
-  const requests = getRequests();
-  requests.push(request);
-  saveRequests(requests);
+
+    if (!request) {
+
+        console.error(
+            "Cannot save empty request."
+        );
+
+        return false;
+
+    }
+
+    try {
+
+        const requests =
+            getRequests();
+
+        requests.push(request);
+
+        saveRequests(requests);
+
+        console.log(
+            "Relief Resolver request saved:",
+            request.id
+        );
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to save request:",
+            error
+        );
+
+        throw error;
+
+    }
+
 }
 
-function updateRequestStatus(id, status) {
-  const requests = getRequests();
-  const target = requests.find((r) => r.id === id);
-  if (target) target.status = status;
-  saveRequests(requests);
+
+/* ============================================================
+   FIND REQUEST BY ID
+   ============================================================ */
+
+function getRequestById(id) {
+
+    if (!id) {
+        return null;
+    }
+
+    const requests =
+        getRequests();
+
+    return (
+        requests.find(
+            request =>
+                request.id === id
+        ) || null
+    );
+
 }
+
+
+/* ============================================================
+   UPDATE REQUEST
+   ============================================================ */
+
+function updateRequest(
+    updatedRequest
+) {
+
+    if (
+        !updatedRequest ||
+        !updatedRequest.id
+    ) {
+
+        return false;
+
+    }
+
+    const requests =
+        getRequests();
+
+    const index =
+        requests.findIndex(
+            request =>
+                request.id ===
+                updatedRequest.id
+        );
+
+    if (index === -1) {
+
+        return false;
+
+    }
+
+    requests[index] =
+        updatedRequest;
+
+    saveRequests(requests);
+
+    return true;
+
+}
+
+
+/* ============================================================
+   UPDATE REQUEST STATUS
+   ============================================================ */
+
+function updateRequestStatus(
+    requestId,
+    newStatus
+) {
+
+    const requests =
+        getRequests();
+
+    const request =
+        requests.find(
+            item =>
+                item.id === requestId
+        );
+
+    if (!request) {
+
+        console.warn(
+            "Request not found:",
+            requestId
+        );
+
+        return false;
+
+    }
+
+    request.status =
+        newStatus;
+
+    saveRequests(
+        requests
+    );
+
+    return true;
+
+}
+
+
+/* ============================================================
+   DELETE REQUEST
+   ============================================================ */
+
+function deleteRequest(
+    requestId
+) {
+
+    const requests =
+        getRequests();
+
+    const filtered =
+        requests.filter(
+            request =>
+                request.id !== requestId
+        );
+
+    if (
+        filtered.length ===
+        requests.length
+    ) {
+
+        return false;
+
+    }
+
+    saveRequests(
+        filtered
+    );
+
+    return true;
+
+}
+
+
+/* ============================================================
+   CLEAR REQUESTS
+   ------------------------------------------------------------
+   USE ONLY FOR DEMO RESET.
+   ============================================================ */
+
+function clearRequests() {
+
+    localStorage.removeItem(
+        REQUESTS_STORAGE_KEY
+    );
+
+}
+
+
+/* ============================================================
+   DISPATCH LOG
+   ============================================================ */
 
 function getDispatchLog() {
-  return JSON.parse(localStorage.getItem(STORE_KEYS.DISPATCH_LOG) || "[]");
+
+    try {
+
+        const stored =
+            localStorage.getItem(
+                DISPATCH_LOG_STORAGE_KEY
+            );
+
+        if (!stored) {
+            return [];
+        }
+
+        const log =
+            JSON.parse(stored);
+
+        return Array.isArray(log)
+            ? log
+            : [];
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to read dispatch log:",
+            error
+        );
+
+        return [];
+
+    }
+
 }
 
-function addDispatchLogEntry(entry) {
-  const log = getDispatchLog();
-  log.push(entry);
-  localStorage.setItem(STORE_KEYS.DISPATCH_LOG, JSON.stringify(log));
+
+/* ============================================================
+   ADD DISPATCH LOG ENTRY
+   ============================================================ */
+
+function addDispatchLogEntry(
+    entry
+) {
+
+    if (!entry) {
+        return false;
+    }
+
+    const log =
+        getDispatchLog();
+
+    log.push(entry);
+
+    localStorage.setItem(
+        DISPATCH_LOG_STORAGE_KEY,
+        JSON.stringify(log)
+    );
+
+    return true;
+
 }
 
-// Seeds sample data once, so a fresh browser isn't empty.
+
+/* ============================================================
+   CLEAR DISPATCH LOG
+   ============================================================ */
+
+function clearDispatchLog() {
+
+    localStorage.removeItem(
+        DISPATCH_LOG_STORAGE_KEY
+    );
+
+}
+
+
+/* ============================================================
+   DEMO DATA
+   ------------------------------------------------------------
+   We do NOT create fake requests automatically.
+   New requests should come from request.html.
+   ============================================================ */
+
 function seedIfEmpty() {
-  if (getRequests().length === 0) {
-    saveRequests(SEED_REQUESTS);
-  }
-}
 
-function generateRequestId() {
-  const requests = getRequests();
-  const nextNum = 1001 + requests.length;
-  return `REQ-${nextNum}`;
+    /*
+     * Intentionally empty.
+     *
+     * We don't want fake emergency requests
+     * appearing in the Control Room.
+     */
+
+    return;
+
 }
