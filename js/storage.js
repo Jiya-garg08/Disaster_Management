@@ -1,16 +1,14 @@
 /* ============================================================
    storage.js — Relief Resolver Storage
-   Phase 1
-
-   IMPORTANT:
-   Both request.js and dispatcher.js use this same
-   localStorage key.
 
    REQUESTS:
        relief_requests
 
    DISPATCH LOG:
        relief_dispatch_log
+
+   DISASTER ZONES:
+       relief_disaster_zones
    ============================================================ */
 
 
@@ -23,6 +21,9 @@ const REQUESTS_STORAGE_KEY =
 
 const DISPATCH_LOG_STORAGE_KEY =
     "relief_dispatch_log";
+
+const DISASTER_ZONES_STORAGE_KEY =
+    "relief_disaster_zones";
 
 
 /* ============================================================
@@ -50,7 +51,6 @@ function getRequests() {
             : [];
 
     }
-
     catch (error) {
 
         console.error(
@@ -61,7 +61,6 @@ function getRequests() {
         return [];
 
     }
-
 }
 
 
@@ -112,7 +111,9 @@ function addRequest(request) {
 
         requests.push(request);
 
-        saveRequests(requests);
+        saveRequests(
+            requests
+        );
 
         console.log(
             "Relief Resolver request saved:",
@@ -122,7 +123,6 @@ function addRequest(request) {
         return true;
 
     }
-
     catch (error) {
 
         console.error(
@@ -188,15 +188,15 @@ function updateRequest(
         );
 
     if (index === -1) {
-
         return false;
-
     }
 
     requests[index] =
         updatedRequest;
 
-    saveRequests(requests);
+    saveRequests(
+        requests
+    );
 
     return true;
 
@@ -281,8 +281,6 @@ function deleteRequest(
 
 /* ============================================================
    CLEAR REQUESTS
-   ------------------------------------------------------------
-   USE ONLY FOR DEMO RESET.
    ============================================================ */
 
 function clearRequests() {
@@ -319,7 +317,6 @@ function getDispatchLog() {
             : [];
 
     }
-
     catch (error) {
 
         console.error(
@@ -375,20 +372,224 @@ function clearDispatchLog() {
 
 
 /* ============================================================
+   DISASTER ZONES
+   ============================================================ */
+
+
+/*
+   Get all disaster zones.
+*/
+
+function getDisasterZones() {
+
+    try {
+
+        const stored =
+            localStorage.getItem(
+                DISASTER_ZONES_STORAGE_KEY
+            );
+
+        if (!stored) {
+            return [];
+        }
+
+        const zones =
+            JSON.parse(stored);
+
+        return Array.isArray(zones)
+            ? zones
+            : [];
+
+    }
+    catch (error) {
+
+        console.error(
+            "Unable to read disaster zones:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/*
+   Save all disaster zones.
+*/
+
+function saveDisasterZones(
+    zones
+) {
+
+    if (!Array.isArray(zones)) {
+
+        console.error(
+            "saveDisasterZones expected an array."
+        );
+
+        return false;
+
+    }
+
+    try {
+
+        localStorage.setItem(
+            DISASTER_ZONES_STORAGE_KEY,
+            JSON.stringify(zones)
+        );
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Unable to save disaster zones:",
+            error
+        );
+
+        return false;
+
+    }
+
+}
+
+
+/*
+   Add one disaster zone.
+*/
+
+function addDisasterZone(
+    zone
+) {
+
+    if (!zone || !zone.id) {
+
+        console.error(
+            "Invalid disaster zone."
+        );
+
+        return false;
+
+    }
+
+    const zones =
+        getDisasterZones();
+
+    zones.push(
+        zone
+    );
+
+    return saveDisasterZones(
+        zones
+    );
+
+}
+
+
+/*
+   Update disaster zone.
+*/
+
+function updateDisasterZone(
+    updatedZone
+) {
+
+    if (
+        !updatedZone ||
+        !updatedZone.id
+    ) {
+
+        return false;
+
+    }
+
+    const zones =
+        getDisasterZones();
+
+    const index =
+        zones.findIndex(
+            zone =>
+                zone.id ===
+                updatedZone.id
+        );
+
+    if (index === -1) {
+        return false;
+    }
+
+    zones[index] =
+        updatedZone;
+
+    return saveDisasterZones(
+        zones
+    );
+
+}
+
+
+/*
+   Delete disaster zone.
+*/
+
+function deleteDisasterZone(
+    zoneId
+) {
+
+    const zones =
+        getDisasterZones();
+
+    const filtered =
+        zones.filter(
+            zone =>
+                zone.id !== zoneId
+        );
+
+    if (
+        filtered.length ===
+        zones.length
+    ) {
+
+        return false;
+
+    }
+
+    return saveDisasterZones(
+        filtered
+    );
+
+}
+
+
+/*
+   Get active zones only.
+*/
+
+function getActiveDisasterZones() {
+
+    return getDisasterZones()
+        .filter(
+            zone =>
+                zone.active !== false
+        );
+
+}
+
+
+/* ============================================================
    DEMO DATA
-   ------------------------------------------------------------
-   We do NOT create fake requests automatically.
-   New requests should come from request.html.
    ============================================================ */
 
 function seedIfEmpty() {
 
     /*
-     * Intentionally empty.
-     *
-     * We don't want fake emergency requests
-     * appearing in the Control Room.
-     */
+       Intentionally empty.
+
+       We do NOT create fake emergency requests
+       or fake disaster zones automatically.
+    */
 
     return;
 
