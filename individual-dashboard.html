@@ -1365,6 +1365,44 @@
 
 
 
+<!-- ============================================================
+     INDIVIDUAL DASHBOARD ACCESS CONTROL
+     ============================================================ -->
+<script>
+(function protectIndividualDashboard() {
+
+    const role = sessionStorage.getItem("reliefAccountRole");
+
+    const individualLoggedIn =
+        sessionStorage.getItem("reliefUserLoggedIn") === "true";
+
+    const ngoLoggedIn =
+        sessionStorage.getItem("reliefNgoLoggedIn") === "true";
+
+    const staffLoggedIn =
+        sessionStorage.getItem("reliefStaffLoggedIn") === "true";
+
+    /* NGO must NEVER see the individual dashboard. */
+    if (ngoLoggedIn || role === "ngo") {
+        window.location.replace("index.html");
+        return;
+    }
+
+    /* Staff belongs in the Control Room. */
+    if (staffLoggedIn || role === "staff") {
+        window.location.replace("dispatcher.html");
+        return;
+    }
+
+    /* Only a logged-in individual may use this page. */
+    if (!individualLoggedIn || role !== "individual") {
+        window.location.replace("login.html");
+        return;
+    }
+
+})();
+</script>
+
 <!-- LEAFLET -->
 
 <script
