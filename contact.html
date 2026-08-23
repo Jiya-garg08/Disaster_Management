@@ -652,6 +652,47 @@
 
   </style>
 
+
+<style>
+.team-email {
+    margin-top: 7px;
+    line-height: 1.45;
+}
+.team-email a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 11px;
+    word-break: break-word;
+    transition: color .2s ease;
+}
+.team-email a:hover {
+    color: var(--red);
+}
+.result-banner.error {
+    border-left-color: var(--red);
+    background: #f9ece9;
+    color: #7f2d27;
+}
+.control-room-note {
+    margin-top: 15px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+    background: #f7f2e7;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.55;
+}
+.message-id {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 5px 8px;
+    background: rgba(61,118,88,.10);
+    color: #28533d;
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+</style>
+
 </head>
 
 
@@ -686,9 +727,9 @@
         Shelter Request
       </a>
 
-      <a href="dispatcher.html">
+      <!-- <a href="dispatcher.html">
         Control Room
-      </a>
+      </a> -->
 
       <a href="about.html">
         About
@@ -817,8 +858,7 @@
 
         <p class="card-intro">
 
-          This prototype stores your message in the browser only.
-          A real email/inbox integration can be connected in Phase 2.
+          Send a message to the Relief Resolver team. Your message will appear in the Control Room so our team can review it.
 
         </p>
 
@@ -887,6 +927,10 @@
           id="resultBanner"
           class="result-banner"
         ></div>
+        <div class="control-room-note">
+    <strong>Thank you for reaching out.</strong>
+    Our team will review your message and get back to you as soon as possible.
+</div>
 
       </div>
 
@@ -927,10 +971,26 @@
             <div>
 
               <span class="info-label">
-                Email
+                Relief Resolver Team
               </span>
 
-              hello@reliefresolver.example
+              <div class="team-email">
+                <a href="mailto:vidhi2915.beai24@chitkara.edu.in">
+                  Vidhi Mahajan — vidhi2915.beai24@chitkara.edu.in
+                </a>
+              </div>
+
+                <div class="team-email">
+                  <a href="mailto:jiya3209.beai24@chitkara.edu.in">
+                    Jiya — jiya3209.beai24@chitkara.edu.in
+                  </a>
+                </div>
+
+              <div class="team-email">
+                <a href="mailto:divyam3271.beai24@chitkara.eud.in">
+                  Divyam Aeron — divyam3271.beai24@chitkara.eud.in
+                </a>
+              </div>
 
             </div>
 
@@ -1056,9 +1116,9 @@
         Submit a Shelter Request
       </a>
 
-      <a href="dispatcher.html">
+      <!-- <a href="dispatcher.html">
         View Control Room
-      </a>
+      </a> -->
 
       <a href="about.html">
         Learn About The Project
@@ -1119,9 +1179,9 @@
           Shelter Request
         </a>
 
-        <a href="dispatcher.html">
+        <!-- <a href="dispatcher.html">
           Control Room
-        </a>
+        </a> -->
 
       </div>
 
@@ -1142,6 +1202,14 @@
         </a>
 
       </div>
+
+      <div class="footer-col">
+    <h4>Login</h4>
+
+    <a href="login.html">
+        Login
+    </a>
+</div>
 
 
 
@@ -1182,6 +1250,11 @@
 
   <script>
 
+    /* ============================================================
+       CONTACT FORM → CONTROL ROOM
+       Phase 1: stores messages in localStorage.
+       ============================================================ */
+
     document
       .getElementById("contactForm")
       .addEventListener(
@@ -1190,42 +1263,190 @@
 
           event.preventDefault();
 
+          const form = this;
 
           const name =
-            document.getElementById("cname").value.trim();
+            document
+              .getElementById("cname")
+              .value
+              .trim();
 
+          const email =
+            document
+              .getElementById("cemail")
+              .value
+              .trim()
+              .toLowerCase();
+
+          const message =
+            document
+              .getElementById("cmessage")
+              .value
+              .trim();
 
           const banner =
-            document.getElementById("resultBanner");
+            document.getElementById(
+              "resultBanner"
+            );
 
+
+          /* --------------------------------------------
+             BASIC VALIDATION
+             -------------------------------------------- */
+
+          if (!name || !email || !message) {
+
+            banner.className =
+              "result-banner show error";
+
+            banner.innerHTML = `
+              <strong>
+                Please complete all fields.
+              </strong>
+              <br>
+              Name, email and message are required.
+            `;
+
+            return;
+          }
+
+
+          /* --------------------------------------------
+             EXISTING CONTACT MESSAGES
+             -------------------------------------------- */
+
+          let messages = [];
+
+          try {
+
+            messages =
+              JSON.parse(
+                localStorage.getItem(
+                  "relief_contact_messages"
+                ) || "[]"
+              );
+
+          } catch (error) {
+
+            messages = [];
+          }
+
+
+          /* --------------------------------------------
+             CREATE MESSAGE ID
+             -------------------------------------------- */
+
+          const messageId =
+            "MSG-" +
+            String(
+              Date.now()
+            ).slice(-8);
+
+
+          /* --------------------------------------------
+             CREATE CONTACT MESSAGE
+             -------------------------------------------- */
+
+          const contactMessage = {
+
+            id:
+              messageId,
+
+            name:
+              name,
+
+            email:
+              email,
+
+            message:
+              message,
+
+            status:
+              "new",
+
+            submittedAt:
+              Date.now(),
+
+            read:
+              false
+
+          };
+
+
+          /* --------------------------------------------
+             SAVE FOR CONTROL ROOM
+             -------------------------------------------- */
+
+          messages.unshift(
+            contactMessage
+          );
+
+
+          localStorage.setItem(
+            "relief_contact_messages",
+            JSON.stringify(
+              messages
+            )
+          );
+
+
+          /* --------------------------------------------
+             SUCCESS MESSAGE
+             -------------------------------------------- */
 
           banner.className =
             "result-banner show";
 
-
           banner.innerHTML = `
-            <strong>
-              ✓ Message received, ${name || "there"}.
-            </strong>
+    <strong>
+        ✓ Message submitted successfully.
+    </strong>
 
-            <br>
+    <br>
 
-            Your message has been stored locally
-            for this Phase 1 prototype.
-            A real inbox can be connected in Phase 2.
-          `;
+    Thank you, ${escapeHtml(name)}.
+    Your message has been received.
+    Our team will review it and get back to you
+    as soon as possible.
+`;
 
 
-          this.reset();
+          /* --------------------------------------------
+             RESET FORM
+             -------------------------------------------- */
+
+          form.reset();
 
 
           banner.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
+            behavior:
+              "smooth",
+            block:
+              "nearest"
           });
 
         }
       );
+
+
+    /* ============================================================
+       ESCAPE USER INPUT BEFORE INSERTING INTO HTML
+       ============================================================ */
+
+    function escapeHtml(
+      value
+    ) {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.textContent =
+        value || "";
+
+      return div.innerHTML;
+    }
 
   </script>
 
