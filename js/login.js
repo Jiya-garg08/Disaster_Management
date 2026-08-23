@@ -9,6 +9,22 @@
    3. Staff
 
    Staff is intentionally NOT shown as a role.
+
+   IMPORTANT ROLE SEPARATION:
+
+   Individual:
+       reliefUserLoggedIn = true
+       reliefAccountRole = individual
+
+   NGO:
+       reliefNgoLoggedIn = true
+       reliefAccountRole = ngo
+
+   Staff:
+       reliefStaffLoggedIn = true
+       reliefAccountRole = staff
+
+   Only ONE role is allowed to be active at a time.
    ============================================================ */
 
 
@@ -104,6 +120,81 @@ document.addEventListener(
 
 
         /* ============================================================
+           SESSION HELPERS
+
+           IMPORTANT:
+           These functions make sure Individual, NGO and Staff
+           sessions can NEVER remain active together.
+           ============================================================ */
+
+
+        function clearIndividualSession() {
+
+            sessionStorage.removeItem(
+                "reliefUserLoggedIn"
+            );
+
+            sessionStorage.removeItem(
+                "reliefUserName"
+            );
+
+            sessionStorage.removeItem(
+                "reliefUserEmail"
+            );
+
+            sessionStorage.removeItem(
+                "reliefUserPhone"
+            );
+
+        }
+
+
+        function clearNgoSession() {
+
+            sessionStorage.removeItem(
+                "reliefNgoLoggedIn"
+            );
+
+            sessionStorage.removeItem(
+                "reliefNgoId"
+            );
+
+            sessionStorage.removeItem(
+                "reliefNgoName"
+            );
+
+        }
+
+
+        function clearStaffSession() {
+
+            sessionStorage.removeItem(
+                "reliefStaffLoggedIn"
+            );
+
+            sessionStorage.removeItem(
+                "reliefStaffName"
+            );
+
+        }
+
+
+        function clearAllSessions() {
+
+            clearIndividualSession();
+
+            clearNgoSession();
+
+            clearStaffSession();
+
+            sessionStorage.removeItem(
+                "reliefAccountRole"
+            );
+
+        }
+
+
+        /* ============================================================
            INDIVIDUAL MODE
            ============================================================ */
 
@@ -113,43 +204,79 @@ document.addEventListener(
                 "individual";
 
 
-            roleSwitch.classList.remove(
-                "ngo-active"
-            );
+            if (roleSwitch) {
+
+                roleSwitch.classList.remove(
+                    "ngo-active"
+                );
+
+            }
 
 
-            individualRole.classList.add(
-                "active"
-            );
+            if (individualRole) {
+
+                individualRole.classList.add(
+                    "active"
+                );
+
+            }
 
 
-            ngoRole.classList.remove(
-                "active"
-            );
+            if (ngoRole) {
+
+                ngoRole.classList.remove(
+                    "active"
+                );
+
+            }
 
 
-            loginTitle.textContent =
-                "Sign in as an individual";
+            if (loginTitle) {
+
+                loginTitle.textContent =
+                    "Sign in as an individual";
+
+            }
 
 
-            loginDescription.textContent =
-                "Continue to manage your emergency requests and assistance.";
+            if (loginDescription) {
+
+                loginDescription.textContent =
+                    "Continue to manage your emergency requests and assistance.";
+
+            }
 
 
-            identifierLabel.textContent =
-                "Email";
+            if (identifierLabel) {
+
+                identifierLabel.textContent =
+                    "Email";
+
+            }
 
 
-            identifierInput.placeholder =
-                "Enter your email";
+            if (identifierInput) {
+
+                identifierInput.placeholder =
+                    "Enter your email";
+
+            }
 
 
-            individualRegisterLink.style.display =
-                "inline-block";
+            if (individualRegisterLink) {
+
+                individualRegisterLink.style.display =
+                    "inline-block";
+
+            }
 
 
-            ngoRegisterLink.style.display =
-                "none";
+            if (ngoRegisterLink) {
+
+                ngoRegisterLink.style.display =
+                    "none";
+
+            }
 
 
             clearMessages();
@@ -167,43 +294,79 @@ document.addEventListener(
                 "ngo";
 
 
-            roleSwitch.classList.add(
-                "ngo-active"
-            );
+            if (roleSwitch) {
+
+                roleSwitch.classList.add(
+                    "ngo-active"
+                );
+
+            }
 
 
-            individualRole.classList.remove(
-                "active"
-            );
+            if (individualRole) {
+
+                individualRole.classList.remove(
+                    "active"
+                );
+
+            }
 
 
-            ngoRole.classList.add(
-                "active"
-            );
+            if (ngoRole) {
+
+                ngoRole.classList.add(
+                    "active"
+                );
+
+            }
 
 
-            loginTitle.textContent =
-                "Sign in as an NGO";
+            if (loginTitle) {
+
+                loginTitle.textContent =
+                    "Sign in as an NGO";
+
+            }
 
 
-            loginDescription.textContent =
-                "Access your verified organization's relief dashboard.";
+            if (loginDescription) {
+
+                loginDescription.textContent =
+                    "Access your verified organization's relief dashboard.";
+
+            }
 
 
-            identifierLabel.textContent =
-                "Organization Email";
+            if (identifierLabel) {
+
+                identifierLabel.textContent =
+                    "Organization Email";
+
+            }
 
 
-            identifierInput.placeholder =
-                "Enter organization email";
+            if (identifierInput) {
+
+                identifierInput.placeholder =
+                    "Enter organization email";
+
+            }
 
 
-            individualRegisterLink.style.display =
-                "none";
+            if (individualRegisterLink) {
+
+                individualRegisterLink.style.display =
+                    "none";
+
+            }
 
 
-            ngoRegisterLink.style.display =
-                "inline-block";
+            if (ngoRegisterLink) {
+
+                ngoRegisterLink.style.display =
+                    "inline-block";
+
+            }
 
 
             clearMessages();
@@ -381,9 +544,7 @@ document.addEventListener(
 
                 const identifier =
                     identifierInput
-                        ? identifierInput
-                            .value
-                            .trim()
+                        ? identifierInput.value.trim()
                         : "";
 
 
@@ -419,12 +580,30 @@ document.addEventListener(
                 if (
                     identifier
                         .toLowerCase() ===
-                    STAFF_USERNAME
-                        .toLowerCase()
+                    STAFF_USERNAME.toLowerCase()
                     &&
                     password ===
                     STAFF_PASSWORD
                 ) {
+
+                    /* ----------------------------------------------
+                       IMPORTANT:
+                       Remove every other role before creating
+                       Staff session.
+                       ---------------------------------------------- */
+
+                    clearIndividualSession();
+
+                    clearNgoSession();
+
+                    clearStaffSession();
+
+                    sessionStorage.removeItem(
+                        "reliefAccountRole"
+                    );
+
+
+                    /* Set Staff session */
 
                     sessionStorage.setItem(
                         "reliefStaffLoggedIn",
@@ -435,6 +614,12 @@ document.addEventListener(
                     sessionStorage.setItem(
                         "reliefStaffName",
                         "Relief Coordinator"
+                    );
+
+
+                    sessionStorage.setItem(
+                        "reliefAccountRole",
+                        "staff"
                     );
 
 
@@ -513,12 +698,14 @@ document.addEventListener(
                     );
 
             }
+
             catch (error) {
 
                 console.error(
                     "Could not read NGO accounts:",
                     error
                 );
+
 
                 showError(
                     "Unable to read NGO account data."
@@ -591,7 +778,29 @@ document.addEventListener(
 
             /* ========================================================
                NGO SESSION
+
+               IMPORTANT:
+
+               NGO and Individual sessions must NEVER coexist.
                ======================================================== */
+
+
+            /* Clear old Individual session */
+
+            clearIndividualSession();
+
+
+            /* Clear old Staff session */
+
+            clearStaffSession();
+
+
+            /* Clear any previous NGO session */
+
+            clearNgoSession();
+
+
+            /* Set NGO session */
 
             sessionStorage.setItem(
                 "reliefNgoLoggedIn",
@@ -612,33 +821,39 @@ document.addEventListener(
 
 
             sessionStorage.setItem(
-                "reliefUserLoggedIn",
-                "true"
-            );
-
-
-            sessionStorage.setItem(
-                "reliefUserName",
-                ngo.name
-            );
-
-
-            sessionStorage.setItem(
-                "reliefUserEmail",
-                ngo.email
+                "reliefAccountRole",
+                "ngo"
             );
 
 
             showSuccess(
-                "NGO verified. Opening your organization dashboard..."
+                "NGO verified successfully."
             );
 
+
+            /* ========================================================
+               IMPORTANT
+
+               NGO dashboard has NOT been created yet.
+
+               Therefore DO NOT send NGO to:
+
+                   individual-dashboard.html
+
+               For now send NGO to the home page.
+
+               Later, when ngo-dashboard.html is created,
+               this can simply become:
+
+                   window.location.href =
+                       "ngo-dashboard.html";
+               ======================================================== */
 
             setTimeout(
                 () => {
 
                     window.location.href =
-                        "ngo-dashboard.html";
+                        "index.html";
 
                 },
                 500
@@ -664,6 +879,7 @@ document.addEventListener(
              *
              * We keep compatibility with all of them.
              */
+
 
             const possibleKeys = [
 
@@ -720,6 +936,7 @@ document.addEventListener(
                     }
 
                 }
+
                 catch (error) {
 
                     console.warn(
@@ -816,6 +1033,22 @@ document.addEventListener(
                 email;
 
 
+            /* --------------------------------------------------------
+               IMPORTANT:
+               Clear NGO and Staff sessions first.
+               -------------------------------------------------------- */
+
+            clearNgoSession();
+
+            clearStaffSession();
+
+            sessionStorage.removeItem(
+                "reliefAccountRole"
+            );
+
+
+            /* Set Individual session */
+
             sessionStorage.setItem(
                 "reliefUserLoggedIn",
                 "true"
@@ -831,6 +1064,12 @@ document.addEventListener(
             sessionStorage.setItem(
                 "reliefUserEmail",
                 userEmail
+            );
+
+
+            sessionStorage.setItem(
+                "reliefAccountRole",
+                "individual"
             );
 
 
@@ -869,15 +1108,15 @@ document.addEventListener(
                they submitted an emergency request while
                logged out, request.js stored:
 
-               reliefPendingRequest
+                   reliefPendingRequest
 
                and:
 
-               reliefLoginPurpose = submit_request
+                   reliefLoginPurpose = submit_request
 
                We MUST return to:
 
-               request.html?resumeRequest=true
+                   request.html?resumeRequest=true
 
                NOT simply request.html.
 
