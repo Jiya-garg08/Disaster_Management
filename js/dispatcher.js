@@ -29,8 +29,6 @@ document.addEventListener(
 
         renderAll();
 
-        initializeCoordinationMap();
-
     }
 );
 
@@ -3539,276 +3537,276 @@ function renderAlerts() {
 }
 
 
-/* ============================================================
-   MAP
-   ============================================================ */
+// /* ============================================================
+//    MAP
+//    ============================================================ */
 
-let coordinationMap =
-    null;
+// let coordinationMap =
+//     null;
 
 
-function getLat(
-    object
-) {
+// function getLat(
+//     object
+// ) {
 
-    const value =
-        Number(
-            firstValue(
-                object.lat,
-                object.latitude,
-                object.location?.lat,
-                object.coordinates?.lat
-            )
-        );
+//     const value =
+//         Number(
+//             firstValue(
+//                 object.lat,
+//                 object.latitude,
+//                 object.location?.lat,
+//                 object.coordinates?.lat
+//             )
+//         );
 
 
-    return Number.isFinite(value)
-        ? value
-        : null;
+//     return Number.isFinite(value)
+//         ? value
+//         : null;
 
-}
+// }
 
 
-function getLng(
-    object
-) {
+// function getLng(
+//     object
+// ) {
 
-    const value =
-        Number(
-            firstValue(
-                object.lng,
-                object.longitude,
-                object.location?.lng,
-                object.coordinates?.lng
-            )
-        );
+//     const value =
+//         Number(
+//             firstValue(
+//                 object.lng,
+//                 object.longitude,
+//                 object.location?.lng,
+//                 object.coordinates?.lng
+//             )
+//         );
 
 
-    return Number.isFinite(value)
-        ? value
-        : null;
+//     return Number.isFinite(value)
+//         ? value
+//         : null;
 
-}
+// }
 
 
-function initializeCoordinationMap() {
+// function initializeCoordinationMap() {
 
-    const element =
-        document.getElementById(
-            "coordinationMap"
-        );
+//     const element =
+//         document.getElementById(
+//             "coordinationMap"
+//         );
 
 
-    if (
-        !element ||
-        typeof L ===
-            "undefined"
-    ) {
-        return;
-    }
+//     if (
+//         !element ||
+//         typeof L ===
+//             "undefined"
+//     ) {
+//         return;
+//     }
 
 
-    if (coordinationMap) {
+//     if (coordinationMap) {
 
-        coordinationMap.remove();
+//         coordinationMap.remove();
 
-    }
+//     }
 
 
-    coordinationMap =
-        L.map(
-            element
-        ).setView(
-            [
-                22.5,
-                79
-            ],
-            5
-        );
+//     coordinationMap =
+//         L.map(
+//             element
+//         ).setView(
+//             [
+//                 22.5,
+//                 79
+//             ],
+//             5
+//         );
 
 
-    L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-            maxZoom: 18,
-            attribution:
-                "&copy; OpenStreetMap contributors"
-        }
-    )
-    .addTo(
-        coordinationMap
-    );
+//     L.tileLayer(
+//         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+//         {
+//             maxZoom: 18,
+//             attribution:
+//                 "&copy; OpenStreetMap contributors"
+//         }
+//     )
+//     .addTo(
+//         coordinationMap
+//     );
 
 
-    renderCoordinationMap();
+//     renderCoordinationMap();
 
-}
+// }
 
 
-function renderCoordinationMap() {
+// function renderCoordinationMap() {
 
-    if (!coordinationMap) {
-        return;
-    }
+//     if (!coordinationMap) {
+//         return;
+//     }
 
 
-    const requests =
-        readRequests()
-            .filter(
-                request =>
-                    request.verified === true
-            );
+//     const requests =
+//         readRequests()
+//             .filter(
+//                 request =>
+//                     request.verified === true
+//             );
 
 
-    const ngos =
-        readNGOs()
-            .filter(
-                ngo =>
-                    ngo.status ===
-                    "verified"
-            );
+//     const ngos =
+//         readNGOs()
+//             .filter(
+//                 ngo =>
+//                     ngo.status ===
+//                     "verified"
+//             );
 
 
-    const bounds = [];
+//     const bounds = [];
 
 
-    requests.forEach(
-        request => {
+//     requests.forEach(
+//         request => {
 
-            const lat =
-                getLat(request);
+//             const lat =
+//                 getLat(request);
 
 
-            const lng =
-                getLng(request);
+//             const lng =
+//                 getLng(request);
 
 
-            if (
-                lat === null ||
-                lng === null
-            ) {
-                return;
-            }
+//             if (
+//                 lat === null ||
+//                 lng === null
+//             ) {
+//                 return;
+//             }
 
 
-            L.marker([
-                lat,
-                lng
-            ])
-            .addTo(
-                coordinationMap
-            )
-            .bindPopup(`
-                <strong>
-                    Verified Emergency Request
-                </strong>
-                <br><br>
-                ${safe(
-                    getLocationName(
-                        request
-                    )
-                )}
-                <br>
-                ${safe(
-                    request.id ||
-                    request.requestNumber
-                )}
-            `);
+//             L.marker([
+//                 lat,
+//                 lng
+//             ])
+//             .addTo(
+//                 coordinationMap
+//             )
+//             .bindPopup(`
+//                 <strong>
+//                     Verified Emergency Request
+//                 </strong>
+//                 <br><br>
+//                 ${safe(
+//                     getLocationName(
+//                         request
+//                     )
+//                 )}
+//                 <br>
+//                 ${safe(
+//                     request.id ||
+//                     request.requestNumber
+//                 )}
+//             `);
 
 
-            bounds.push([
-                lat,
-                lng
-            ]);
+//             bounds.push([
+//                 lat,
+//                 lng
+//             ]);
 
-        }
-    );
+//         }
+//     );
 
 
-    ngos.forEach(
-        ngo => {
+//     ngos.forEach(
+//         ngo => {
 
-            const lat =
-                getLat(ngo);
+//             const lat =
+//                 getLat(ngo);
 
 
-            const lng =
-                getLng(ngo);
+//             const lng =
+//                 getLng(ngo);
 
 
-            if (
-                lat === null ||
-                lng === null
-            ) {
-                return;
-            }
+//             if (
+//                 lat === null ||
+//                 lng === null
+//             ) {
+//                 return;
+//             }
 
 
-            L.marker([
-                lat,
-                lng
-            ])
-            .addTo(
-                coordinationMap
-            )
-            .bindPopup(`
-                <strong>
-                    🏠
-                    ${safe(
-                        ngo.name ||
-                        "Verified NGO"
-                    )}
-                </strong>
+//             L.marker([
+//                 lat,
+//                 lng
+//             ])
+//             .addTo(
+//                 coordinationMap
+//             )
+//             .bindPopup(`
+//                 <strong>
+//                     🏠
+//                     ${safe(
+//                         ngo.name ||
+//                         "Verified NGO"
+//                     )}
+//                 </strong>
 
-                <br><br>
+//                 <br><br>
 
-                ✓ Verified
+//                 ✓ Verified
 
-                <br>
+//                 <br>
 
-                Services:
-                ${safe(
-                    formatServices(
-                        ngo.services
-                    )
-                )}
+//                 Services:
+//                 ${safe(
+//                     formatServices(
+//                         ngo.services
+//                     )
+//                 )}
 
-                <br>
+//                 <br>
 
-                Operating radius:
-                ${
-                    Number(
-                        ngo.operatingRadiusKm ||
-                        ngo.operatingRadius ||
-                        0
-                    )
-                }
-                km
-            `);
+//                 Operating radius:
+//                 ${
+//                     Number(
+//                         ngo.operatingRadiusKm ||
+//                         ngo.operatingRadius ||
+//                         0
+//                     )
+//                 }
+//                 km
+//             `);
 
 
-            bounds.push([
-                lat,
-                lng
-            ]);
+//             bounds.push([
+//                 lat,
+//                 lng
+//             ]);
 
-        }
-    );
+//         }
+//     );
 
 
-    if (bounds.length) {
+//     if (bounds.length) {
 
-        coordinationMap.fitBounds(
-            bounds,
-            {
-                padding: [35,35],
-                maxZoom: 10
-            }
-        );
+//         coordinationMap.fitBounds(
+//             bounds,
+//             {
+//                 padding: [35,35],
+//                 maxZoom: 10
+//             }
+//         );
 
-    }
+//     }
 
-}
+// }
 
 
 /* ============================================================
@@ -3827,9 +3825,7 @@ function renderAll() {
 
     renderNGOs();
 
-    if (coordinationMap) {
-        renderCoordinationMap();
-    }
+    
 
 }
 
