@@ -2861,6 +2861,665 @@
 
 }
 
+.coordination-wrap {
+    width: 100%;
+    display: block;
+}
+
+.coordination-state {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 20px;
+    padding: 16px 18px;
+
+    background: #edf7ef;
+    border: 1px solid #cfe2d5;
+    border-radius: 10px;
+}
+
+.coordination-state > div {
+    min-width: 0;
+    flex: 1;
+}
+
+.coordination-state strong {
+    display: block;
+    color: #245e38;
+    font-size: 13px;
+}
+
+.coordination-state span {
+    display: block;
+    margin-top: 5px;
+
+    color: #64758a;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.coordination-state .available {
+    flex: 0 0 auto;
+    margin: 0;
+
+    padding: 7px 11px;
+
+    background: #dff2e5;
+    color: #2f8b52;
+
+    border-radius: 999px;
+
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.coordination-head {
+    width: 100%;
+}
+
+.match-list {
+    width: 100%;
+}
+
+/* ============================================================
+   NGO NOTIFICATION MODAL
+   ============================================================ */
+
+.notify-modal-backdrop {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 24px;
+
+    background:
+        rgba(
+            7,
+            21,
+            37,
+            0.60
+        );
+
+    backdrop-filter:
+        blur(6px);
+
+}
+
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+
+.notify-modal {
+
+    position: relative;
+
+    width: min(
+        560px,
+        100%
+    );
+
+    padding: 32px;
+
+    background:
+        #fffdf9;
+
+    border:
+        1px solid #e2ddd3;
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        0 30px 80px
+        rgba(
+            7,
+            21,
+            37,
+            0.25
+        );
+
+    animation:
+        notifyModalIn
+        0.18s ease-out;
+
+}
+
+
+/* ============================================================
+   ANIMATION
+   ============================================================ */
+
+@keyframes notifyModalIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(12px)
+            scale(0.98);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+/* ============================================================
+   CLOSE
+   ============================================================ */
+
+.notify-modal-close {
+
+    position: absolute;
+
+    top: 16px;
+
+    right: 16px;
+
+    width: 36px;
+
+    height: 36px;
+
+    border:
+        1px solid #e2ddd3;
+
+    border-radius: 50%;
+
+    background:
+        #f7f4ed;
+
+    color:
+        #071525;
+
+    font-size:
+        21px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+
+}
+
+
+.notify-modal-close:hover {
+
+    background:
+        #ebe6dc;
+
+    transform:
+        rotate(4deg);
+
+}
+
+
+/* ============================================================
+   ICON
+   ============================================================ */
+
+.notify-modal-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    border-radius:
+        14px;
+
+    background:
+        #eef7f0;
+
+    font-size:
+        22px;
+
+}
+
+
+/* ============================================================
+   EYEBROW
+   ============================================================ */
+
+.notify-modal-eyebrow {
+
+    margin-bottom: 7px;
+
+    color:
+        #b83d34;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1.6px;
+
+}
+
+
+/* ============================================================
+   TITLE
+   ============================================================ */
+
+.notify-modal h2 {
+
+    margin:
+        0 45px 9px 0;
+
+    color:
+        #071525;
+
+    font-family:
+        Fraunces,
+        Georgia,
+        serif;
+
+    font-size:
+        28px;
+
+    line-height:
+        1.15;
+
+}
+
+
+/* ============================================================
+   DESCRIPTION
+   ============================================================ */
+
+.notify-modal-description {
+
+    margin:
+        0 0 22px;
+
+    color:
+        #64758a;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.65;
+
+}
+
+
+/* ============================================================
+   REQUEST SUMMARY
+   ============================================================ */
+
+.notify-request-summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        10px;
+
+    margin-bottom:
+        16px;
+
+}
+
+
+.notify-summary-item {
+
+    min-width:
+        0;
+
+    padding:
+        14px;
+
+    background:
+        #f7f4ed;
+
+    border:
+        1px solid #e5dfd5;
+
+    border-radius:
+        10px;
+
+}
+
+
+.notify-summary-item span {
+
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    color:
+        #72839a;
+
+    font-size:
+        8px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1.1px;
+
+}
+
+
+.notify-summary-item strong {
+
+    display:
+        block;
+
+    overflow:
+        hidden;
+
+    color:
+        #071525;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.4;
+
+    text-overflow:
+        ellipsis;
+
+}
+
+
+/* ============================================================
+   INFORMATION NOTE
+   ============================================================ */
+
+.notify-modal-note {
+
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    align-items:
+        flex-start;
+
+    margin-bottom:
+        24px;
+
+    padding:
+        14px 15px;
+
+    background:
+        #eef7f0;
+
+    border:
+        1px solid #cce3d1;
+
+    border-radius:
+        10px;
+
+    color:
+        #356947;
+
+}
+
+
+.notify-modal-note > span {
+
+    flex:
+        0 0 auto;
+
+    font-weight:
+        800;
+
+}
+
+
+.notify-modal-note p {
+
+    margin:
+        0;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.55;
+
+}
+
+
+.notify-modal-note strong {
+
+    color:
+        #245c37;
+
+}
+
+
+/* ============================================================
+   BUTTON AREA
+   ============================================================ */
+
+.notify-modal-actions {
+
+    display:
+        flex;
+
+    justify-content:
+        flex-end;
+
+    gap:
+        10px;
+
+}
+
+
+/* ============================================================
+   BOTH BUTTONS
+   ============================================================ */
+
+.notify-cancel-btn,
+.notify-confirm-btn {
+
+    min-height:
+        44px;
+
+    padding:
+        0 18px;
+
+    border-radius:
+        9px;
+
+    font-family:
+        inherit;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease;
+
+}
+
+
+/* ============================================================
+   CANCEL
+   ============================================================ */
+
+.notify-cancel-btn {
+
+    background:
+        #f3f0e9;
+
+    border:
+        1px solid #ded8cd;
+
+    color:
+        #52606c;
+
+}
+
+
+.notify-cancel-btn:hover {
+
+    background:
+        #e9e4da;
+
+}
+
+
+/* ============================================================
+   CONFIRM
+   ============================================================ */
+
+.notify-confirm-btn {
+
+    background:
+        #071525;
+
+    border:
+        1px solid #071525;
+
+    color:
+        #ffffff;
+
+    box-shadow:
+        0 6px 16px
+        rgba(
+            7,
+            21,
+            37,
+            0.14
+        );
+
+}
+
+
+.notify-confirm-btn:hover {
+
+    background:
+        #10243a;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 9px 20px
+        rgba(
+            7,
+            21,
+            37,
+            0.20
+        );
+
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (
+    max-width: 650px
+) {
+
+    .notify-modal {
+
+        padding:
+            24px;
+
+        border-radius:
+            15px;
+
+    }
+
+
+    .notify-modal h2 {
+
+        font-size:
+            24px;
+
+    }
+
+
+    .notify-request-summary {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .notify-modal-actions {
+
+        flex-direction:
+            column-reverse;
+
+    }
+
+
+    .notify-cancel-btn,
+    .notify-confirm-btn {
+
+        width:
+            100%;
+
+    }
+
+}
 
     </style>
 
