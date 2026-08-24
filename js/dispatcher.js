@@ -1,1632 +1,601 @@
 /* ============================================================
-   dispatcher.js — Relief Resolver Control Room
-   NGO COORDINATION WORKFLOW
-
-   Workflow:
-   1. Emergency request arrives.
-   2. Staff inspect evidence.
-   3. Staff verify the request.
-   4. Verified NGOs are matched using requested service.
-   5. Staff notify a suitable NGO.
-   6. Request becomes "coordinating".
-   7. Staff can mark the NGO as "on the way".
-
-   There is intentionally NO vehicle/fleet dispatch workflow.
-   ============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-    renderAll();
-});
-
-/* ============================================================
-   RELIEF COORDINATION MAP
-
-   Shows:
-
-   👤 Verified Individual Requests
-
-   🏠 Verified NGOs
-
-   ─ ─ ─ Assigned NGO ↔ Individual Request
-
-   Data sources:
-
-       relief_requests
-       drr_ngos
-============================================================ */
-
-
-/* ------------------------------------------------------------
-   MAP STATE
------------------------------------------------------------- */
-
-let coordinationMap = null;
-
-let coordinationRequestMarkers = [];
-
-let coordinationNgoMarkers = [];
-
-let coordinationLines = [];
-
-let coordinationDistanceLabels = [];
-
-
-/* ------------------------------------------------------------
-   PERSON ICON
------------------------------------------------------------- */
-
-const coordinationPersonIcon =
-    L.divIcon({
-
-        className:
-            "coordination-map-icon",
-
-        html: `
-            <div class="coordination-person-icon">
-                👤
-            </div>
-        `,
-
-        iconSize: [
-            42,
-            42
-        ],
-
-        iconAnchor: [
-            21,
-            42
-        ],
-
-        popupAnchor: [
-            0,
-            -42
-        ]
-
-    });
-
-
-/* ------------------------------------------------------------
-   NGO ICON
------------------------------------------------------------- */
-
-const coordinationNgoIcon =
-    L.divIcon({
-
-        className:
-            "coordination-map-icon",
-
-        html: `
-            <div class="coordination-ngo-icon">
-                🏠
-            </div>
-        `,
-
-        iconSize: [
-            46,
-            46
-        ],
-
-        iconAnchor: [
-            23,
-            46
-        ],
-
-        popupAnchor: [
-            0,
-            -46
-        ]
-
-    });
-
-
-/* ------------------------------------------------------------
-   SAFE HTML
------------------------------------------------------------- */
-
-function coordinationSafe(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   NUMBER
------------------------------------------------------------- */
-
-function coordinationNumber(
-    value
-) {
-
-    const number =
-        Number(value);
-
-    return Number.isFinite(
-        number
-    )
-        ? number
-        : null;
-
-}
-
-
-/* ------------------------------------------------------------
-   GET NGO LATITUDE
------------------------------------------------------------- */
-
-function getCoordinationNgoLat(
-    ngo
-) {
-
-    return coordinationNumber(
-        ngo?.lat ??
-        ngo?.latitude ??
-        ngo?.location?.lat ??
-        ngo?.coordinates?.lat
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   GET NGO LONGITUDE
------------------------------------------------------------- */
-
-function getCoordinationNgoLng(
-    ngo
-) {
-
-    return coordinationNumber(
-        ngo?.lng ??
-        ngo?.longitude ??
-        ngo?.location?.lng ??
-        ngo?.coordinates?.lng
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   GET REQUEST LATITUDE
------------------------------------------------------------- */
-
-function getCoordinationRequestLat(
-    request
-) {
-
-    return coordinationNumber(
-        request?.lat ??
-        request?.latitude ??
-        request?.location?.lat
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   GET REQUEST LONGITUDE
------------------------------------------------------------- */
-
-function getCoordinationRequestLng(
-    request
-) {
-
-    return coordinationNumber(
-        request?.lng ??
-        request?.longitude ??
-        request?.location?.lng
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   GET VERIFIED REQUESTS
------------------------------------------------------------- */
-
-function getCoordinationVerifiedRequests() {
-
-    const requests =
-        readRequests();
-
-
-    return requests.filter(
-        request => {
-
-            if (
-                request.verified !== true
-            ) {
-
-                return false;
-
-            }
-
-
-            const lat =
-                getCoordinationRequestLat(
-                    request
-                );
-
-
-            const lng =
-                getCoordinationRequestLng(
-                    request
-                );
-
-
-            return (
-                lat !== null &&
-                lng !== null
-            );
-
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   GET VERIFIED NGOS
------------------------------------------------------------- */
-
-function getCoordinationVerifiedNGOs() {
-
-    const ngos =
-        readNGOs();
-
-
-    return ngos.filter(
-        ngo => {
-
-            if (
-                ngo.status !==
-                "verified"
-            ) {
-
-                return false;
-
-            }
-
-
-            const lat =
-                getCoordinationNgoLat(
-                    ngo
-                );
-
-
-            const lng =
-                getCoordinationNgoLng(
-                    ngo
-                );
-
-
-            return (
-                lat !== null &&
-                lng !== null
-            );
-
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   INITIALIZE MAP
------------------------------------------------------------- */
-
-function initializeCoordinationMap() {
-
-    const mapElement =
-        document.getElementById(
-            "coordinationMap"
-        );
-
-
-    if (!mapElement) {
-
-        return;
-
-    }
-
-
-    if (
-        typeof L ===
-        "undefined"
-    ) {
-
-        console.error(
-            "Leaflet is not loaded."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        coordinationMap
-    ) {
-
-        return;
-
-    }
-
-
-    coordinationMap =
-        L.map(
-            "coordinationMap"
-        ).setView(
-            [
-                22.5,
-                79.0
-            ],
-            5
-        );
-
-
-    L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-
-            maxZoom: 18,
-
-            attribution:
-                "&copy; OpenStreetMap contributors"
-
-        }
-    ).addTo(
-        coordinationMap
-    );
-
-
-    renderCoordinationMap();
-
-}
-
-
-/* ------------------------------------------------------------
-   CLEAR MAP LAYERS
------------------------------------------------------------- */
-
-function clearCoordinationMapLayers() {
-
-    coordinationRequestMarkers
-        .forEach(
-            marker => {
-
-                if (
-                    coordinationMap
-                        .hasLayer(marker)
-                ) {
-
-                    coordinationMap
-                        .removeLayer(marker);
-
-                }
-
-            }
-        );
-
-
-    coordinationNgoMarkers
-        .forEach(
-            marker => {
-
-                if (
-                    coordinationMap
-                        .hasLayer(marker)
-                ) {
-
-                    coordinationMap
-                        .removeLayer(marker);
-
-                }
-
-            }
-        );
-
-
-    coordinationLines
-        .forEach(
-            line => {
-
-                if (
-                    coordinationMap
-                        .hasLayer(line)
-                ) {
-
-                    coordinationMap
-                        .removeLayer(line);
-
-                }
-
-            }
-        );
-
-
-    coordinationDistanceLabels
-        .forEach(
-            label => {
-
-                if (
-                    coordinationMap
-                        .hasLayer(label)
-                ) {
-
-                    coordinationMap
-                        .removeLayer(label);
-
-                }
-
-            }
-        );
-
-
-    coordinationRequestMarkers = [];
-
-    coordinationNgoMarkers = [];
-
-    coordinationLines = [];
-
-    coordinationDistanceLabels = [];
-
-}
-
-
-/* ------------------------------------------------------------
-   INDIVIDUAL POPUP
------------------------------------------------------------- */
-
-function createIndividualPopup(
-    request
-) {
-
-    const requestId =
-        request.id ||
-        request.requestNumber ||
-        "Unknown";
-
-
-    const personName =
-        request.reporterName ||
-        request.submittedByName ||
-        "Affected individual";
-
-
-    const location =
-        request.shelterName ||
-        "Affected location";
-
-
-    const victims =
-        Number(
-            request.victims || 0
-        ).toLocaleString();
-
-
-    const need =
-        request.supplyType ||
-        "Relief support";
-
-
-    const status =
-        request.status ||
-        "verified";
-
-
-    return `
-
-        <div class="coordination-popup">
-
-            <div class="
-                coordination-popup-label
-                person
-            ">
-                VERIFIED INDIVIDUAL REQUEST
-            </div>
-
-
-            <div class="
-                coordination-popup-title
-            ">
-                👤
-                ${coordinationSafe(
-                    personName
-                )}
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Request ID</span>
-
-                <strong>
-                    ${coordinationSafe(
-                        requestId
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Location</span>
-
-                <strong>
-                    ${coordinationSafe(
-                        location
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>People affected</span>
-
-                <strong>
-                    ${victims}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Relief needed</span>
-
-                <strong>
-                    ${coordinationSafe(
-                        need
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Status</span>
-
-                <strong>
-                    ✓ Verified
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-status
-            ">
-
-                ${
-                    request.assignedNgoId
-                        ? "🏠 NGO assigned for coordination"
-                        : "Waiting for NGO assignment"
-                }
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-/* ------------------------------------------------------------
-   NGO POPUP
------------------------------------------------------------- */
-
-function createNgoPopup(
-    ngo
-) {
-
-    const ngoName =
-        ngo.name ||
-        "Verified NGO";
-
-
-    const services =
-        Array.isArray(
-            ngo.services
-        )
-            ? ngo.services.join(
-                ", "
-            )
-            : (
-                ngo.services ||
-                "Relief support"
-            );
-
-
-    const radius =
-        Number(
-            ngo.operatingRadiusKm ??
-            ngo.operatingRadius ??
-            ngo.radiusKm ??
-            0
-        );
-
-
-    return `
-
-        <div class="coordination-popup">
-
-            <div class="
-                coordination-popup-label
-                ngo
-            ">
-                VERIFIED NGO
-            </div>
-
-
-            <div class="
-                coordination-popup-title
-            ">
-                🏠
-                ${coordinationSafe(
-                    ngoName
-                )}
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Organization</span>
-
-                <strong>
-                    ${coordinationSafe(
-                        ngoName
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Services</span>
-
-                <strong>
-                    ${coordinationSafe(
-                        services
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Operating radius</span>
-
-                <strong>
-                    ${
-                        radius > 0
-                            ? radius + " km"
-                            : "Not specified"
-                    }
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-row
-            ">
-                <span>Status</span>
-
-                <strong>
-                    ✓ Verified
-                </strong>
-            </div>
-
-
-            <div class="
-                coordination-popup-status
-            ">
-
-                Available for relief coordination
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-/* ------------------------------------------------------------
-   DRAW VERIFIED INDIVIDUAL REQUESTS
------------------------------------------------------------- */
-
-function renderCoordinationRequests() {
-
-    const requests =
-        getCoordinationVerifiedRequests();
-
-
-    requests.forEach(
-        request => {
-
-            const lat =
-                getCoordinationRequestLat(
-                    request
-                );
-
-
-            const lng =
-                getCoordinationRequestLng(
-                    request
-                );
-
-
-            if (
-                lat === null ||
-                lng === null
-            ) {
-
-                return;
-
-            }
-
-
-            const marker =
-                L.marker(
-                    [
-                        lat,
-                        lng
-                    ],
-                    {
-                        icon:
-                            coordinationPersonIcon
-                    }
-                )
-                .addTo(
-                    coordinationMap
-                );
-
-
-            marker.bindPopup(
-                createIndividualPopup(
-                    request
-                )
-            );
-
-
-            coordinationRequestMarkers.push(
-                marker
-            );
-
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   DRAW VERIFIED NGOS
------------------------------------------------------------- */
-
-function renderCoordinationNGOs() {
-
-    const ngos =
-        getCoordinationVerifiedNGOs();
-
-
-    ngos.forEach(
-        ngo => {
-
-            const lat =
-                getCoordinationNgoLat(
-                    ngo
-                );
-
-
-            const lng =
-                getCoordinationNgoLng(
-                    ngo
-                );
-
-
-            if (
-                lat === null ||
-                lng === null
-            ) {
-
-                return;
-
-            }
-
-
-            const marker =
-                L.marker(
-                    [
-                        lat,
-                        lng
-                    ],
-                    {
-                        icon:
-                            coordinationNgoIcon
-                    }
-                )
-                .addTo(
-                    coordinationMap
-                );
-
-
-            marker.bindPopup(
-                createNgoPopup(
-                    ngo
-                )
-            );
-
-
-            coordinationNgoMarkers.push(
-                marker
-            );
-
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   HAVERSINE DISTANCE
-
-   Used only for the visual coordination line.
------------------------------------------------------------- */
-
-function coordinationDistanceKm(
-    lat1,
-    lng1,
-    lat2,
-    lng2
-) {
-
-    const earthRadius =
-        6371;
-
-
-    const dLat =
-        (
-            lat2 -
-            lat1
-        )
-        *
-        Math.PI /
-        180;
-
-
-    const dLng =
-        (
-            lng2 -
-            lng1
-        )
-        *
-        Math.PI /
-        180;
-
-
-    const a =
-        Math.sin(
-            dLat / 2
-        ) ** 2
-        +
-        Math.cos(
-            lat1 *
-            Math.PI /
-            180
-        )
-        *
-        Math.cos(
-            lat2 *
-            Math.PI /
-            180
-        )
-        *
-        Math.sin(
-            dLng / 2
-        ) ** 2;
-
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(
-                1 - a
-            )
-        );
-
-
-    return (
-        earthRadius *
-        c
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   FIND VERIFIED NGO
------------------------------------------------------------- */
-
-function getVerifiedNgoById(
-    ngoId
-) {
-
-    if (!ngoId) {
-
-        return null;
-
-    }
-
-
-    return (
-        getCoordinationVerifiedNGOs()
-            .find(
-                ngo =>
-                    String(
-                        ngo.id
-                    ) ===
-                    String(
-                        ngoId
-                    )
-            )
-        ||
-        null
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   DRAW ASSIGNMENT CONNECTIONS
+   dispatcher.js
+   Relief Resolver — Control Room
+
+   WORKFLOW
+
+   Individual submits request
+          ↓
+   Control Room reviews evidence
+          ↓
+   Control Room verifies request
+          ↓
+   Individual dashboard unlocks NGO information
+          ↓
+   Control Room can notify NGO network
+          ↓
+   Verified NGOs see the request
+          ↓
+   NGOs independently decide whether to help
 
    IMPORTANT:
-   We ONLY draw a line when the request has an
-   assignedNgoId.
+   Control Room does NOT select an NGO.
+   ============================================================ */
 
-   We do NOT connect every request to every NGO.
------------------------------------------------------------- */
-
-function renderCoordinationConnections() {
-
-    const requests =
-        getCoordinationVerifiedRequests();
-
-
-    requests.forEach(
-        request => {
-
-            if (
-                !request.assignedNgoId
-            ) {
-
-                return;
-
-            }
-
-
-            const ngo =
-                getVerifiedNgoById(
-                    request.assignedNgoId
-                );
-
-
-            if (!ngo) {
-
-                return;
-
-            }
-
-
-            const requestLat =
-                getCoordinationRequestLat(
-                    request
-                );
-
-
-            const requestLng =
-                getCoordinationRequestLng(
-                    request
-                );
-
-
-            const ngoLat =
-                getCoordinationNgoLat(
-                    ngo
-                );
-
-
-            const ngoLng =
-                getCoordinationNgoLng(
-                    ngo
-                );
-
-
-            if (
-                requestLat === null ||
-                requestLng === null ||
-                ngoLat === null ||
-                ngoLng === null
-            ) {
-
-                return;
-
-            }
-
-
-            const distance =
-                coordinationDistanceKm(
-                    requestLat,
-                    requestLng,
-                    ngoLat,
-                    ngoLng
-                );
-
-
-            const line =
-                L.polyline(
-                    [
-                        [
-                            requestLat,
-                            requestLng
-                        ],
-                        [
-                            ngoLat,
-                            ngoLng
-                        ]
-                    ],
-                    {
-
-                        color:
-                            "#071525",
-
-                        weight:
-                            2.5,
-
-                        opacity:
-                            0.75,
-
-                        dashArray:
-                            "7 8"
-
-                    }
-                )
-                .addTo(
-                    coordinationMap
-                );
-
-
-            line.bindPopup(`
-
-                <div class="
-                    coordination-popup
-                ">
-
-                    <div class="
-                        coordination-popup-label
-                        ngo
-                    ">
-                        ACTIVE COORDINATION
-                    </div>
-
-                    <div class="
-                        coordination-popup-title
-                    ">
-                        👤 ↔ 🏠
-                    </div>
-
-                    <div class="
-                        coordination-popup-row
-                    ">
-                        <span>Request</span>
-
-                        <strong>
-                            ${coordinationSafe(
-                                request.id
-                            )}
-                        </strong>
-                    </div>
-
-                    <div class="
-                        coordination-popup-row
-                    ">
-                        <span>NGO</span>
-
-                        <strong>
-                            ${coordinationSafe(
-                                ngo.name
-                            )}
-                        </strong>
-                    </div>
-
-                    <div class="
-                        coordination-popup-row
-                    ">
-                        <span>Distance</span>
-
-                        <strong>
-                            ${distance.toFixed(1)}
-                            km
-                        </strong>
-                    </div>
-
-                </div>
-
-            `);
-
-
-            coordinationLines.push(
-                line
-            );
-
-
-            /* ----------------------------------------------------
-               DISTANCE LABEL
-            ---------------------------------------------------- */
-
-            const middleLat =
-                (
-                    requestLat +
-                    ngoLat
-                ) / 2;
-
-
-            const middleLng =
-                (
-                    requestLng +
-                    ngoLng
-                ) / 2;
-
-
-            const distanceLabel =
-                L.marker(
-                    [
-                        middleLat,
-                        middleLng
-                    ],
-                    {
-
-                        interactive:
-                            false,
-
-                        icon:
-                            L.divIcon({
-
-                                className:
-                                    "coordination-distance-label",
-
-                                html:
-                                    `
-                                    <span>
-                                        ${distance.toFixed(1)}
-                                        km
-                                    </span>
-                                    `,
-
-                                iconSize:
-                                    null,
-
-                                iconAnchor:
-                                    [0, 0]
-
-                            })
-
-                    }
-                )
-                .addTo(
-                    coordinationMap
-                );
-
-
-            coordinationDistanceLabels.push(
-                distanceLabel
-            );
-
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   FIT MAP TO MARKERS
------------------------------------------------------------- */
-
-function fitCoordinationMap() {
-
-    const allMarkers = [
-
-        ...coordinationRequestMarkers,
-
-        ...coordinationNgoMarkers
-
-    ];
-
-
-    if (
-        allMarkers.length === 0
-    ) {
-
-        coordinationMap.setView(
-            [
-                22.5,
-                79.0
-            ],
-            5
-        );
-
-        return;
-
-    }
-
-
-    const bounds =
-        L.latLngBounds(
-            allMarkers.map(
-                marker =>
-                    marker.getLatLng()
-            )
-        );
-
-
-    coordinationMap.fitBounds(
-        bounds,
-        {
-            padding: [
-                50,
-                50
-            ],
-
-            maxZoom: 12
-        }
-    );
-
-}
-
-
-/* ------------------------------------------------------------
-   RENDER COMPLETE MAP
------------------------------------------------------------- */
-
-function renderCoordinationMap() {
-
-    if (
-        !coordinationMap
-    ) {
-
-        return;
-
-    }
-
-
-    clearCoordinationMapLayers();
-
-
-    renderCoordinationRequests();
-
-    renderCoordinationNGOs();
-
-    renderCoordinationConnections();
-
-    fitCoordinationMap();
-
-}
-
-
-/* ------------------------------------------------------------
-   REFRESH WHEN LOCAL STORAGE CHANGES
------------------------------------------------------------- */
-
-window.addEventListener(
-    "storage",
-    function(event) {
-
-        if (
-            event.key ===
-            "relief_requests"
-            ||
-            event.key ===
-            "drr_ngos"
-        ) {
-
-            renderCoordinationMap();
-
-        }
-
-    }
-);
-
-
-/* ------------------------------------------------------------
-   INITIALIZE AFTER DOM LOAD
------------------------------------------------------------- */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function() {
+    () => {
+
+        renderAll();
 
         initializeCoordinationMap();
 
     }
 );
 
-/* ============================================================
-   MAIN RENDER
-   ============================================================ */
-
-function renderAll() {
-    renderStatistics();
-    renderReviewQueue();
-    renderCoordinationQueue();
-    renderAlerts();
-    renderNGOs();
-    renderCoordinationMap();
-}
-
 
 /* ============================================================
-   STORAGE HELPERS
-   Uses the project's existing storage.js when available.
+   STORAGE
    ============================================================ */
+
 function readRequests() {
+
     try {
-        const raw =
-            localStorage.getItem("relief_requests") || "[]";
 
-        const requests = JSON.parse(raw);
+        const data =
+            JSON.parse(
+                localStorage.getItem(
+                    "relief_requests"
+                ) || "[]"
+            );
 
-        return Array.isArray(requests)
-            ? requests
+
+        return Array.isArray(data)
+            ? data
             : [];
 
     } catch (error) {
+
         console.error(
-            "Unable to read relief requests:",
+            "Unable to read requests:",
             error
         );
 
         return [];
+
     }
+
 }
 
-function writeRequests(requests) {
-    try {
-        localStorage.setItem(
-            "relief_requests",
-            JSON.stringify(requests)
-        );
 
-        console.log(
-            "RELIEF RESOLVER — REQUESTS SAVED:",
-            requests
-        );
+function writeRequests(
+    requests
+) {
 
-    } catch (error) {
-        console.error(
-            "Unable to save requests:",
-            error
-        );
-    }
+    localStorage.setItem(
+        "relief_requests",
+        JSON.stringify(requests)
+    );
+
 }
+
 
 function readNGOs() {
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem("drr_ngos") || "[]"
-        );
+        const data =
+            JSON.parse(
+                localStorage.getItem(
+                    "drr_ngos"
+                ) || "[]"
+            );
+
+
+        return Array.isArray(data)
+            ? data
+            : [];
 
     } catch (error) {
 
         console.error(
-            "Unable to read NGO data:",
+            "Unable to read NGOs:",
             error
         );
 
         return [];
+
     }
+
 }
 
 
-function saveNGOs(ngos) {
+function saveNGOs(
+    ngos
+) {
 
     localStorage.setItem(
         "drr_ngos",
         JSON.stringify(ngos)
     );
+
 }
 
 
 /* ============================================================
-   STATISTICS
+   HELPERS
    ============================================================ */
 
-function renderStatistics() {
+function safe(
+    value
+) {
 
-    const requests = readRequests();
-    const ngos = readNGOs();
+    return String(
+        value ?? ""
+    )
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
-const review =
-    requests.filter(
-        request => {
-
-            const status =
-                String(
-                    request.status || ""
-                )
-                .trim()
-                .toLowerCase();
-
-
-            const isPending =
-                status === "pending" ||
-                status === "pending verification";
+}
 
 
-            return (
-                isPending &&
-                request.verified !== true
-            );
+function jsArg(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'");
+
+}
+
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+        element.textContent =
+            value;
+    }
+
+}
+
+
+function showControlMessage(
+    message,
+    error = false
+) {
+
+    const element =
+        document.getElementById(
+            "controlMessage"
+        );
+
+
+    if (!element) {
+
+        alert(message);
+        return;
+
+    }
+
+
+    element.textContent =
+        message;
+
+
+    element.style.display =
+        "block";
+
+
+    element.style.background =
+        error
+            ? "#fff0ed"
+            : "#edf7ef";
+
+
+    element.style.color =
+        error
+            ? "#9c342b"
+            : "#276b3f";
+
+
+    setTimeout(
+        () => {
+
+            element.style.display =
+                "none";
+
+        },
+        4500
+    );
+
+}
+
+
+function emptyState(
+    icon,
+    message
+) {
+
+    return `
+
+        <div style="
+            padding:30px;
+            text-align:center;
+            color:#64758a;
+            background:#faf8f3;
+            border:1px solid #e2ddd3;
+            border-radius:12px;
+        ">
+
+            <div style="
+                width:42px;
+                height:42px;
+                margin:0 auto 12px;
+                border-radius:50%;
+                background:#f0ece4;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-weight:800;
+                color:#071525;
+            ">
+                ${safe(icon)}
+            </div>
+
+            ${safe(message)}
+
+        </div>
+
+    `;
+
+}
+
+
+function firstValue(
+    ...values
+) {
+
+    for (
+        const value
+        of values
+    ) {
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== ""
+        ) {
+
+            return value;
 
         }
-    );
+
+    }
 
 
-    const verified = requests.filter(
-        request =>
-            request.verified === true &&
-            request.status !== "coordinating" &&
-            request.status !== "assistance_confirmed"
-    );
+    return null;
 
-
-    const coordinating = requests.filter(
-        request =>
-            request.status === "coordinating" ||
-            request.status === "assistance_confirmed"
-    );
-
-
-    const verifiedNGOs = ngos.filter(
-        ngo =>
-            ngo.status === "verified"
-    );
-
-
-    setText(
-        "reviewCount",
-        review.length
-    );
-
-
-    setText(
-        "verifiedCount",
-        verified.length
-    );
-
-
-    setText(
-        "verifiedNgoCount",
-        verifiedNGOs.length
-    );
-
-
-    setText(
-        "coordinationCount",
-        coordinating.length
-    );
-
-
-    setText(
-        "reviewBadge",
-        `${review.length} awaiting review`
-    );
-
-
-    setText(
-        "coordinationBadge",
-        `${coordinating.length} active`
-    );
-
-
-    setText(
-        "ngoNetworkBadge",
-        `${verifiedNGOs.length} verified`
-    );
 }
 
 
 /* ============================================================
-   REQUEST REVIEW QUEUE
+   REQUEST FIELD NORMALIZATION
+   ============================================================ */
+
+function getPeopleAffected(
+    request
+) {
+
+    return firstValue(
+        request.peopleAffected,
+        request.affectedPeople,
+        request.victims,
+        request.numberOfPeople,
+        request.people
+    ) ?? "—";
+
+}
+
+
+function getWithoutSupply(
+    request
+) {
+
+    return firstValue(
+        request.withoutSupply,
+        request.daysWithoutSupply,
+        request.waitingTime,
+        request.daysWithoutRelief
+    ) ?? "—";
+
+}
+
+
+function getReliefNeeded(
+    request
+) {
+
+    return firstValue(
+        request.reliefNeeded,
+        request.reliefType,
+        request.supplyType,
+        request.suppliesNeeded,
+        request.serviceNeeded
+    ) ?? "Relief support";
+
+}
+
+
+function getReporterName(
+    request
+) {
+
+    return firstValue(
+        request.reporterName,
+        request.submittedByName,
+        request.name
+    ) || "Affected Person";
+
+}
+
+
+function getLocationName(
+    request
+) {
+
+    return firstValue(
+        request.shelterName,
+        request.locationName,
+        request.city
+    ) || "Affected location";
+
+}
+
+
+/* ============================================================
+   EVIDENCE
+   ============================================================ */
+
+function hasEvidence(
+    request
+) {
+
+    return (
+        typeof request?.verificationPhoto ===
+            "string" &&
+
+        request.verificationPhoto
+            .startsWith(
+                "data:image/"
+            )
+    );
+
+}
+
+
+/* ============================================================
+   PRIORITY
+   ============================================================ */
+
+function getPriorityScore(
+    request
+) {
+
+    const people =
+        Number(
+            getPeopleAffected(request)
+        ) || 0;
+
+
+    const days =
+        Number(
+            firstValue(
+                request.daysWithoutSupply,
+                request.withoutSupply
+            ) || 0
+        );
+
+
+    let score =
+        50;
+
+
+    score +=
+        Math.min(
+            people * 2,
+            30
+        );
+
+
+    score +=
+        Math.min(
+            days * 8,
+            20
+        );
+
+
+    return Math.min(
+        score,
+        100
+    );
+
+}
+
+
+function getPriority(
+    request
+) {
+
+    const score =
+        getPriorityScore(
+            request
+        );
+
+
+    if (score >= 80) {
+
+        return {
+            label: "URGENT",
+            cls: "urgent"
+        };
+
+    }
+
+
+    if (score >= 60) {
+
+        return {
+            label: "HIGH",
+            cls: "high"
+        };
+
+    }
+
+
+    return {
+        label: "NORMAL",
+        cls: "normal"
+    };
+
+}
+
+
+/* ============================================================
+   REQUEST DETAILS
+   ============================================================ */
+
+function requestDetails(
+    request
+) {
+
+    return `
+
+        <div class="detail-grid">
+
+            <div class="detail">
+
+                <span>
+                    PEOPLE AFFECTED
+                </span>
+
+                <strong>
+                    ${safe(
+                        getPeopleAffected(request)
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="detail">
+
+                <span>
+                    WITHOUT SUPPLY
+                </span>
+
+                <strong>
+                    ${safe(
+                        getWithoutSupply(request)
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="detail">
+
+                <span>
+                    RELIEF NEEDED
+                </span>
+
+                <strong>
+                    ${safe(
+                        getReliefNeeded(request)
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="detail">
+
+                <span>
+                    REQUESTED BY
+                </span>
+
+                <strong>
+                    ${safe(
+                        request.reporterType ||
+                        "Affected Person"
+                    )}
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ============================================================
+   REVIEW QUEUE
    ============================================================ */
 
 function renderReviewQueue() {
 
     const list =
-        document.getElementById("reviewList");
-
-    if (!list) return;
-
-
-    let requests =
-        readRequests().filter(
-            request => {
-
-                const status =
-                    String(
-                        request.status || ""
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                const isPending =
-                    status === "pending" ||
-                    status === "pending verification";
-
-
-                const isNotVerified =
-                    request.verified !== true;
-
-
-                return (
-                    isPending &&
-                    isNotVerified
-                );
-
-            }
+        document.getElementById(
+            "reviewList"
         );
 
 
-    /*
-     * Sort by urgency if the priority
-     * function exists.
-     */
-
-    if (
-        typeof sortByUrgency ===
-        "function"
-    ) {
-
-        requests =
-            sortByUrgency(requests);
-
+    if (!list) {
+        return;
     }
+
+
+    const requests =
+        readRequests()
+            .filter(
+                request => {
+
+                    const status =
+                        String(
+                            request.status ||
+                            ""
+                        )
+                        .toLowerCase()
+                        .trim();
+
+
+                    return (
+                        request.verified !== true &&
+                        (
+                            status === "pending" ||
+                            status ===
+                                "pending verification" ||
+                            status === ""
+                        )
+                    );
+
+                }
+            );
 
 
     if (!requests.length) {
@@ -1644,147 +613,32 @@ function renderReviewQueue() {
 
     list.innerHTML =
         requests
-            .map(createReviewCard)
+            .map(
+                createReviewCard
+            )
             .join("");
-}
-/* ============================================================
-   COORDINATION QUEUE
-   ============================================================ */
 
-function renderCoordinationQueue() {
-
-    const list =
-        document.getElementById("coordinationList");
-
-    if (!list) return;
-
-const requests =
-    readRequests().filter(
-        request => {
-
-            const status =
-                String(
-                    request.status || ""
-                )
-                .trim()
-                .toLowerCase();
-
-
-            return (
-                request.verified === true &&
-                (
-                    status === "pending" ||
-                    status === "pending verification" ||
-                    status === "ngo_notified" ||
-                    status === "coordinating" ||
-                    status === "assistance_confirmed"
-                )
-            );
-
-        }
-    );
-
-    if (!requests.length) {
-
-        list.innerHTML =
-            emptyState(
-                "✓",
-                "Verify an emergency request to see suitable NGOs here."
-            );
-
-        return;
-    }
-
-
-    list.innerHTML =
-        requests
-            .map(createCoordinationCard)
-            .join("");
 }
 
 
 /* ============================================================
-   PRIORITY
+   REVIEW CARD
    ============================================================ */
 
-function getPriority(request) {
-
-    const score =
-        typeof calculateUrgencyScore === "function"
-            ? Number(
-                calculateUrgencyScore(request)
-            ) || 0
-            : (
-                Number(request.victims || 0) +
-                Number(request.daysWithoutSupply || 0) * 40
-            );
-
-
-    if (score >= 700) {
-
-        return {
-            label: "CRITICAL",
-            cls: "critical"
-        };
-    }
-
-
-    if (score >= 500) {
-
-        return {
-            label: "HIGH",
-            cls: "high"
-        };
-    }
-
-
-    if (score >= 250) {
-
-        return {
-            label: "MEDIUM",
-            cls: "medium"
-        };
-    }
-
-
-    return {
-        label: "NORMAL",
-        cls: "normal"
-    };
-}
-
-
-/* ============================================================
-   REQUEST CARD — REVIEW
-   ============================================================ */
-
-function createReviewCard(request) {
+function createReviewCard(
+    request
+) {
 
     const priority =
         getPriority(request);
 
 
-    const id =
-        safe(
-            request.id || ""
-        );
-
-
-    const reporter =
-        request.reporterName ||
-        "Unknown reporter";
-
-
-    const initial =
-        reporter.charAt(0).toUpperCase() ||
-        "R";
-
-
-    const hasPhoto =
+    const evidence =
         hasEvidence(request);
 
 
     return `
+
         <article class="request-card">
 
             <div class="request-head">
@@ -1793,9 +647,15 @@ function createReviewCard(request) {
 
                     <div class="request-id">
 
-                        ${id}
+                        ${safe(
+                            request.id ||
+                            request.requestNumber
+                        )}
 
-                        <span class="priority ${priority.cls}">
+                        <span class="
+                            priority
+                            ${priority.cls}
+                        ">
                             ${priority.label}
                         </span>
 
@@ -1803,18 +663,31 @@ function createReviewCard(request) {
 
 
                     <h3 class="request-title">
+
                         ${safe(
-                            request.shelterName ||
-                            "Affected location"
+                            getLocationName(
+                                request
+                            )
                         )}
+
                     </h3>
 
 
                     <div class="request-location">
 
                         📍
-                        ${formatCoordinate(request.lat)},
-                        ${formatCoordinate(request.lng)}
+
+                        ${safe(
+                            request.lat ??
+                            request.latitude ??
+                            "—"
+                        )},
+
+                        ${safe(
+                            request.lng ??
+                            request.longitude ??
+                            "—"
+                        )}
 
                     </div>
 
@@ -1828,7 +701,9 @@ function createReviewCard(request) {
                     </span>
 
                     <strong>
-                        ${getPriorityScore(request)}
+                        ${getPriorityScore(
+                            request
+                        )}
                     </strong>
 
                 </div>
@@ -1842,29 +717,46 @@ function createReviewCard(request) {
             <div class="reporter-row">
 
                 <div class="reporter-avatar">
-                    ${safe(initial)}
+
+                    ${safe(
+                        getReporterName(
+                            request
+                        )
+                        .charAt(0)
+                        .toUpperCase()
+                    )}
+
                 </div>
 
 
                 <div class="reporter-main">
 
                     <strong>
-                        ${safe(reporter)}
+                        ${safe(
+                            getReporterName(
+                                request
+                            )
+                        )}
                     </strong>
 
                     <span>
 
-                        ${safe(
-                            request.reporterType ||
-                            "Reporter"
-                        )}
+                        ${
+                            safe(
+                                request.reporterType ||
+                                "Affected Person"
+                            )
+                        }
 
                         ·
 
-                        ${safe(
-                            request.contactNumber ||
-                            "No contact"
-                        )}
+                        ${
+                            safe(
+                                request.contactNumber ||
+                                request.phone ||
+                                "No contact"
+                            )
+                        }
 
                     </span>
 
@@ -1882,6 +774,7 @@ function createReviewCard(request) {
                 <p>
                     ${safe(
                         request.situationDetails ||
+                        request.description ||
                         "No details provided."
                     )}
                 </p>
@@ -1907,14 +800,28 @@ function createReviewCard(request) {
                 <button
                     type="button"
                     class="btn btn-light"
-                    onclick="viewEvidence('${jsArg(request.id)}')"
-                    ${hasPhoto ? "" : "disabled"}
+                    onclick="
+                        viewEvidence(
+                            '${jsArg(
+                                request.id ||
+                                request.requestNumber
+                            )}'
+                        )
+                    "
+                    ${
+                        evidence
+                            ? ""
+                            : "disabled"
+                    }
                 >
 
                     📷
-                    ${hasPhoto
-                        ? "View evidence"
-                        : "No evidence"}
+
+                    ${
+                        evidence
+                            ? "View evidence"
+                            : "No evidence"
+                    }
 
                 </button>
 
@@ -1926,26 +833,34 @@ function createReviewCard(request) {
                 <button
                     type="button"
                     class="btn btn-primary"
-                    onclick="verifyRequest('${jsArg(request.id)}')"
-                    ${hasPhoto ? "" : "disabled"}
+                    onclick="
+                        verifyRequest(
+                            '${jsArg(
+                                request.id ||
+                                request.requestNumber
+                            )}'
+                        )
+                    "
+                    ${
+                        evidence
+                            ? ""
+                            : "disabled"
+                    }
                 >
 
-                    ✓ Verify request
+                    ✓ VERIFY REQUEST
 
                 </button>
 
 
                 ${
-                    hasPhoto
+                    evidence
                         ? ""
                         : `
-                            <span
-                                style="
-                                    font-size:9px;
-                                    color:#9a6a00;
-                                    padding:10px 2px;
-                                "
-                            >
+                            <span style="
+                                font-size:10px;
+                                color:#9a6a00;
+                            ">
                                 Evidence photo is required
                                 before verification.
                             </span>
@@ -1955,401 +870,836 @@ function createReviewCard(request) {
             </div>
 
         </article>
+
     `;
+
 }
 
 
 /* ============================================================
-   REQUEST CARD — VERIFIED / NGO NETWORK COORDINATION
+   VERIFY REQUEST
+
+   IMPORTANT:
+   Verification unlocks NGO information on the
+   Individual Dashboard.
+
+   Verification DOES NOT choose an NGO.
+   Verification DOES NOT notify NGOs automatically.
    ============================================================ */
 
-function createCoordinationCard(request) {
+function verifyRequest(
+    id
+) {
 
-    const priority =
-        getPriority(request);
+    const requests =
+        readRequests();
+
+
+    const request =
+        requests.find(
+            item =>
+                String(
+                    item.id ||
+                    item.requestNumber
+                ) ===
+                String(id)
+        );
+
+
+    if (!request) {
+
+        showControlMessage(
+            "Request could not be found.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    if (
+        request.verified === true
+    ) {
+
+        showControlMessage(
+            "This request is already verified."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !hasEvidence(request)
+    ) {
+
+        showControlMessage(
+            "Verification requires the submitted evidence photo.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    request.verified =
+        true;
+
+
+    request.verificationStatus =
+        "verified";
+
+
+    request.verifiedAt =
+        Date.now();
+
+
+    request.verifiedBy =
+        sessionStorage.getItem(
+            "reliefStaffName"
+        ) ||
+        "Control Room Staff";
 
 
     /*
-     * NGO NETWORK HAS ALREADY BEEN NOTIFIED
+     * Keep the request in the Control Room coordination
+     * workflow. The request is verified, but NGO notification
+     * is a separate action.
      */
-    const networkNotified =
-        request.ngoNotificationStatus === "notified" ||
-        request.status === "ngo_notified";
+
+    request.status =
+        "pending";
 
 
     /*
-     * NGO responses
+     * Explicitly record that NGO network has not yet
+     * been notified.
      */
-    const responses =
-        request.ngoResponses &&
-        typeof request.ngoResponses === "object"
-            ? Object.values(
-                request.ngoResponses
-            )
-            : [];
+
+    request.ngoNotificationStatus =
+        request.ngoNotificationStatus ||
+        "not_notified";
+
+
+    writeRequests(
+        requests
+    );
+
+
+    renderAll();
+
+
+    showControlMessage(
+        `✓ ${id} verified. The individual's dashboard can now show verified NGOs.`
+    );
+
+}
+
+
+/* ============================================================
+   NOTIFY NGO NETWORK
+
+   This does NOT select an NGO.
+
+   It simply publishes the verified request to the
+   verified NGO network.
+
+   NGO dashboards should use:
+
+       request.verified === true
+
+   AND
+
+       request.ngoNotificationStatus === "notified"
+
+   to show this request.
+   ============================================================ */
+
+/* ============================================================
+   NGO NOTIFICATION WORKFLOW
+   ============================================================
+
+   WORKFLOW:
+
+   Control Room verifies request
+              ↓
+   Control Room clicks Notify NGO Network
+              ↓
+   Confirmation modal
+              ↓
+   Confirm
+              ↓
+   Request becomes NGO-notified
+              ↓
+   Verified NGOs can see request
+              ↓
+   NGOs independently decide whether to help
+
+   IMPORTANT:
+   Control Room DOES NOT select an NGO.
+   ============================================================ */
+
+
+/* ============================================================
+   OPEN NGO NOTIFICATION
+   ============================================================ */
+
+function notifyNGONetwork(requestId) {
+
+    const requests = readRequests();
+
+    const request = requests.find(
+        item =>
+            String(
+                item.id ||
+                item.requestNumber
+            ) === String(requestId)
+    );
+
+
+    if (!request) {
+
+        showControlMessage(
+            "Emergency request could not be found.",
+            true
+        );
+
+        return;
+    }
 
 
     /*
-     * REQUEST ALREADY NOTIFIED
+     * NGO notification is allowed ONLY after
+     * Control Room verification.
      */
-    if (networkNotified) {
 
-        return `
-            <article class="
-                request-card
-                coordinating-card
-            ">
+    if (request.verified !== true) {
 
-                <div class="request-head">
+        showControlMessage(
+            "Only verified requests can be sent to NGOs.",
+            true
+        );
 
-                    <div>
+        return;
+    }
 
-                        <div class="request-id">
 
-                            ${safe(
-                                request.id
-                            )}
+    /*
+     * Prevent duplicate notifications.
+     */
 
-                            <span
-                                class="
-                                    priority
-                                    ${priority.cls}
-                                "
-                            >
-                                ${priority.label}
-                            </span>
+    if (
+        request.ngoNotificationStatus ===
+        "notified"
+    ) {
 
-                        </div>
+        showControlMessage(
+            "This request has already been sent to the NGO network."
+        );
 
+        return;
+    }
 
-                        <h3 class="request-title">
 
-                            ${safe(
-                                request.shelterName ||
-                                "Affected location"
-                            )}
+    /*
+     * Open custom confirmation popup.
+     */
 
-                        </h3>
+    showNotifyConfirmation(request);
 
+}
 
-                        <div class="request-location">
 
-                            📍
-                            ${formatCoordinate(
-                                request.lat
-                            )},
-                            ${formatCoordinate(
-                                request.lng
-                            )}
+/* ============================================================
+   NGO NOTIFICATION CONFIRMATION MODAL
+   ============================================================ */
 
-                        </div>
+function showNotifyConfirmation(request) {
 
-                    </div>
+    /*
+     * Remove old modal if one already exists.
+     */
 
+    const existingModal =
+        document.getElementById(
+            "notifyNGOModal"
+        );
 
-                    <div class="urgency-box">
 
-                        <span>
-                            NGO NETWORK
-                        </span>
+    if (existingModal) {
 
-                        <strong>
-                            ${responses.length}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                ${requestDetails(request)}
-
-
-                <!-- =================================================
-                     NETWORK STATUS
-                     ================================================= -->
-
-                <div class="coordination-state">
-
-                    <div>
-
-                        <strong>
-
-                            🔔 NGO network notified
-
-                        </strong>
-
-
-                        <span>
-
-                            Verified NGOs can now review
-                            this request and decide whether
-                            they have the resources to help.
-
-                            ${
-                                request.ngoNotifiedAt
-                                    ? `
-                                        · notified
-                                        ${formatTime(
-                                            request.ngoNotifiedAt
-                                        )}
-                                      `
-                                    : ""
-                            }
-
-                        </span>
-
-                    </div>
-
-
-                    <span class="available">
-
-                        ${
-                            responses.length
-                                ? `${responses.length} NGO response${
-                                    responses.length === 1
-                                        ? ""
-                                        : "s"
-                                  }`
-                                : "Awaiting NGO response"
-                        }
-
-                    </span>
-
-                </div>
-
-
-                <!-- =================================================
-                     NGO RESPONSES
-                     ================================================= -->
-
-                <div class="coordination-wrap">
-
-                    <div class="coordination-head">
-
-                        <div>
-
-                            <h3>
-                                NGO responses
-                            </h3>
-
-                            <p>
-                                NGOs that have offered to
-                                help with this verified request.
-                            </p>
-
-                        </div>
-
-
-                        <span class="section-badge">
-
-                            ${responses.length}
-                            response${
-                                responses.length === 1
-                                    ? ""
-                                    : "s"
-                            }
-
-                        </span>
-
-                    </div>
-
-
-                    ${
-                        responses.length
-
-                            ? `
-
-                                <div
-                                    class="match-list"
-                                >
-
-                                    ${responses
-                                        .map(
-                                            response => `
-
-                                                <div
-                                                    class="
-                                                        ngo-match
-                                                    "
-                                                >
-
-                                                    <div
-                                                        class="
-                                                            ngo-match-top
-                                                        "
-                                                    >
-
-                                                        <div>
-
-                                                            <h4>
-
-                                                                🏠
-                                                                ${safe(
-                                                                    response.ngoName ||
-                                                                    "Verified NGO"
-                                                                )}
-
-                                                            </h4>
-
-
-                                                            <div
-                                                                class="
-                                                                    match-meta
-                                                                "
-                                                            >
-
-                                                                NGO has
-                                                                offered to
-                                                                help
-
-                                                                ${
-                                                                    response.respondedAt
-                                                                        ? `
-                                                                            <br>
-                                                                            Responded:
-                                                                            ${formatTime(
-                                                                                response.respondedAt
-                                                                            )}
-                                                                          `
-                                                                        : ""
-                                                                }
-
-                                                            </div>
-
-                                                        </div>
-
-
-                                                        <span
-                                                            class="
-                                                                available
-                                                            "
-                                                        >
-
-                                                            ✓ Will help
-
-                                                        </span>
-
-                                                    </div>
-
-
-                                                    <div
-                                                        style="
-                                                            margin-top:10px;
-                                                            padding:10px 12px;
-                                                            background:#eaf5ed;
-                                                            color:#26784a;
-                                                            font-size:12px;
-                                                            font-weight:700;
-                                                        "
-                                                    >
-
-                                                        This NGO has
-                                                        voluntarily
-                                                        responded to
-                                                        the request.
-
-                                                    </div>
-
-                                                </div>
-
-                                            `
-                                        )
-                                        .join("")}
-
-                                </div>
-
-                              `
-
-                            : `
-
-                                <div
-                                    style="
-                                        padding:18px;
-                                        background:#faf8f3;
-                                        border:1px solid #e5dfd4;
-                                        color:#687789;
-                                        font-size:13px;
-                                    "
-                                >
-
-                                    ⏳ No NGO has responded yet.
-
-                                    <br>
-
-                                    <small>
-                                        Verified NGOs will see
-                                        this request on their
-                                        dashboard and can choose
-                                        whether they have the
-                                        capacity to help.
-                                    </small>
-
-                                </div>
-
-                              `
-                    }
-
-                </div>
-
-            </article>
-        `;
+        existingModal.remove();
 
     }
 
 
     /*
-     * ============================================================
-     * VERIFIED BUT NGO NETWORK NOT YET NOTIFIED
-     * ============================================================
+     * Create modal.
      */
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "notifyNGOModal";
+
+
+    modal.innerHTML = `
+
+        <div class="notify-modal-backdrop">
+
+            <div class="notify-modal">
+
+
+                <!-- CLOSE -->
+
+                <button
+                    type="button"
+                    class="notify-modal-close"
+                    onclick="
+                        closeNotifyConfirmation()
+                    "
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+
+                <!-- ICON -->
+
+                <div class="notify-modal-icon">
+                    🔔
+                </div>
+
+
+                <!-- EYEBROW -->
+
+                <div class="notify-modal-eyebrow">
+                    NGO NETWORK
+                </div>
+
+
+                <!-- TITLE -->
+
+                <h2>
+                    Notify verified NGOs?
+                </h2>
+
+
+                <!-- DESCRIPTION -->
+
+                <p class="notify-modal-description">
+
+                    This emergency request will be
+                    published to verified NGOs so they
+                    can independently decide whether
+                    they have the capacity to help.
+
+                </p>
+
+
+                <!-- REQUEST SUMMARY -->
+
+                <div class="notify-request-summary">
+
+
+                    <div class="notify-summary-item">
+
+                        <span>
+                            REQUEST
+                        </span>
+
+                        <strong>
+                            ${safe(
+                                request.id ||
+                                request.requestNumber ||
+                                "—"
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="notify-summary-item">
+
+                        <span>
+                            LOCATION
+                        </span>
+
+                        <strong>
+                            ${safe(
+                                getLocationName(
+                                    request
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="notify-summary-item">
+
+                        <span>
+                            RELIEF NEEDED
+                        </span>
+
+                        <strong>
+                            ${safe(
+                                getReliefNeeded(
+                                    request
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- INFORMATION NOTE -->
+
+                <div class="notify-modal-note">
+
+                    <span>
+                        ✓
+                    </span>
+
+                    <p>
+
+                        The Control Room does
+                        <strong>
+                            not select an NGO.
+                        </strong>
+
+                        Every verified NGO can see
+                        this request on its dashboard
+                        and decide whether it can help.
+
+                    </p>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="notify-modal-actions">
+
+
+                    <button
+                        type="button"
+                        class="notify-cancel-btn"
+                        onclick="
+                            closeNotifyConfirmation()
+                        "
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="notify-confirm-btn"
+                        onclick="
+                            confirmNotifyNGONetwork(
+                                '${jsArg(
+                                    request.id ||
+                                    request.requestNumber
+                                )}'
+                            )
+                        "
+                    >
+
+                        🔔
+                        Notify NGO Network
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    /*
+     * Close when clicking outside modal.
+     */
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.classList.contains(
+                    "notify-modal-backdrop"
+                )
+            ) {
+
+                closeNotifyConfirmation();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Close with Escape key.
+     */
+
+    document.addEventListener(
+        "keydown",
+        handleNotifyEscape
+    );
+
+}
+
+
+/* ============================================================
+   ESCAPE KEY
+   ============================================================ */
+
+function handleNotifyEscape(
+    event
+) {
+
+    if (
+        event.key === "Escape"
+    ) {
+
+        closeNotifyConfirmation();
+
+    }
+
+}
+
+
+/* ============================================================
+   CLOSE CONFIRMATION MODAL
+   ============================================================ */
+
+function closeNotifyConfirmation() {
+
+    const modal =
+        document.getElementById(
+            "notifyNGOModal"
+        );
+
+
+    if (modal) {
+
+        modal.remove();
+
+    }
+
+
+    document.removeEventListener(
+        "keydown",
+        handleNotifyEscape
+    );
+
+}
+
+
+/* ============================================================
+   CONFIRM NGO NOTIFICATION
+   ============================================================ */
+
+function confirmNotifyNGONetwork(
+    requestId
+) {
+
+    /*
+     * Close popup first.
+     */
+
+    closeNotifyConfirmation();
+
+
+    /*
+     * Reload latest request data.
+     */
+
+    const requests =
+        readRequests();
+
+
+    const request =
+        requests.find(
+            item =>
+                String(
+                    item.id ||
+                    item.requestNumber
+                ) === String(requestId)
+        );
+
+
+    if (!request) {
+
+        showControlMessage(
+            "Emergency request could not be found.",
+            true
+        );
+
+        return;
+    }
+
+
+    /*
+     * Safety check:
+     * request MUST be verified.
+     */
+
+    if (
+        request.verified !== true
+    ) {
+
+        showControlMessage(
+            "Only verified requests can be sent to NGOs.",
+            true
+        );
+
+        return;
+    }
+
+
+    /*
+     * Prevent duplicate notification.
+     */
+
+    if (
+        request.ngoNotificationStatus ===
+        "notified"
+    ) {
+
+        showControlMessage(
+            "This request has already been sent to the NGO network."
+        );
+
+        return;
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * We are NOT selecting an NGO.
+     *
+     * We are only publishing the request
+     * to the verified NGO network.
+     */
+
+    request.ngoNotificationStatus =
+        "notified";
+
+
+    request.ngoNotifiedAt =
+        Date.now();
+
+
+    request.ngoNotifiedBy =
+        sessionStorage.getItem(
+            "reliefStaffName"
+        ) ||
+        "Control Room Staff";
+
+
+    /*
+     * Update request status.
+     */
+
+    request.status =
+        "ngo_notified";
+
+
+    /*
+     * Make sure NGO response
+     * storage exists.
+     */
+
+    if (
+        !request.ngoResponses ||
+        typeof request.ngoResponses !==
+            "object" ||
+        Array.isArray(
+            request.ngoResponses
+        )
+    ) {
+
+        request.ngoResponses = {};
+
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Remove any old automatic NGO
+     * assignment fields.
+     */
+
+    delete request.assignedNgoId;
+
+    delete request.assignedNgoName;
+
+
+    /*
+     * Save updated request.
+     */
+
+    writeRequests(
+        requests
+    );
+
+
+    /*
+     * Refresh dashboard.
+     */
+
+    renderAll();
+
+
+    /*
+     * Show success message.
+     */
+
+    showControlMessage(
+        `✓ ${
+            request.id ||
+            request.requestNumber
+        } is now published to the verified NGO network.`
+    );
+
+}
+
+/* ============================================================
+   COORDINATION QUEUE
+   ============================================================ */
+
+function renderCoordinationQueue() {
+
+    const list =
+        document.getElementById(
+            "coordinationList"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    const requests =
+        readRequests()
+            .filter(
+                request =>
+                    request.verified === true &&
+                    (
+                        request.status ===
+                            "pending" ||
+
+                        request.status ===
+                            "ngo_notified" ||
+
+                        request.status ===
+                            "coordinating" ||
+
+                        request.status ===
+                            "assistance_confirmed"
+                    )
+            );
+
+
+    if (!requests.length) {
+
+        list.innerHTML =
+            emptyState(
+                "✓",
+                "Verify an emergency request to see it in the coordination queue."
+            );
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        requests
+            .map(
+                createCoordinationCard
+            )
+            .join("");
+
+}
+
+function createCoordinationCard(request) {
+
+    const notified =
+        request.ngoNotificationStatus === "notified" ||
+        request.status === "ngo_notified";
+
+    const responses =
+        request.ngoResponses &&
+        typeof request.ngoResponses === "object"
+            ? Object.values(request.ngoResponses)
+            : [];
 
     return `
 
-        <article class="request-card">
+        <article class="request-card coordinating-card">
+
+            <!-- =========================
+                 REQUEST HEADER
+            ========================== -->
 
             <div class="request-head">
 
                 <div>
 
                     <div class="request-id">
-
                         ${safe(
-                            request.id
+                            request.id ||
+                            request.requestNumber ||
+                            "REQUEST"
                         )}
-
-                        <span
-                            class="
-                                priority
-                                ${priority.cls}
-                            "
-                        >
-                            ${priority.label}
-                        </span>
-
                     </div>
 
-
                     <h3 class="request-title">
-
                         ${safe(
-                            request.shelterName ||
-                            "Affected location"
+                            getLocationName(request)
                         )}
-
                     </h3>
 
-
                     <div class="request-location">
-
                         📍
-                        ${formatCoordinate(
-                            request.lat
+                        ${safe(
+                            request.lat ??
+                            request.latitude ??
+                            "—"
                         )},
-                        ${formatCoordinate(
-                            request.lng
+                        ${safe(
+                            request.lng ??
+                            request.longitude ??
+                            "—"
                         )}
-
                     </div>
 
                 </div>
@@ -2358,526 +1708,300 @@ function createCoordinationCard(request) {
                 <div class="urgency-box">
 
                     <span>
-                        VERIFIED
+                        ${
+                            notified
+                                ? "NGO NETWORK"
+                                : "VERIFIED"
+                        }
                     </span>
 
                     <strong>
-                        ✓
+                        ${
+                            notified
+                                ? responses.length
+                                : "✓"
+                        }
                     </strong>
 
                 </div>
 
             </div>
 
+
+            <!-- =========================
+                 REQUEST DETAILS
+            ========================== -->
 
             ${requestDetails(request)}
 
 
-            <div
-                class="
-                    verification-row
-                    verified
-                "
-            >
+            <!-- =========================
+                 BEFORE NGO NOTIFICATION
+            ========================== -->
 
-                <div class="status-main">
+            ${
+                !notified
 
-                    <span>
-                        REQUEST STATUS
-                    </span>
+                    ? `
 
-                    <strong>
-                        ✓ Verified — ready to notify NGO network
-                    </strong>
+                        <div class="verification-row verified">
 
-                </div>
+                            <div class="status-main">
 
+                                <span>
+                                    REQUEST STATUS
+                                </span>
 
-                <span class="available">
-                    Verified
-                </span>
+                                <strong>
+                                    ✓ Verified — ready to notify NGO network
+                                </strong>
 
-            </div>
+                            </div>
 
-
-            <!-- =====================================================
-                 NGO NETWORK NOTIFICATION
-                 ===================================================== -->
-
-            <div
-                class="coordination-wrap"
-                style="
-                    margin-top:16px;
-                "
-            >
-
-                <div class="coordination-head">
-
-                    <div>
-
-                        <h3>
-                            Notify NGO network
-                        </h3>
-
-                        <p>
-                            This will make the verified request
-                            visible to verified NGOs. The Control
-                            Room does not assign an NGO. NGOs
-                            decide independently whether they
-                            have the capacity to help.
-                        </p>
-
-                    </div>
+                        </div>
 
 
-                    <span class="section-badge">
+                        <div
+                            class="coordination-wrap"
+                            style="
+                                margin-top:16px;
+                            "
+                        >
 
-                        NGO NETWORK
+                            <div class="coordination-head">
 
-                    </span>
+                                <div>
 
-                </div>
+                                    <h3>
+                                        Notify NGO network
+                                    </h3>
 
+                                    <p>
+                                        This publishes the verified
+                                        request to all eligible
+                                        verified NGO dashboards.
+                                        No NGO is selected by the
+                                        Control Room.
+                                    </p>
 
-                <div
-                    style="
-                        padding:18px;
-                        background:#f0f7f2;
-                        border:1px solid #cfe4d4;
-                    "
-                >
+                                </div>
 
-                    <div
-                        style="
-                            font-size:13px;
-                            line-height:1.6;
-                            color:#356248;
-                            margin-bottom:14px;
-                        "
-                    >
-
-                        🔔
-                        Once notified, this request will
-                        appear on the dashboards of verified
-                        NGOs.
-
-                    </div>
+                            </div>
 
 
-                    <button
-                        type="button"
-                        class="btn btn-green"
-                        onclick="
-                            notifyNGONetwork(
-                                '${jsArg(
-                                    request.id
-                                )}'
-                            )
-                        "
-                    >
+                            <button
+                                type="button"
+                                class="btn btn-green"
+                                onclick="
+                                    notifyNGONetwork(
+                                        '${jsArg(
+                                            request.id ||
+                                            request.requestNumber
+                                        )}'
+                                    )
+                                "
+                            >
 
-                        🔔
-                        NOTIFY NGO NETWORK →
+                                🔔
+                                NOTIFY NGO NETWORK →
 
-                    </button>
+                            </button>
 
-                </div>
+                        </div>
 
-            </div>
+                    `
 
+                    : `
+
+                        <!-- =========================
+                             NGO NETWORK NOTIFIED
+                        ========================== -->
+
+                        <div class="coordination-wrap">
+
+                            <div class="coordination-state">
+
+                                <div>
+
+                                    <strong>
+                                        🔔 NGO network notified
+                                    </strong>
+
+                                    <span>
+                                        Verified NGOs can now review
+                                        this emergency request.
+                                    </span>
+
+                                </div>
+
+
+                                <span class="available">
+
+                                    ${
+                                        responses.length
+                                            ? `${responses.length} response${
+                                                responses.length === 1
+                                                    ? ""
+                                                    : "s"
+                                            }`
+                                            : "Awaiting response"
+                                    }
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- =========================
+                                 NGO RESPONSES
+                            ========================== -->
+
+                            <div class="coordination-head">
+
+                                <div>
+
+                                    <h3>
+                                        NGO responses
+                                    </h3>
+
+                                    <p>
+                                        NGOs decide independently
+                                        whether they can help.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            ${
+                                responses.length
+
+                                    ? `
+
+                                        <div class="match-list">
+
+                                            ${
+                                                responses
+                                                    .map(
+                                                        response => `
+
+                                                            <div class="ngo-match">
+
+                                                                <h4>
+                                                                    🏠
+                                                                    ${safe(
+                                                                        response.ngoName ||
+                                                                        "Verified NGO"
+                                                                    )}
+                                                                </h4>
+
+                                                                <div class="match-meta">
+                                                                    ✓ Will help
+                                                                </div>
+
+                                                            </div>
+
+                                                        `
+                                                    )
+                                                    .join("")
+                                            }
+
+                                        </div>
+
+                                    `
+
+                                    : `
+
+                                        <div
+                                            style="
+                                                padding:18px;
+                                                background:#faf8f3;
+                                                border:1px solid #e2ddd3;
+                                                color:#64758a;
+                                                font-size:12px;
+                                                line-height:1.6;
+                                            "
+                                        >
+
+                                            ⏳ No NGO has responded yet.
+
+                                            <br><br>
+
+                                            Verified NGOs can see this
+                                            request on their dashboard
+                                            and choose whether they
+                                            have the capacity to help.
+
+                                        </div>
+
+                                    `
+                            }
+
+                        </div>
+
+                    `
+
+            }
 
         </article>
 
     `;
 
 }
-
-/* ============================================================
-   REQUEST DETAILS
-   ============================================================ */
-
-function requestDetails(request) {
-
-    return `
-        <div class="detail-grid">
-
-            <div class="detail">
-
-                <span>
-                    PEOPLE AFFECTED
-                </span>
-
-                <strong>
-
-                    ${Number(
-                        request.victims || 0
-                    ).toLocaleString()}
-
-                </strong>
-
-            </div>
-
-
-            <div class="detail">
-
-                <span>
-                    WITHOUT SUPPLY
-                </span>
-
-                <strong>
-
-                    ${Number(
-                        request.daysWithoutSupply || 0
-                    )}
-
-                    ${
-                        Number(
-                            request.daysWithoutSupply || 0
-                        ) === 1
-                            ? "day"
-                            : "days"
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="detail">
-
-                <span>
-                    RELIEF NEEDED
-                </span>
-
-                <strong>
-
-                    ${safe(
-                        request.supplyType ||
-                        "Relief support"
-                    )}
-
-                </strong>
-
-            </div>
-
-
-            <div class="detail">
-
-                <span>
-                    REQUESTED BY
-                </span>
-
-                <strong>
-
-                    ${safe(
-                        request.reporterType ||
-                        "Reporter"
-                    )}
-
-                </strong>
-
-            </div>
-
-        </div>
-    `;
-}
-
-
-/* ============================================================
-   NGO MATCHING
-   ============================================================ */
-
-function findMatchingNGOs(request) {
-
-    return readNGOs()
-
-        .filter(
-            ngo =>
-                ngo.status === "verified"
-        )
-
-        .map(
-            ngo => ({
-
-                ngo,
-
-                match:
-                    calculateNGOMatch(
-                        request,
-                        ngo
-                    )
-
-            })
-        )
-
-        .filter(
-            item =>
-                item.match.score > 0
-        )
-
-        .sort(
-            (a, b) =>
-                b.match.score -
-                a.match.score
-        )
-
-        .map(
-            item =>
-                item.ngo
-        );
-}
-
-
-function calculateNGOMatch(
-    request,
-    ngo
-) {
-
-    const required =
-        normalizeServices(
-            request.supplyType
-        );
-
-
-    const offered =
-        normalizeServices(
-            ngo.services
-        );
-
-
-    const serviceMatches =
-        required.filter(
-            service =>
-                offered.some(
-                    item =>
-                        serviceCompatible(
-                            service,
-                            item
-                        )
-                )
-        );
-
-
-    let score =
-        serviceMatches.length * 100;
-
-
-    let distance = null;
-
-
-    const reqLat =
-        Number(request.lat);
-
-
-    const reqLng =
-        Number(request.lng);
-
-
-    const ngoLat =
-        Number(
-            ngo.lat ??
-            ngo.latitude
-        );
-
-
-    const ngoLng =
-        Number(
-            ngo.lng ??
-            ngo.longitude
-        );
-
-
-    if (
-        Number.isFinite(reqLat) &&
-        Number.isFinite(reqLng) &&
-        Number.isFinite(ngoLat) &&
-        Number.isFinite(ngoLng)
-    ) {
-
-        distance =
-            haversine(
-                reqLat,
-                reqLng,
-                ngoLat,
-                ngoLng
-            );
-
-
-        const radius =
-            Number(
-                ngo.operatingRadiusKm ??
-                ngo.operatingRadius ??
-                0
-            );
-
-
-        if (radius > 0) {
-
-            if (distance <= radius) {
-
-                score += 60;
-
-            } else {
-
-                score -= 80;
-
-            }
-
-        } else {
-
-            score += 20;
-
-        }
-
-    } else {
-
-        /*
-         * Older NGO records may only contain
-         * city/state/radius.
-         */
-
-        score += 10;
-    }
-
-
-    return {
-
-        score,
-
-        serviceMatches,
-
-        distance
-
-    };
-}
-
-
-function createMatchCard(
-    request,
-    ngo
-) {
-
-    const match =
-        calculateNGOMatch(
-            request,
-            ngo
-        );
-
-
-    const services =
-        Array.isArray(ngo.services)
-
-            ? ngo.services
-
-            : String(
-                ngo.services || ""
-            )
-                .split(",")
-                .map(
-                    service =>
-                        service.trim()
-                )
-                .filter(Boolean);
-
-
-    const distanceText =
-        match.distance !== null
-
-            ? `${match.distance.toFixed(1)} km from request`
-
-            : `${safe(
-                ngo.city || "Local"
-            )} · ${safe(
-                ngo.state || ""
-            )}`;
-
-
-    return `
-        <div class="ngo-match">
-
-            <div class="ngo-match-top">
-
-                <div>
-
-                    <h4>
-                        ${safe(
-                            ngo.name ||
-                            "Verified NGO"
-                        )}
-                    </h4>
-
-
-                    <div class="match-meta">
-
-                        ${distanceText}
-
-                        <br>
-
-                        Operating radius:
-
-                        ${
-                            Number(
-                                ngo.operatingRadiusKm ??
-                                ngo.operatingRadius ??
-                                0
-                            ) || "—"
-                        }
-
-                        km
-
-                    </div>
-
-                </div>
-
-
-                <span class="available">
-                    Available
-                </span>
-
-            </div>
-
-
-            <div class="match-services">
-
-                ${services
-                    .map(
-                        service =>
-                            `
-                                <span class="service-chip">
-                                    ${safe(service)}
-                                </span>
-                            `
-                    )
-                    .join("")}
-
-            </div>
-
-
-            <button
-                type="button"
-                class="btn btn-green match-action"
-                onclick="notifyNGO(
-                    '${jsArg(request.id)}',
-                    '${jsArg(ngo.id)}'
-                )"
-            >
-
-                Notify
-                ${safe(
-                    ngo.name ||
-                    "NGO"
-                )}
-
-            </button>
-
-        </div>
-    `;
-}
-
-
 /* ============================================================
    NGO VERIFICATION
    ============================================================ */
+
+function normalizeServices(
+    value
+) {
+
+    if (Array.isArray(value)) {
+
+        return value
+            .map(
+                item =>
+                    String(item)
+                        .trim()
+                        .toLowerCase()
+            )
+            .filter(Boolean);
+
+    }
+
+
+    return String(value || "")
+        .split(/[,;+|]/)
+        .map(
+            item =>
+                item
+                    .trim()
+                    .toLowerCase()
+        )
+        .filter(Boolean);
+
+}
+
+
+function formatServices(
+    value
+) {
+
+    return normalizeServices(value)
+        .map(
+            service =>
+                service.replace(
+                    /\b\w/g,
+                    char =>
+                        char.toUpperCase()
+                )
+        )
+        .join(", ") ||
+        "Relief support";
+
+}
+
 
 function renderNGOs() {
 
@@ -2888,14 +2012,22 @@ function renderNGOs() {
     const pending =
         ngos.filter(
             ngo =>
-                ngo.status === "pending"
+                String(
+                    ngo.status ||
+                    ""
+                ).toLowerCase() ===
+                "pending"
         );
 
 
     const verified =
         ngos.filter(
             ngo =>
-                ngo.status === "verified"
+                String(
+                    ngo.status ||
+                    ""
+                ).toLowerCase() ===
+                "verified"
         );
 
 
@@ -2938,6 +2070,7 @@ function renderNGOs() {
                     "✓",
                     "No NGOs are currently awaiting verification."
                 );
+
     }
 
 
@@ -2956,7 +2089,74 @@ function renderNGOs() {
                     "—",
                     "No verified NGOs are available yet."
                 );
+
     }
+
+}
+
+
+/* ============================================================
+   NGO DOCUMENT HELPERS
+   ============================================================ */
+
+function getDocumentData(
+    documentObject
+) {
+
+    if (!documentObject) {
+        return "";
+    }
+
+
+    if (
+        typeof documentObject ===
+        "string"
+    ) {
+
+        return documentObject;
+
+    }
+
+
+    return (
+        documentObject.data ||
+        documentObject.url ||
+        documentObject.preview ||
+        ""
+    );
+
+}
+
+
+function hasNGODocument(
+    ngo,
+    type
+) {
+
+    if (type === "registration") {
+
+        return Boolean(
+            getDocumentData(
+                ngo.registrationCertificate
+            )
+        );
+
+    }
+
+
+    if (type === "pan") {
+
+        return Boolean(
+            getDocumentData(
+                ngo.panDocument
+            )
+        );
+
+    }
+
+
+    return false;
+
 }
 
 
@@ -2964,28 +2164,67 @@ function renderNGOs() {
    PENDING NGO CARD
    ============================================================ */
 
-function createPendingNGOCard(ngo) {
+function createPendingNGOCard(
+    ngo
+) {
+
+    const registrationAvailable =
+        hasNGODocument(
+            ngo,
+            "registration"
+        );
+
+
+    const panAvailable =
+        hasNGODocument(
+            ngo,
+            "pan"
+        );
+
+
+    if (
+        !ngo.verificationChecklist ||
+        typeof ngo.verificationChecklist !==
+            "object"
+    ) {
+
+        ngo.verificationChecklist = {
+
+            registrationReviewed:
+                false,
+
+            panReviewed:
+                false,
+
+            documentsReviewed:
+                false
+
+        };
+
+    }
+
+
+    const checklist =
+        ngo.verificationChecklist;
+
 
     return `
+
         <article class="ngo-card">
 
             <div class="ngo-id">
-
                 ${safe(
                     ngo.id ||
                     "NGO"
                 )}
-
             </div>
 
 
             <h3>
-
                 ${safe(
                     ngo.name ||
                     "Unnamed NGO"
                 )}
-
             </h3>
 
 
@@ -2996,12 +2235,14 @@ function createPendingNGOCard(ngo) {
                     "Location not provided"
                 )}
 
-                ,
-
-                ${safe(
-                    ngo.state ||
-                    ""
-                )}
+                ${
+                    ngo.state
+                        ? ", " +
+                          safe(
+                              ngo.state
+                          )
+                        : ""
+                }
 
             </div>
 
@@ -3015,12 +2256,28 @@ function createPendingNGOCard(ngo) {
                     </span>
 
                     <strong>
-
                         ${safe(
                             ngo.registrationNumber ||
                             "—"
                         )}
+                    </strong>
 
+                </div>
+
+
+                <div>
+
+                    <span>
+                        ORGANISATION PAN
+                    </span>
+
+                    <strong>
+                        ${safe(
+                            ngo.organizationPan ||
+                            ngo.panNumber ||
+                            ngo.organisationPan ||
+                            "—"
+                        )}
                     </strong>
 
                 </div>
@@ -3033,30 +2290,10 @@ function createPendingNGOCard(ngo) {
                     </span>
 
                     <strong>
-
                         ${safe(
                             ngo.contactPerson ||
                             "—"
                         )}
-
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        EMAIL
-                    </span>
-
-                    <strong>
-
-                        ${safe(
-                            ngo.email ||
-                            "—"
-                        )}
-
                     </strong>
 
                 </div>
@@ -3069,12 +2306,10 @@ function createPendingNGOCard(ngo) {
                     </span>
 
                     <strong>
-
                         ${safe(
                             ngo.phone ||
                             "—"
                         )}
-
                     </strong>
 
                 </div>
@@ -3097,184 +2332,227 @@ function createPendingNGOCard(ngo) {
             </div>
 
 
+            <!-- DOCUMENT VERIFICATION -->
+
+            <div style="
+                margin-top:18px;
+                padding:18px;
+                background:#faf8f3;
+                border:1px solid #e1dbd0;
+                border-radius:10px;
+            ">
+
+                <div style="
+                    font-size:13px;
+                    font-weight:800;
+                    margin-bottom:12px;
+                ">
+                    DOCUMENT VERIFICATION
+                </div>
+
+
+                <div style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(2,minmax(0,1fr));
+                    gap:10px;
+                ">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="
+                            viewNGODocument(
+                                '${jsArg(
+                                    ngo.id
+                                )}',
+                                'registration'
+                            )
+                        "
+                        ${
+                            registrationAvailable
+                                ? ""
+                                : "disabled"
+                        }
+                    >
+
+                        📄
+
+                        ${
+                            registrationAvailable
+                                ? "VIEW REGISTRATION CERTIFICATE"
+                                : "REGISTRATION CERTIFICATE MISSING"
+                        }
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="
+                            viewNGODocument(
+                                '${jsArg(
+                                    ngo.id
+                                )}',
+                                'pan'
+                            )
+                        "
+                        ${
+                            panAvailable
+                                ? ""
+                                : "disabled"
+                        }
+                    >
+
+                        🪪
+
+                        ${
+                            panAvailable
+                                ? "VIEW PAN DOCUMENT"
+                                : "PAN DOCUMENT MISSING"
+                        }
+
+                    </button>
+
+                </div>
+
+
+                <label style="
+                    display:block;
+                    margin-top:15px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+
+                    <input
+                        type="checkbox"
+                        onchange="
+                            setNGOChecklist(
+                                '${jsArg(ngo.id)}',
+                                'registrationReviewed',
+                                this.checked
+                            )
+                        "
+                        ${
+                            checklist.registrationReviewed
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    Registration certificate reviewed
+
+                </label>
+
+
+                <label style="
+                    display:block;
+                    margin-top:10px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+
+                    <input
+                        type="checkbox"
+                        onchange="
+                            setNGOChecklist(
+                                '${jsArg(ngo.id)}',
+                                'panReviewed',
+                                this.checked
+                            )
+                        "
+                        ${
+                            checklist.panReviewed
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    PAN document reviewed
+
+                </label>
+
+
+                <label style="
+                    display:block;
+                    margin-top:10px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+
+                    <input
+                        type="checkbox"
+                        onchange="
+                            setNGOChecklist(
+                                '${jsArg(ngo.id)}',
+                                'documentsReviewed',
+                                this.checked
+                            )
+                        "
+                        ${
+                            checklist.documentsReviewed
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    All submitted documents appear valid
+
+                </label>
+
+            </div>
+
+
             <div class="ngo-actions">
 
                 <button
                     type="button"
                     class="btn btn-primary"
-                    onclick="verifyNGO('${jsArg(ngo.id)}')"
+                    onclick="
+                        verifyNGO(
+                            '${jsArg(
+                                ngo.id
+                            )}'
+                        )
+                    "
                 >
-
-                    ✓ Verify NGO
-
+                    ✓ VERIFY NGO
                 </button>
 
 
                 <button
                     type="button"
                     class="btn btn-light"
-                    onclick="rejectNGO('${jsArg(ngo.id)}')"
+                    onclick="
+                        rejectNGO(
+                            '${jsArg(
+                                ngo.id
+                            )}'
+                        )
+                    "
                 >
-
-                    Reject
-
+                    REJECT
                 </button>
 
             </div>
 
         </article>
+
     `;
+
 }
 
 
 /* ============================================================
-   VERIFIED NGO CARD
+   NGO CHECKLIST
    ============================================================ */
 
-function createVerifiedNGOCard(ngo) {
-
-    return `
-        <article class="ngo-card">
-
-            <div class="ngo-id">
-
-                ${safe(
-                    ngo.id ||
-                    "NGO"
-                )}
-
-            </div>
-
-
-            <h3>
-
-                ${safe(
-                    ngo.name ||
-                    "Unnamed NGO"
-                )}
-
-            </h3>
-
-
-            <div class="ngo-location">
-
-                ${safe(
-                    ngo.city ||
-                    "Location not provided"
-                )}
-
-                ,
-
-                ${safe(
-                    ngo.state ||
-                    ""
-                )}
-
-            </div>
-
-
-            <div class="ngo-info">
-
-                <div>
-
-                    <span>
-                        CONTACT
-                    </span>
-
-                    <strong>
-
-                        ${safe(
-                            ngo.contactPerson ||
-                            "—"
-                        )}
-
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        OPERATING RADIUS
-                    </span>
-
-                    <strong>
-
-                        ${
-                            Number(
-                                ngo.operatingRadiusKm ??
-                                ngo.operatingRadius ??
-                                0
-                            ) || "—"
-                        }
-
-                        km
-
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        EMAIL
-                    </span>
-
-                    <strong>
-
-                        ${safe(
-                            ngo.email ||
-                            "—"
-                        )}
-
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>
-                        STATUS
-                    </span>
-
-                    <strong style="color:#2f7a4a">
-
-                        ✓ Verified
-
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <div class="ngo-services">
-
-                <strong>
-                    Available services:
-                </strong>
-
-                ${safe(
-                    formatServices(
-                        ngo.services
-                    )
-                )}
-
-            </div>
-
-        </article>
-    `;
-}
-
-
-/* ============================================================
-   VERIFY NGO
-   ============================================================ */
-
-function verifyNGO(id) {
+function setNGOChecklist(
+    id,
+    field,
+    value
+) {
 
     const ngos =
         readNGOs();
@@ -3283,7 +2561,55 @@ function verifyNGO(id) {
     const ngo =
         ngos.find(
             item =>
-                item.id === id
+                String(item.id) ===
+                String(id)
+        );
+
+
+    if (!ngo) {
+        return;
+    }
+
+
+    if (
+        !ngo.verificationChecklist ||
+        typeof ngo.verificationChecklist !==
+            "object"
+    ) {
+
+        ngo.verificationChecklist = {};
+
+    }
+
+
+    ngo.verificationChecklist[field] =
+        value;
+
+
+    saveNGOs(
+        ngos
+    );
+
+}
+
+
+/* ============================================================
+   VERIFY NGO
+   ============================================================ */
+
+function verifyNGO(
+    id
+) {
+
+    const ngos =
+        readNGOs();
+
+
+    const ngo =
+        ngos.find(
+            item =>
+                String(item.id) ===
+                String(id)
         );
 
 
@@ -3295,16 +2621,79 @@ function verifyNGO(id) {
         );
 
         return;
+
     }
 
 
-    if (ngo.status === "verified") {
+    const checklist =
+        ngo.verificationChecklist ||
+        {};
+
+
+    const hasRegistration =
+        hasNGODocument(
+            ngo,
+            "registration"
+        );
+
+
+    const hasPan =
+        hasNGODocument(
+            ngo,
+            "pan"
+        );
+
+
+    /*
+     * If documents were uploaded, require them
+     * to be reviewed.
+     */
+
+    if (
+        hasRegistration &&
+        checklist.registrationReviewed !== true
+    ) {
 
         showControlMessage(
-            "This NGO is already verified."
+            "Please review the registration certificate first.",
+            true
         );
 
         return;
+
+    }
+
+
+    if (
+        hasPan &&
+        checklist.panReviewed !== true
+    ) {
+
+        showControlMessage(
+            "Please review the PAN document first.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    if (
+        (
+            hasRegistration ||
+            hasPan
+        ) &&
+        checklist.documentsReviewed !== true
+    ) {
+
+        showControlMessage(
+            "Please confirm that all submitted documents appear valid.",
+            true
+        );
+
+        return;
+
     }
 
 
@@ -3332,8 +2721,9 @@ function verifyNGO(id) {
 
 
     showControlMessage(
-        `✓ ${ngo.name} is now a verified relief partner and can receive suitable emergency requests.`
+        `✓ ${ngo.name} is now a verified relief partner.`
     );
+
 }
 
 
@@ -3341,7 +2731,9 @@ function verifyNGO(id) {
    REJECT NGO
    ============================================================ */
 
-function rejectNGO(id) {
+function rejectNGO(
+    id
+) {
 
     const ngos =
         readNGOs();
@@ -3350,7 +2742,8 @@ function rejectNGO(id) {
     const ngo =
         ngos.find(
             item =>
-                item.id === id
+                String(item.id) ===
+                String(id)
         );
 
 
@@ -3362,6 +2755,7 @@ function rejectNGO(id) {
         );
 
         return;
+
     }
 
 
@@ -3372,6 +2766,7 @@ function rejectNGO(id) {
     ) {
 
         return;
+
     }
 
 
@@ -3401,419 +2796,375 @@ function rejectNGO(id) {
     showControlMessage(
         `NGO ${ngo.name} has been rejected.`
     );
+
 }
 
 
 /* ============================================================
-   VERIFY REQUEST
+   VERIFIED NGO CARD
    ============================================================ */
 
-function verifyRequest(id) {
-
-    const requests =
-        readRequests();
-
-
-    const request =
-        requests.find(
-            item =>
-                item.id === id
-        );
-
-
-    if (!request) {
-
-        showControlMessage(
-            "Request could not be found.",
-            true
-        );
-
-        return;
-    }
-
-
-    if (
-        request.verified === true
-    ) {
-
-        showControlMessage(
-            "This request has already been verified."
-        );
-
-        return;
-    }
-
-
-    if (
-        !hasEvidence(request)
-    ) {
-
-        showControlMessage(
-            "Verification requires the submitted evidence photo.",
-            true
-        );
-
-        return;
-    }
-
-
-    request.verified =
-        true;
-
-
-    request.verificationStatus =
-        "verified";
-
-
-    request.verifiedAt =
-        Date.now();
-
-
-    request.verifiedBy =
-        sessionStorage.getItem(
-            "reliefStaffName"
-        ) ||
-        "Control Room Staff";
-
-
-    /*
-     * Verification does NOT automatically
-     * contact an NGO.
-     */
-
-    request.status =
-        "pending";
-
-
-    writeRequests(
-        requests
-    );
-
-
-    renderAll();
-
-
-    showControlMessage(
-        `✓ ${id} verified. Suitable verified NGOs are now shown for coordination.`
-    );
-}
-
-/* ============================================================
-   NOTIFY NGO NETWORK
-   ------------------------------------------------------------
-   IMPORTANT:
-
-   The Control Room does NOT select an NGO.
-
-   It simply publishes the verified request to the
-   verified NGO network.
-
-   NGOs then decide independently whether they can help.
-   ============================================================ */
-
-function notifyNGONetwork(
-    requestId
+function createVerifiedNGOCard(
+    ngo
 ) {
 
-    const requests =
-        readRequests();
-
-
-    const request =
-        requests.find(
-            item =>
-                item.id === requestId
+    const radius =
+        Number(
+            firstValue(
+                ngo.operatingRadiusKm,
+                ngo.operatingRadius,
+                ngo.radiusKm
+            ) || 0
         );
 
 
-    if (!request) {
+    return `
 
-        showControlMessage(
-            "The emergency request could not be found.",
-            true
-        );
+        <article class="ngo-card">
 
-        return;
-
-    }
-
-
-    /*
-     * Only verified requests can be
-     * sent to the NGO network.
-     */
-
-    if (
-        request.verified !== true
-    ) {
-
-        showControlMessage(
-            "Only verified emergency requests can be sent to NGOs.",
-            true
-        );
-
-        return;
-
-    }
+            <div class="ngo-id">
+                ${safe(
+                    ngo.id ||
+                    "NGO"
+                )}
+            </div>
 
 
-    /*
-     * Prevent accidental duplicate notification.
-     */
-
-    if (
-        request.ngoNotificationStatus ===
-            "notified"
-    ) {
-
-        showControlMessage(
-            "This request has already been sent to the NGO network."
-        );
-
-        return;
-
-    }
+            <h3>
+                ${safe(
+                    ngo.name ||
+                    "Unnamed NGO"
+                )}
+            </h3>
 
 
-    const confirmed =
-        confirm(
-            `Notify the verified NGO network about ${request.id}?\n\n` +
+            <div class="ngo-location">
 
-            `Need: ${
-                request.supplyType ||
-                "Relief support"
-            }\n` +
+                ${safe(
+                    ngo.city ||
+                    "Location not provided"
+                )}
 
-            `Location: ${
-                request.shelterName ||
-                "Affected location"
-            }\n` +
+                ${
+                    ngo.state
+                        ? ", " +
+                          safe(
+                              ngo.state
+                          )
+                        : ""
+                }
 
-            `People affected: ${
-                request.victims ||
-                0
-            }\n\n` +
-
-            `All verified NGOs will be able to see this request and decide whether they can help.`
-        );
+            </div>
 
 
-    if (!confirmed) {
+            <div class="ngo-info">
 
-        return;
+                <div>
 
-    }
+                    <span>
+                        CONTACT
+                    </span>
 
+                    <strong>
+                        ${safe(
+                            ngo.contactPerson ||
+                            "—"
+                        )}
+                    </strong>
 
-    /*
-     * ============================================================
-     * DO NOT ASSIGN AN NGO HERE.
-     * ============================================================
-     */
-
-    request.status =
-        "ngo_notified";
-
-
-    request.ngoNotificationStatus =
-        "notified";
+                </div>
 
 
-    request.ngoNotifiedAt =
-        Date.now();
+                <div>
+
+                    <span>
+                        OPERATING RADIUS
+                    </span>
+
+                    <strong>
+                        ${
+                            radius > 0
+                                ? radius +
+                                  " km"
+                                : "—"
+                        }
+                    </strong>
+
+                </div>
 
 
-    request.ngoNotifiedBy =
-        sessionStorage.getItem(
-            "reliefStaffName"
-        ) ||
-        "Control Room Staff";
+                <div>
+
+                    <span>
+                        EMAIL
+                    </span>
+
+                    <strong>
+                        ${safe(
+                            ngo.email ||
+                            "—"
+                        )}
+                    </strong>
+
+                </div>
 
 
-    /*
-     * Keep a response object ready.
-     *
-     * Example later:
-     *
-     * ngoResponses: {
-     *
-     *    "NGO-101": {
-     *        ngoId: "NGO-101",
-     *        ngoName: "Helping Hands",
-     *        status: "accepted",
-     *        respondedAt: 123456
-     *    }
-     *
-     * }
-     */
+                <div>
 
-    if (
-        !request.ngoResponses ||
-        typeof request.ngoResponses !==
-            "object" ||
-        Array.isArray(
-            request.ngoResponses
-        )
-    ) {
+                    <span>
+                        STATUS
+                    </span>
 
-        request.ngoResponses = {};
+                    <strong style="
+                        color:#2f8b52;
+                    ">
+                        ✓ VERIFIED
+                    </strong>
 
-    }
+                </div>
+
+            </div>
 
 
-    /*
-     * Remove the OLD assignment fields if this
-     * request was previously using the old demo flow.
-     */
+            <div class="ngo-services">
 
-    delete request.assignedNgoId;
+                <strong>
+                    Available services:
+                </strong>
 
-    delete request.assignedNgoName;
+                ${safe(
+                    formatServices(
+                        ngo.services
+                    )
+                )}
 
+            </div>
 
-    writeRequests(
-        requests
-    );
+        </article>
 
-
-    /*
-     * Refresh Control Room.
-     */
-
-    renderAll();
-
-
-    showControlMessage(
-        `✓ ${request.id} has been sent to the verified NGO network. NGOs can now review the request and choose whether they can help.`
-    );
+    `;
 
 }
 
+
 /* ============================================================
-   GET NGO RESPONSES
+   NGO DOCUMENT VIEWER
    ============================================================ */
 
-function getNGOResponses(
-    request
+function viewNGODocument(
+    id,
+    type
 ) {
 
-    if (
-        !request ||
-        !request.ngoResponses ||
-        typeof request.ngoResponses !==
-            "object"
-    ) {
-
-        return [];
-
-    }
-
-
-    return Object.values(
-        request.ngoResponses
-    );
-
-}
-
-/* ============================================================
-   MARK NGO ON THE WAY
-   ============================================================ */
-
-function markNGOOnTheWay(
-    requestId
-) {
-
-    const requests =
-        readRequests();
-
-
-    const request =
-        requests.find(
+    const ngo =
+        readNGOs().find(
             item =>
-                item.id === requestId
+                String(item.id) ===
+                String(id)
         );
 
 
-    if (!request) {
+    if (!ngo) {
 
         showControlMessage(
-            "Request could not be found.",
+            "NGO could not be found.",
             true
         );
 
         return;
+
     }
 
 
-    if (
-        request.status !==
-        "coordinating"
-    ) {
+    const documentObject =
+        type === "registration"
+            ? ngo.registrationCertificate
+            : ngo.panDocument;
+
+
+    const data =
+        getDocumentData(
+            documentObject
+        );
+
+
+    if (!data) {
 
         showControlMessage(
-            "This request is not currently awaiting NGO confirmation.",
+            "This document was not uploaded.",
             true
         );
 
         return;
+
     }
 
 
-    const confirmed =
-        confirm(
-            `Confirm that ${
-                request.assignedNgoName ||
-                "the NGO"
-            } is responding to ${
-                request.id
-            }?`
+    closeEvidence();
+
+
+    const title =
+        type === "registration"
+            ? "Registration Certificate"
+            : "PAN Document";
+
+
+    const overlay =
+        document.createElement(
+            "div"
         );
 
 
-    if (!confirmed) {
-        return;
-    }
+    overlay.id =
+        "evidenceOverlay";
 
 
-    request.status =
-        "assistance_confirmed";
+    overlay.style.cssText = `
+        position:fixed;
+        inset:0;
+        z-index:99999;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+        background:rgba(7,21,37,.88);
+        backdrop-filter:blur(5px);
+    `;
 
 
-    request.ngoNotificationStatus =
-        "responding";
+    overlay.innerHTML = `
+
+        <div style="
+            position:relative;
+            width:min(950px,100%);
+            max-height:94vh;
+            overflow:auto;
+            padding:25px;
+            background:#fffdf9;
+            border-radius:14px;
+            box-shadow:0 30px 100px rgba(0,0,0,.35);
+        ">
+
+            <button
+                type="button"
+                onclick="closeEvidence()"
+                style="
+                    position:absolute;
+                    top:14px;
+                    right:14px;
+                    width:38px;
+                    height:38px;
+                    border:0;
+                    border-radius:50%;
+                    background:#071525;
+                    color:#fff;
+                    font-size:21px;
+                "
+            >
+                ×
+            </button>
 
 
-    request.ngoConfirmedAt =
-        Date.now();
+            <div style="
+                padding-right:55px;
+            ">
+
+                <div style="
+                    color:#b83d34;
+                    font-size:9px;
+                    font-weight:800;
+                    letter-spacing:1.4px;
+                ">
+                    NGO DOCUMENT VERIFICATION
+                </div>
 
 
-    writeRequests(
-        requests
+                <h2 style="
+                    margin:7px 0 3px;
+                    font-family:Fraunces,Georgia,serif;
+                ">
+                    ${safe(title)}
+                </h2>
+
+
+                <p style="
+                    margin:0 0 18px;
+                    color:#64758a;
+                    font-size:11px;
+                ">
+                    ${safe(
+                        ngo.name ||
+                        "NGO"
+                    )}
+                    ·
+                    ${safe(
+                        ngo.id ||
+                        ""
+                    )}
+                </p>
+
+            </div>
+
+
+            <img
+                src="${data}"
+                alt="${safe(title)}"
+                style="
+                    display:block;
+                    width:100%;
+                    max-height:70vh;
+                    object-fit:contain;
+                    background:#f0ece4;
+                    border:1px solid #ded8cd;
+                    border-radius:8px;
+                "
+            >
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        overlay
     );
 
 
-    renderAll();
+    overlay.addEventListener(
+        "click",
+        event => {
 
+            if (
+                event.target ===
+                overlay
+            ) {
 
-    showControlMessage(
-        `✓ ${
-            request.assignedNgoName ||
-            "The NGO"
-        } is marked as on the way to help.`
+                closeEvidence();
+
+            }
+
+        }
     );
+
 }
 
 
 /* ============================================================
-   EVIDENCE VIEWER
+   EMERGENCY REQUEST EVIDENCE VIEWER
    ============================================================ */
 
-function viewEvidence(id) {
+function viewEvidence(
+    id
+) {
 
     const request =
         readRequests().find(
             item =>
-                item.id === id
+                String(
+                    item.id ||
+                    item.requestNumber
+                ) ===
+                String(id)
         );
 
 
@@ -3825,6 +3176,7 @@ function viewEvidence(id) {
         );
 
         return;
+
     }
 
 
@@ -3838,6 +3190,7 @@ function viewEvidence(id) {
         );
 
         return;
+
     }
 
 
@@ -3862,8 +3215,7 @@ function viewEvidence(id) {
         align-items:center;
         justify-content:center;
         padding:24px;
-        background:rgba(7,21,37,.86);
-        backdrop-filter:blur(5px);
+        background:rgba(7,21,37,.88);
     `;
 
 
@@ -3871,13 +3223,12 @@ function viewEvidence(id) {
 
         <div style="
             position:relative;
-            width:min(900px,100%);
+            width:min(950px,100%);
             max-height:94vh;
             overflow:auto;
+            padding:25px;
             background:#fffdf9;
-            border:1px solid #e3ded3;
-            box-shadow:0 30px 100px rgba(0,0,0,.35);
-            padding:24px;
+            border-radius:14px;
         ">
 
             <button
@@ -3885,64 +3236,49 @@ function viewEvidence(id) {
                 onclick="closeEvidence()"
                 style="
                     position:absolute;
-                    right:14px;
                     top:14px;
+                    right:14px;
                     width:38px;
                     height:38px;
                     border:0;
                     border-radius:50%;
                     background:#071525;
-                    color:#fff;
+                    color:white;
                     font-size:21px;
-                    cursor:pointer;
                 "
             >
                 ×
             </button>
 
 
-            <div style="
-                padding-right:50px;
-                margin-bottom:16px;
+            <h2 style="
+                margin:0 50px 5px 0;
+                font-family:Fraunces,Georgia,serif;
             ">
 
-                <div style="
-                    color:#b43b32;
-                    font-size:8px;
-                    font-weight:800;
-                    letter-spacing:.12em;
-                ">
+                ${safe(
+                    getLocationName(
+                        request
+                    )
+                )}
 
-                    VERIFICATION EVIDENCE
-
-                </div>
+            </h2>
 
 
-                <h2 style="
-                    margin:6px 0 3px;
-                    font-family:Fraunces,Georgia,serif;
-                ">
+            <p style="
+                margin:0 0 18px;
+                color:#64758a;
+                font-size:11px;
+            ">
 
-                    ${safe(
-                        request.shelterName ||
-                        "Affected location"
-                    )}
+                Verification evidence ·
 
-                </h2>
+                ${safe(
+                    request.id ||
+                    request.requestNumber
+                )}
 
-
-                <p style="
-                    margin:0;
-                    color:#77838e;
-                    font-size:9px;
-                ">
-
-                    Request
-                    ${safe(request.id)}
-
-                </p>
-
-            </div>
+            </p>
 
 
             <img
@@ -3951,19 +3287,21 @@ function viewEvidence(id) {
                 style="
                     display:block;
                     width:100%;
-                    max-height:65vh;
+                    max-height:70vh;
                     object-fit:contain;
                     background:#f0ece4;
+                    border-radius:8px;
                 "
             >
 
 
             <div style="
-                margin-top:14px;
-                padding:13px;
+                margin-top:15px;
+                padding:14px;
                 background:#f7f4ed;
+                border-radius:8px;
                 color:#52606c;
-                font-size:10px;
+                font-size:11px;
                 line-height:1.55;
             ">
 
@@ -3975,12 +3313,14 @@ function viewEvidence(id) {
 
                 ${safe(
                     request.situationDetails ||
+                    request.description ||
                     "No details provided."
                 )}
 
             </div>
 
         </div>
+
     `;
 
 
@@ -3999,9 +3339,12 @@ function viewEvidence(id) {
             ) {
 
                 closeEvidence();
+
             }
+
         }
     );
+
 }
 
 
@@ -4016,7 +3359,101 @@ function closeEvidence() {
     if (overlay) {
 
         overlay.remove();
+
     }
+
+}
+
+
+/* ============================================================
+   STATISTICS
+   ============================================================ */
+
+function renderStatistics() {
+
+    const requests =
+        readRequests();
+
+
+    const ngos =
+        readNGOs();
+
+
+    const pending =
+        requests.filter(
+            request =>
+                request.verified !== true
+        );
+
+
+    const verified =
+        requests.filter(
+            request =>
+                request.verified === true
+        );
+
+
+    const coordinating =
+        requests.filter(
+            request =>
+                request.status ===
+                    "ngo_notified" ||
+                request.status ===
+                    "coordinating" ||
+                request.status ===
+                    "assistance_confirmed"
+        );
+
+
+    const verifiedNGOs =
+        ngos.filter(
+            ngo =>
+                ngo.status ===
+                "verified"
+        );
+
+
+    setText(
+        "reviewCount",
+        pending.length
+    );
+
+
+    setText(
+        "verifiedCount",
+        verified.length
+    );
+
+
+    setText(
+        "verifiedNgoCount",
+        verifiedNGOs.length
+    );
+
+
+    setText(
+        "coordinationCount",
+        coordinating.length
+    );
+
+
+    setText(
+        "reviewBadge",
+        `${pending.length} awaiting review`
+    );
+
+
+    setText(
+        "coordinationBadge",
+        `${coordinating.length} active`
+    );
+
+
+    setText(
+        "ngoNetworkBadge",
+        `${verifiedNGOs.length} verified`
+    );
+
 }
 
 
@@ -4032,24 +3469,27 @@ function renderAlerts() {
         );
 
 
-    const requests =
-        readRequests().filter(
-            request =>
-                request.status ===
-                "flagged"
-        );
+    const flagged =
+        readRequests()
+            .filter(
+                request =>
+                    request.status ===
+                    "flagged"
+            );
 
 
     setText(
         "alertCount",
-        `${requests.length} flagged`
+        `${flagged.length} flagged`
     );
 
 
-    if (!list) return;
+    if (!list) {
+        return;
+    }
 
 
-    if (!requests.length) {
+    if (!flagged.length) {
 
         list.innerHTML =
             emptyState(
@@ -4058,573 +3498,395 @@ function renderAlerts() {
             );
 
         return;
+
     }
 
 
     list.innerHTML =
-        requests
+        flagged
             .map(
                 request => `
 
                     <div class="flagged-item">
 
-                        <div class="flag-dot"></div>
+                        <strong>
+                            ${safe(
+                                request.id
+                            )}
+                        </strong>
 
-                        <div>
-
-                            <strong>
-
-                                ${safe(
-                                    request.id
-                                )}
-
-                                ·
-
-                                ${safe(
-                                    request.shelterName ||
-                                    "Affected location"
-                                )}
-
-                            </strong>
-
-
-                            <p>
-
-                                This request was flagged
-                                for manual attention.
-
-                                ${
-                                    Number(
-                                        request.victims ||
-                                        0
-                                    ).toLocaleString()
-                                }
-
-                                people reported.
-
-                            </p>
-
-                        </div>
+                        <p>
+                            ${safe(
+                                getLocationName(
+                                    request
+                                )
+                            )}
+                            ·
+                            ${safe(
+                                getPeopleAffected(
+                                    request
+                                )
+                            )}
+                            people affected.
+                        </p>
 
                     </div>
 
                 `
             )
             .join("");
+
 }
 
 
 /* ============================================================
-   SERVICE MATCHING
+   MAP
    ============================================================ */
 
-function normalizeServices(
-    value
+let coordinationMap =
+    null;
+
+
+function getLat(
+    object
 ) {
 
-    if (
-        Array.isArray(value)
-    ) {
-
-        return value
-            .flatMap(
-                item =>
-                    normalizeServices(
-                        item
-                    )
-            )
-            .filter(Boolean);
-    }
-
-
-    const raw =
-        String(
-            value || ""
-        )
-            .replace(
-                /\+/g,
-                ","
-            )
-            .split(",")
-            .map(
-                item =>
-                    item.trim()
-            )
-            .filter(Boolean);
-
-
-    return raw.map(
-        item => {
-
-            const lower =
-                item.toLowerCase();
-
-
-            if (
-                lower.includes(
-                    "general relief"
-                ) ||
-                lower.includes(
-                    "relief kit"
-                ) ||
-                lower.includes(
-                    "emergency kit"
-                )
-            ) {
-
-                return "emergency kits";
-            }
-
-
-            if (
-                lower.includes(
-                    "food"
-                )
-            ) {
-
-                return "food";
-            }
-
-
-            if (
-                lower.includes(
-                    "water"
-                )
-            ) {
-
-                return "water";
-            }
-
-
-            if (
-                lower.includes(
-                    "medicine"
-                ) ||
-                lower.includes(
-                    "medical"
-                )
-            ) {
-
-                return "medicine";
-            }
-
-
-            if (
-                lower.includes(
-                    "shelter"
-                )
-            ) {
-
-                return "shelter";
-            }
-
-
-            return lower;
-        }
-    );
-}
-
-
-function serviceCompatible(
-    a,
-    b
-) {
-
-    return (
-        a === b ||
-
-        (
-            a.includes("emergency") &&
-            b.includes("kit")
-        ) ||
-
-        (
-            b.includes("emergency") &&
-            a.includes("kit")
-        )
-    );
-}
-
-
-function formatServices(
-    value
-) {
-
-    if (
-        Array.isArray(value)
-    ) {
-
-        return (
-            value.join(", ") ||
-            "Not specified"
-        );
-    }
-
-
-    return String(
-        value ||
-        "Not specified"
-    );
-}
-
-
-/* ============================================================
-   FIND NGO
-   ============================================================ */
-
-function findNGO(id) {
-
-    return readNGOs().find(
-        ngo =>
-            ngo.id === id
-    ) || null;
-}
-
-
-/* ============================================================
-   DISTANCE — HAVERSINE
-   ============================================================ */
-
-function haversine(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-) {
-
-    const earthRadius =
-        6371;
-
-
-    const dLat =
-        toRadians(
-            lat2 - lat1
-        );
-
-
-    const dLon =
-        toRadians(
-            lon2 - lon1
-        );
-
-
-    const a =
-        Math.sin(
-            dLat / 2
-        ) ** 2 +
-
-        Math.cos(
-            toRadians(lat1)
-        ) *
-
-        Math.cos(
-            toRadians(lat2)
-        ) *
-
-        Math.sin(
-            dLon / 2
-        ) ** 2;
-
-
-    return (
-        earthRadius *
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        )
-    );
-}
-
-
-function toRadians(
-    value
-) {
-
-    return (
-        value *
-        Math.PI /
-        180
-    );
-}
-
-
-/* ============================================================
-   EVIDENCE
-   ============================================================ */
-
-function hasEvidence(
-    request
-) {
-
-    return (
-
-        typeof request.verificationPhoto ===
-            "string"
-
-        &&
-
-        request.verificationPhoto
-            .startsWith(
-                "data:image/"
-            )
-
-    );
-}
-
-
-/* ============================================================
-   PRIORITY SCORE
-   ============================================================ */
-
-function getPriorityScore(
-    request
-) {
-
-    if (
-        typeof calculateUrgencyScore ===
-        "function"
-    ) {
-
-        return Number(
-            calculateUrgencyScore(
-                request
-            )
-        ) || 0;
-    }
-
-
-    return (
-
+    const value =
         Number(
-            request.victims ||
-            0
-        )
-
-        +
-
-        Number(
-            request.daysWithoutSupply ||
-            0
-        ) * 40
-
-    );
-}
-
-
-/* ============================================================
-   COORDINATES
-   ============================================================ */
-
-function formatCoordinate(
-    value
-) {
-
-    const number =
-        Number(value);
-
-
-    return Number.isFinite(
-        number
-    )
-
-        ? number.toFixed(5)
-
-        : "—";
-}
-
-
-/* ============================================================
-   TIME
-   ============================================================ */
-
-function formatTime(
-    timestamp
-) {
-
-    if (!timestamp) {
-        return "";
-    }
-
-
-    try {
-
-        return new Date(
-            timestamp
-        ).toLocaleString(
-            [],
-            {
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
+            firstValue(
+                object.lat,
+                object.latitude,
+                object.location?.lat,
+                object.coordinates?.lat
+            )
         );
 
-    } catch {
 
-        return "";
-    }
+    return Number.isFinite(value)
+        ? value
+        : null;
+
 }
 
 
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
-
-function emptyState(
-    icon,
-    message
+function getLng(
+    object
 ) {
 
-    return `
+    const value =
+        Number(
+            firstValue(
+                object.lng,
+                object.longitude,
+                object.location?.lng,
+                object.coordinates?.lng
+            )
+        );
 
-        <div class="empty-state">
 
-            <div>
+    return Number.isFinite(value)
+        ? value
+        : null;
 
-                <div class="icon">
-                    ${icon}
-                </div>
-
-                <div>
-                    ${message}
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
 }
 
 
-/* ============================================================
-   SET TEXT
-   ============================================================ */
-
-function setText(
-    id,
-    value
-) {
+function initializeCoordinationMap() {
 
     const element =
         document.getElementById(
-            id
+            "coordinationMap"
         );
 
 
-    if (element) {
-
-        element.textContent =
-            value;
-    }
-}
-
-
-/* ============================================================
-   HTML ESCAPE
-   ============================================================ */
-
-function safe(
-    value
-) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        value == null
-            ? ""
-            : String(value);
-
-
-    return div.innerHTML;
-}
-
-
-/* ============================================================
-   SAFE JAVASCRIPT ARGUMENT
-   ============================================================ */
-
-function jsArg(
-    value
-) {
-
-    return String(
-        value == null
-            ? ""
-            : value
-    )
-
-        .replace(
-            /\\/g,
-            "\\\\"
-        )
-
-        .replace(
-            /'/g,
-            "\\'"
-        )
-
-        .replace(
-            /\r/g,
-            "\\r"
-        )
-
-        .replace(
-            /\n/g,
-            "\\n"
-        );
-}
-
-
-/* ============================================================
-   CONTROL ROOM MESSAGE
-   ============================================================ */
-
-function showControlMessage(
-    message,
-    isError = false
-) {
-
-    const element =
-        document.getElementById(
-            "controlMessage"
-        );
-
-
-    if (!element) {
+    if (
+        !element ||
+        typeof L ===
+            "undefined"
+    ) {
         return;
     }
 
 
-    element.textContent =
-        message;
+    if (coordinationMap) {
+
+        coordinationMap.remove();
+
+    }
 
 
-    element.className =
-        isError
-            ? "show error"
-            : "show";
+    coordinationMap =
+        L.map(
+            element
+        ).setView(
+            [
+                22.5,
+                79
+            ],
+            5
+        );
 
 
-    window.clearTimeout(
-        showControlMessage.timer
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 18,
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    )
+    .addTo(
+        coordinationMap
     );
 
 
-    showControlMessage.timer =
-        window.setTimeout(
-            () => {
+    renderCoordinationMap();
 
-                element.className =
-                    "";
+}
 
-            },
-            6000
+
+function renderCoordinationMap() {
+
+    if (!coordinationMap) {
+        return;
+    }
+
+
+    const requests =
+        readRequests()
+            .filter(
+                request =>
+                    request.verified === true
+            );
+
+
+    const ngos =
+        readNGOs()
+            .filter(
+                ngo =>
+                    ngo.status ===
+                    "verified"
+            );
+
+
+    const bounds = [];
+
+
+    requests.forEach(
+        request => {
+
+            const lat =
+                getLat(request);
+
+
+            const lng =
+                getLng(request);
+
+
+            if (
+                lat === null ||
+                lng === null
+            ) {
+                return;
+            }
+
+
+            L.marker([
+                lat,
+                lng
+            ])
+            .addTo(
+                coordinationMap
+            )
+            .bindPopup(`
+                <strong>
+                    Verified Emergency Request
+                </strong>
+                <br><br>
+                ${safe(
+                    getLocationName(
+                        request
+                    )
+                )}
+                <br>
+                ${safe(
+                    request.id ||
+                    request.requestNumber
+                )}
+            `);
+
+
+            bounds.push([
+                lat,
+                lng
+            ]);
+
+        }
+    );
+
+
+    ngos.forEach(
+        ngo => {
+
+            const lat =
+                getLat(ngo);
+
+
+            const lng =
+                getLng(ngo);
+
+
+            if (
+                lat === null ||
+                lng === null
+            ) {
+                return;
+            }
+
+
+            L.marker([
+                lat,
+                lng
+            ])
+            .addTo(
+                coordinationMap
+            )
+            .bindPopup(`
+                <strong>
+                    🏠
+                    ${safe(
+                        ngo.name ||
+                        "Verified NGO"
+                    )}
+                </strong>
+
+                <br><br>
+
+                ✓ Verified
+
+                <br>
+
+                Services:
+                ${safe(
+                    formatServices(
+                        ngo.services
+                    )
+                )}
+
+                <br>
+
+                Operating radius:
+                ${
+                    Number(
+                        ngo.operatingRadiusKm ||
+                        ngo.operatingRadius ||
+                        0
+                    )
+                }
+                km
+            `);
+
+
+            bounds.push([
+                lat,
+                lng
+            ]);
+
+        }
+    );
+
+
+    if (bounds.length) {
+
+        coordinationMap.fitBounds(
+            bounds,
+            {
+                padding: [35,35],
+                maxZoom: 10
+            }
         );
+
+    }
+
+}
+
+
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+
+function renderAll() {
+
+    renderStatistics();
+
+    renderReviewQueue();
+
+    renderCoordinationQueue();
+
+    renderAlerts();
+
+    renderNGOs();
+
+    if (coordinationMap) {
+        renderCoordinationMap();
+    }
+
+}
+
+
+/* ============================================================
+   COMPATIBILITY FUNCTIONS
+   ============================================================ */
+
+function getNGOResponses(
+    request
+) {
+
+    if (
+        !request ||
+        !request.ngoResponses ||
+        typeof request.ngoResponses !==
+            "object"
+    ) {
+
+        return [];
+
+    }
+
+
+    return Object.values(
+        request.ngoResponses
+    );
+
+}
+
+
+function findNGO(
+    id
+) {
+
+    return readNGOs().find(
+        ngo =>
+            String(ngo.id) ===
+            String(id)
+    ) || null;
+
+}
+
+
+/* ============================================================
+   OPTIONAL OLD WORKFLOW FUNCTION
+
+   Kept so old buttons do not break.
+   The new workflow does not automatically assign NGOs.
+   ============================================================ */
+
+function markNGOOnTheWay(
+    requestId
+) {
+
+    showControlMessage(
+        "NGO selection is handled by the NGO network. The Control Room does not assign an NGO automatically."
+    );
+
 }
