@@ -853,7 +853,7 @@ document.addEventListener(
                 () => {
 
                     window.location.href =
-                        "index.html";
+                        "ngo-dashboard.html";
 
                 },
                 500
