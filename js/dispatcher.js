@@ -1675,6 +1675,7 @@ const requests =
                 (
                     status === "pending" ||
                     status === "pending verification" ||
+                    status === "ngo_notified" ||
                     status === "coordinating" ||
                     status === "assistance_confirmed"
                 )
@@ -1959,7 +1960,7 @@ function createReviewCard(request) {
 
 
 /* ============================================================
-   REQUEST CARD — VERIFIED / COORDINATION
+   REQUEST CARD — VERIFIED / NGO NETWORK COORDINATION
    ============================================================ */
 
 function createCoordinationCard(request) {
@@ -1968,25 +1969,36 @@ function createCoordinationCard(request) {
         getPriority(request);
 
 
-    const notified =
-        request.status === "coordinating" ||
-        request.status === "assistance_confirmed";
+    /*
+     * NGO NETWORK HAS ALREADY BEEN NOTIFIED
+     */
+    const networkNotified =
+        request.ngoNotificationStatus === "notified" ||
+        request.status === "ngo_notified";
 
 
-    const ngo =
-        notified
-            ? findNGO(request.assignedNgoId)
-            : null;
+    /*
+     * NGO responses
+     */
+    const responses =
+        request.ngoResponses &&
+        typeof request.ngoResponses === "object"
+            ? Object.values(
+                request.ngoResponses
+            )
+            : [];
 
 
-    /* --------------------------------------------------------
-       NGO ALREADY NOTIFIED
-       -------------------------------------------------------- */
-
-    if (notified) {
+    /*
+     * REQUEST ALREADY NOTIFIED
+     */
+    if (networkNotified) {
 
         return `
-            <article class="request-card coordinating-card">
+            <article class="
+                request-card
+                coordinating-card
+            ">
 
                 <div class="request-head">
 
@@ -1994,10 +2006,15 @@ function createCoordinationCard(request) {
 
                         <div class="request-id">
 
-                            ${safe(request.id)}
+                            ${safe(
+                                request.id
+                            )}
 
                             <span
-                                class="priority ${priority.cls}"
+                                class="
+                                    priority
+                                    ${priority.cls}
+                                "
                             >
                                 ${priority.label}
                             </span>
@@ -2018,8 +2035,12 @@ function createCoordinationCard(request) {
                         <div class="request-location">
 
                             📍
-                            ${formatCoordinate(request.lat)},
-                            ${formatCoordinate(request.lng)}
+                            ${formatCoordinate(
+                                request.lat
+                            )},
+                            ${formatCoordinate(
+                                request.lng
+                            )}
 
                         </div>
 
@@ -2029,11 +2050,11 @@ function createCoordinationCard(request) {
                     <div class="urgency-box">
 
                         <span>
-                            URGENCY
+                            NGO NETWORK
                         </span>
 
                         <strong>
-                            ${getPriorityScore(request)}
+                            ${responses.length}
                         </strong>
 
                     </div>
@@ -2044,38 +2065,35 @@ function createCoordinationCard(request) {
                 ${requestDetails(request)}
 
 
+                <!-- =================================================
+                     NETWORK STATUS
+                     ================================================= -->
+
                 <div class="coordination-state">
 
                     <div>
 
                         <strong>
 
-                            ${
-                                request.status ===
-                                "assistance_confirmed"
-
-                                ? "✓ NGO is on the way"
-
-                                : "✓ NGO notified — coordinating"
-                            }
+                            🔔 NGO network notified
 
                         </strong>
 
 
                         <span>
 
-                            ${safe(
-                                request.assignedNgoName ||
-                                (ngo && ngo.name) ||
-                                "Assigned relief organization"
-                            )}
+                            Verified NGOs can now review
+                            this request and decide whether
+                            they have the resources to help.
 
                             ${
                                 request.ngoNotifiedAt
-                                    ? " · notified " +
-                                      formatTime(
-                                          request.ngoNotifiedAt
-                                      )
+                                    ? `
+                                        · notified
+                                        ${formatTime(
+                                            request.ngoNotifiedAt
+                                        )}
+                                      `
                                     : ""
                             }
 
@@ -2084,49 +2102,210 @@ function createCoordinationCard(request) {
                     </div>
 
 
+                    <span class="available">
+
+                        ${
+                            responses.length
+                                ? `${responses.length} NGO response${
+                                    responses.length === 1
+                                        ? ""
+                                        : "s"
+                                  }`
+                                : "Awaiting NGO response"
+                        }
+
+                    </span>
+
+                </div>
+
+
+                <!-- =================================================
+                     NGO RESPONSES
+                     ================================================= -->
+
+                <div class="coordination-wrap">
+
+                    <div class="coordination-head">
+
+                        <div>
+
+                            <h3>
+                                NGO responses
+                            </h3>
+
+                            <p>
+                                NGOs that have offered to
+                                help with this verified request.
+                            </p>
+
+                        </div>
+
+
+                        <span class="section-badge">
+
+                            ${responses.length}
+                            response${
+                                responses.length === 1
+                                    ? ""
+                                    : "s"
+                            }
+
+                        </span>
+
+                    </div>
+
+
                     ${
-                        request.status ===
-                        "coordinating"
+                        responses.length
 
                             ? `
 
-                                <button
-                                    type="button"
-                                    class="btn btn-green"
-                                    onclick="markNGOOnTheWay('${jsArg(request.id)}')"
+                                <div
+                                    class="match-list"
                                 >
 
-                                    ✓ Mark NGO on the way
+                                    ${responses
+                                        .map(
+                                            response => `
 
-                                </button>
+                                                <div
+                                                    class="
+                                                        ngo-match
+                                                    "
+                                                >
 
-                            `
+                                                    <div
+                                                        class="
+                                                            ngo-match-top
+                                                        "
+                                                    >
+
+                                                        <div>
+
+                                                            <h4>
+
+                                                                🏠
+                                                                ${safe(
+                                                                    response.ngoName ||
+                                                                    "Verified NGO"
+                                                                )}
+
+                                                            </h4>
+
+
+                                                            <div
+                                                                class="
+                                                                    match-meta
+                                                                "
+                                                            >
+
+                                                                NGO has
+                                                                offered to
+                                                                help
+
+                                                                ${
+                                                                    response.respondedAt
+                                                                        ? `
+                                                                            <br>
+                                                                            Responded:
+                                                                            ${formatTime(
+                                                                                response.respondedAt
+                                                                            )}
+                                                                          `
+                                                                        : ""
+                                                                }
+
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <span
+                                                            class="
+                                                                available
+                                                            "
+                                                        >
+
+                                                            ✓ Will help
+
+                                                        </span>
+
+                                                    </div>
+
+
+                                                    <div
+                                                        style="
+                                                            margin-top:10px;
+                                                            padding:10px 12px;
+                                                            background:#eaf5ed;
+                                                            color:#26784a;
+                                                            font-size:12px;
+                                                            font-weight:700;
+                                                        "
+                                                    >
+
+                                                        This NGO has
+                                                        voluntarily
+                                                        responded to
+                                                        the request.
+
+                                                    </div>
+
+                                                </div>
+
+                                            `
+                                        )
+                                        .join("")}
+
+                                </div>
+
+                              `
 
                             : `
 
-                                <span class="available">
-                                    Response confirmed
-                                </span>
+                                <div
+                                    style="
+                                        padding:18px;
+                                        background:#faf8f3;
+                                        border:1px solid #e5dfd4;
+                                        color:#687789;
+                                        font-size:13px;
+                                    "
+                                >
 
-                            `
+                                    ⏳ No NGO has responded yet.
+
+                                    <br>
+
+                                    <small>
+                                        Verified NGOs will see
+                                        this request on their
+                                        dashboard and can choose
+                                        whether they have the
+                                        capacity to help.
+                                    </small>
+
+                                </div>
+
+                              `
                     }
 
                 </div>
 
             </article>
         `;
+
     }
 
 
-    /* --------------------------------------------------------
-       VERIFIED BUT NGO NOT YET SELECTED
-       -------------------------------------------------------- */
-
-    const matches =
-        findMatchingNGOs(request);
-
+    /*
+     * ============================================================
+     * VERIFIED BUT NGO NETWORK NOT YET NOTIFIED
+     * ============================================================
+     */
 
     return `
+
         <article class="request-card">
 
             <div class="request-head">
@@ -2135,10 +2314,15 @@ function createCoordinationCard(request) {
 
                     <div class="request-id">
 
-                        ${safe(request.id)}
+                        ${safe(
+                            request.id
+                        )}
 
                         <span
-                            class="priority ${priority.cls}"
+                            class="
+                                priority
+                                ${priority.cls}
+                            "
                         >
                             ${priority.label}
                         </span>
@@ -2159,8 +2343,12 @@ function createCoordinationCard(request) {
                     <div class="request-location">
 
                         📍
-                        ${formatCoordinate(request.lat)},
-                        ${formatCoordinate(request.lng)}
+                        ${formatCoordinate(
+                            request.lat
+                        )},
+                        ${formatCoordinate(
+                            request.lng
+                        )}
 
                     </div>
 
@@ -2185,7 +2373,12 @@ function createCoordinationCard(request) {
             ${requestDetails(request)}
 
 
-            <div class="verification-row verified">
+            <div
+                class="
+                    verification-row
+                    verified
+                "
+            >
 
                 <div class="status-main">
 
@@ -2194,7 +2387,7 @@ function createCoordinationCard(request) {
                     </span>
 
                     <strong>
-                        ✓ Verified — ready for NGO coordination
+                        ✓ Verified — ready to notify NGO network
                     </strong>
 
                 </div>
@@ -2207,23 +2400,31 @@ function createCoordinationCard(request) {
             </div>
 
 
-            <div class="coordination-wrap">
+            <!-- =====================================================
+                 NGO NETWORK NOTIFICATION
+                 ===================================================== -->
+
+            <div
+                class="coordination-wrap"
+                style="
+                    margin-top:16px;
+                "
+            >
 
                 <div class="coordination-head">
 
                     <div>
 
                         <h3>
-                            Available NGOs for this request
+                            Notify NGO network
                         </h3>
 
                         <p>
-
-                            Matches are based on the requested
-                            relief service. Where NGO coordinates
-                            are available, operating radius is
-                            also considered.
-
+                            This will make the verified request
+                            visible to verified NGOs. The Control
+                            Room does not assign an NGO. NGOs
+                            decide independently whether they
+                            have the capacity to help.
                         </p>
 
                     </div>
@@ -2231,46 +2432,65 @@ function createCoordinationCard(request) {
 
                     <span class="section-badge">
 
-                        ${matches.length}
-
-                        match${matches.length === 1 ? "" : "es"}
+                        NGO NETWORK
 
                     </span>
 
                 </div>
 
 
-                ${
-                    matches.length
+                <div
+                    style="
+                        padding:18px;
+                        background:#f0f7f2;
+                        border:1px solid #cfe4d4;
+                    "
+                >
 
-                        ? `
-                            <div class="match-list">
+                    <div
+                        style="
+                            font-size:13px;
+                            line-height:1.6;
+                            color:#356248;
+                            margin-bottom:14px;
+                        "
+                    >
 
-                                ${matches
-                                    .map(
-                                        ngo =>
-                                            createMatchCard(
-                                                request,
-                                                ngo
-                                            )
-                                    )
-                                    .join("")}
+                        🔔
+                        Once notified, this request will
+                        appear on the dashboards of verified
+                        NGOs.
 
-                            </div>
-                        `
+                    </div>
 
-                        : emptyState(
-                            "—",
-                            "No verified NGO currently matches this request. Review the available NGO network below."
-                        )
-                }
+
+                    <button
+                        type="button"
+                        class="btn btn-green"
+                        onclick="
+                            notifyNGONetwork(
+                                '${jsArg(
+                                    request.id
+                                )}'
+                            )
+                        "
+                    >
+
+                        🔔
+                        NOTIFY NGO NETWORK →
+
+                    </button>
+
+                </div>
 
             </div>
 
-        </article>
-    `;
-}
 
+        </article>
+
+    `;
+
+}
 
 /* ============================================================
    REQUEST DETAILS
@@ -3278,22 +3498,25 @@ function verifyRequest(id) {
     );
 }
 
-
 /* ============================================================
-   NOTIFY NGO
+   NOTIFY NGO NETWORK
+   ------------------------------------------------------------
+   IMPORTANT:
+
+   The Control Room does NOT select an NGO.
+
+   It simply publishes the verified request to the
+   verified NGO network.
+
+   NGOs then decide independently whether they can help.
    ============================================================ */
 
-function notifyNGO(
-    requestId,
-    ngoId
+function notifyNGONetwork(
+    requestId
 ) {
 
     const requests =
         readRequests();
-
-
-    const ngos =
-        readNGOs();
 
 
     const request =
@@ -3303,56 +3526,58 @@ function notifyNGO(
         );
 
 
-    const ngo =
-        ngos.find(
-            item =>
-                item.id === ngoId
-        );
-
-
-    if (
-        !request ||
-        !ngo
-    ) {
+    if (!request) {
 
         showControlMessage(
-            "The request or NGO could not be found.",
+            "The emergency request could not be found.",
             true
         );
 
         return;
+
     }
 
+
+    /*
+     * Only verified requests can be
+     * sent to the NGO network.
+     */
 
     if (
         request.verified !== true
     ) {
 
         showControlMessage(
-            "Only verified emergency requests can be coordinated.",
+            "Only verified emergency requests can be sent to NGOs.",
             true
         );
 
         return;
+
     }
 
 
+    /*
+     * Prevent accidental duplicate notification.
+     */
+
     if (
-        ngo.status !== "verified"
+        request.ngoNotificationStatus ===
+            "notified"
     ) {
 
         showControlMessage(
-            "Only verified NGOs can be selected.",
-            true
+            "This request has already been sent to the NGO network."
         );
 
         return;
+
     }
 
 
     const confirmed =
         confirm(
-            `Notify ${ngo.name} about ${request.id}?\n\n` +
+            `Notify the verified NGO network about ${request.id}?\n\n` +
 
             `Need: ${
                 request.supplyType ||
@@ -3367,40 +3592,83 @@ function notifyNGO(
             `People affected: ${
                 request.victims ||
                 0
-            }`
+            }\n\n` +
+
+            `All verified NGOs will be able to see this request and decide whether they can help.`
         );
 
 
     if (!confirmed) {
+
         return;
+
     }
 
 
+    /*
+     * ============================================================
+     * DO NOT ASSIGN AN NGO HERE.
+     * ============================================================
+     */
+
     request.status =
-        "coordinating";
-
-
-    request.assignedNgoId =
-        ngo.id;
-
-
-    request.assignedNgoName =
-        ngo.name;
-
-
-    request.ngoNotifiedAt =
-        Date.now();
+        "ngo_notified";
 
 
     request.ngoNotificationStatus =
         "notified";
 
 
-    request.coordinatedBy =
+    request.ngoNotifiedAt =
+        Date.now();
+
+
+    request.ngoNotifiedBy =
         sessionStorage.getItem(
             "reliefStaffName"
         ) ||
         "Control Room Staff";
+
+
+    /*
+     * Keep a response object ready.
+     *
+     * Example later:
+     *
+     * ngoResponses: {
+     *
+     *    "NGO-101": {
+     *        ngoId: "NGO-101",
+     *        ngoName: "Helping Hands",
+     *        status: "accepted",
+     *        respondedAt: 123456
+     *    }
+     *
+     * }
+     */
+
+    if (
+        !request.ngoResponses ||
+        typeof request.ngoResponses !==
+            "object" ||
+        Array.isArray(
+            request.ngoResponses
+        )
+    ) {
+
+        request.ngoResponses = {};
+
+    }
+
+
+    /*
+     * Remove the OLD assignment fields if this
+     * request was previously using the old demo flow.
+     */
+
+    delete request.assignedNgoId;
+
+    delete request.assignedNgoName;
 
 
     writeRequests(
@@ -3408,14 +3676,44 @@ function notifyNGO(
     );
 
 
+    /*
+     * Refresh Control Room.
+     */
+
     renderAll();
 
 
     showControlMessage(
-        `✓ ${ngo.name} has been notified for ${request.id}. The request is now in NGO coordination.`
+        `✓ ${request.id} has been sent to the verified NGO network. NGOs can now review the request and choose whether they can help.`
     );
+
 }
 
+/* ============================================================
+   GET NGO RESPONSES
+   ============================================================ */
+
+function getNGOResponses(
+    request
+) {
+
+    if (
+        !request ||
+        !request.ngoResponses ||
+        typeof request.ngoResponses !==
+            "object"
+    ) {
+
+        return [];
+
+    }
+
+
+    return Object.values(
+        request.ngoResponses
+    );
+
+}
 
 /* ============================================================
    MARK NGO ON THE WAY
