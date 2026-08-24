@@ -2864,6 +2864,496 @@
 
     </style>
 
+
+<style id="premium-control-room-ui">
+/* ==========================================================
+   RELIEF RESOLVER — COMMAND CENTER REDESIGN
+   UI-only layer. Existing IDs, JS and workflow are preserved.
+   ========================================================== */
+:root{
+  --rr-black:#07090d;
+  --rr-navy:#0b1220;
+  --rr-navy-2:#111b2d;
+  --rr-purple:#8b5cf6;
+  --rr-purple-2:#c084fc;
+  --rr-red:#ff5b4d;
+  --rr-cream:#f7f3eb;
+  --rr-card:#fffdf9;
+  --rr-text:#111827;
+  --rr-muted:#7b8797;
+  --rr-line:#e6e0d6;
+  --rr-green:#35b36b;
+  --rr-amber:#e5a51a;
+  --rr-shadow:0 20px 70px rgba(8,14,25,.08);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 85% 2%,rgba(139,92,246,.08),transparent 25%),
+    radial-gradient(circle at 5% 28%,rgba(255,91,77,.05),transparent 22%),
+    var(--rr-cream);
+  color:var(--rr-text);
+}
+
+/* ---------- NAV / COMMAND BAR ---------- */
+.topbar{
+  position:sticky!important;
+  top:0;
+  z-index:1000;
+  min-height:72px!important;
+  padding:0 4vw!important;
+  background:rgba(7,9,13,.94)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 8px 35px rgba(0,0,0,.16);
+  backdrop-filter:blur(18px);
+}
+.topbar .brand{
+  color:#fff!important;
+  letter-spacing:.16em!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.topbar nav a{
+  color:#9da7b7!important;
+  padding:27px 12px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.1em!important;
+  text-transform:uppercase;
+  transition:.2s ease!important;
+}
+.topbar nav a:hover,.topbar nav a.active{color:#fff!important}
+.topbar nav a.active{position:relative}
+.topbar nav a.active::after{
+  content:"";
+  position:absolute;
+  left:12px;right:12px;bottom:15px;
+  height:2px;
+  background:linear-gradient(90deg,var(--rr-red),var(--rr-purple));
+}
+.pulse-dot{background:var(--rr-red)!important;box-shadow:0 0 0 5px rgba(255,91,77,.12)!important}
+.staff-logout-btn{
+  border:1px solid rgba(255,255,255,.15)!important;
+  color:#fff!important;
+  background:rgba(255,255,255,.04)!important;
+  border-radius:8px!important;
+}
+.staff-logout-btn:hover{background:var(--rr-red)!important;border-color:var(--rr-red)!important}
+
+/* ---------- PAGE / HERO ---------- */
+.control-page{
+  padding:32px 3.2vw 90px!important;
+}
+.control-shell{max-width:1500px!important}
+.control-header{
+  position:relative;
+  min-height:360px;
+  margin-bottom:20px!important;
+  padding:52px 54px!important;
+  align-items:center!important;
+  overflow:hidden;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 82% 28%,rgba(139,92,246,.45),transparent 24%),
+    radial-gradient(circle at 72% 85%,rgba(255,91,77,.22),transparent 28%),
+    linear-gradient(125deg,#07090d 0%,#0c1220 55%,#141126 100%);
+  box-shadow:0 30px 90px rgba(7,9,13,.2);
+}
+.control-header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.16;
+  background-image:
+    linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(90deg,#000,transparent 78%);
+  pointer-events:none;
+}
+.control-header::after{
+  content:"";
+  position:absolute;
+  width:420px;height:420px;
+  right:-180px;bottom:-230px;
+  border:1px solid rgba(192,132,252,.25);
+  border-radius:50%;
+  box-shadow:0 0 0 55px rgba(139,92,246,.04),0 0 0 110px rgba(139,92,246,.025);
+}
+.control-header>div:first-child{position:relative;z-index:2}
+.control-eyebrow{
+  color:#c084fc!important;
+  font-size:10px!important;
+  letter-spacing:.2em!important;
+  margin-bottom:15px!important;
+}
+.control-header h1{
+  color:#fff!important;
+  font-size:clamp(58px,7vw,96px)!important;
+  letter-spacing:-.065em!important;
+  line-height:.84!important;
+  margin:0!important;
+}
+.control-header h1 em{color:var(--rr-red)!important}
+.control-header p{
+  color:#aeb7c7!important;
+  max-width:650px!important;
+  margin-top:22px!important;
+  font-size:14px!important;
+  line-height:1.75!important;
+}
+.live-indicator{
+  position:relative;z-index:3;
+  align-self:flex-start;
+  margin-top:4px;
+  border:1px solid rgba(255,255,255,.13)!important;
+  background:rgba(255,255,255,.055)!important;
+  color:#e7eaf0!important;
+  border-radius:999px!important;
+  padding:10px 14px!important;
+  backdrop-filter:blur(10px);
+}
+.live-dot{background:#45d483!important;box-shadow:0 0 0 5px rgba(69,212,131,.13),0 0 18px rgba(69,212,131,.5)!important}
+
+/* ---------- MESSAGE ---------- */
+#controlMessage{border-radius:12px!important}
+
+/* ---------- STATS ---------- */
+.stats-grid{
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:12px!important;
+  margin-bottom:34px!important;
+}
+.stat-card{
+  position:relative;
+  min-height:145px;
+  padding:22px!important;
+  border:1px solid var(--rr-line)!important;
+  border-radius:16px!important;
+  background:rgba(255,253,249,.92)!important;
+  box-shadow:var(--rr-shadow)!important;
+  overflow:hidden;
+  transition:.25s ease;
+}
+.stat-card::after{
+  content:"";
+  position:absolute;
+  width:100px;height:100px;
+  right:-42px;bottom:-45px;
+  border-radius:50%;
+  border:1px solid rgba(139,92,246,.13);
+}
+.stat-card:hover{transform:translateY(-4px);box-shadow:0 25px 70px rgba(8,14,25,.12)!important}
+.stat-top{position:relative;z-index:1}
+.stat-label{color:#8b95a3!important;letter-spacing:.13em!important}
+.stat-value{font-size:40px!important;line-height:1!important;margin-top:13px!important;letter-spacing:-.06em!important}
+.stat-note{font-size:10px!important;color:#8792a1!important;margin-top:8px!important}
+
+/* ---------- ZONE HEADERS ---------- */
+.zone,.disaster-zone-section{margin-bottom:28px!important}
+.zone-header,.disaster-zone-header{
+  position:relative;
+  padding:24px 28px!important;
+  border:0!important;
+  border-radius:18px!important;
+  margin-bottom:12px!important;
+  background:#0b1220!important;
+  color:#fff!important;
+  overflow:hidden;
+}
+.zone-header::after,.disaster-zone-header::after{
+  content:"";position:absolute;width:220px;height:220px;right:-100px;top:-130px;
+  border:1px solid rgba(192,132,252,.25);border-radius:50%;
+}
+.zone-ngo .zone-header{background:linear-gradient(120deg,#0a1712,#0d2218)!important}
+.disaster-zone-header{background:linear-gradient(120deg,#180d12,#241014)!important}
+.zone-icon,.disaster-zone-icon{
+  background:rgba(255,255,255,.08)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px!important;
+}
+.zone-tag,.disaster-zone-tag{color:#c084fc!important;position:relative;z-index:2}
+.zone-ngo .zone-tag{color:#6ee7a2!important}
+.disaster-zone-tag{color:#ff8c82!important}
+.zone-header h2,.disaster-zone-header h2{color:#fff!important;font-size:27px!important;position:relative;z-index:2}
+.zone-header p,.disaster-zone-header p{color:#9eabbc!important;position:relative;z-index:2}
+
+/* ---------- GENERIC SECTIONS ---------- */
+.section{
+  border:1px solid var(--rr-line)!important;
+  border-radius:18px!important;
+  box-shadow:var(--rr-shadow)!important;
+  overflow:hidden;
+  margin-bottom:22px!important;
+}
+.section-heading{
+  padding:22px 26px!important;
+  background:#fffdf9;
+}
+.section-heading h2{font-size:21px!important}
+.section-heading p{font-size:11px!important}
+.section-badge{
+  border-radius:999px!important;
+  background:#f1edf7!important;
+  color:#7652b6!important;
+  padding:7px 11px!important;
+}
+
+/* ---------- REQUEST CARDS ---------- */
+.request-card{
+  padding:25px 26px!important;
+  transition:.2s ease;
+}
+.request-card:hover{background:#fcfaf6}
+.request-title{font-size:25px!important}
+.request-id{color:var(--rr-red)!important}
+.priority{border-radius:999px!important}
+.urgency-box strong{font-size:31px!important}
+.detail{border:1px solid #ebe6dc;border-radius:10px!important;background:#f8f5ee!important}
+.reporter-row{border-radius:10px!important}
+.verification-row{border-radius:10px!important}
+.btn{border-radius:8px!important}
+.btn-primary{background:var(--rr-black)!important}
+.btn-primary:hover{background:#202b40!important}
+.btn-green{background:#16844a!important}
+
+/* ---------- COORDINATION MATCHES ---------- */
+.coordination-wrap{padding:20px 26px 26px!important}
+.match-list{grid-template-columns:repeat(2,1fr)!important}
+.ngo-match{border-radius:12px!important;transition:.2s ease}
+.ngo-match:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(7,21,37,.08)}
+.available{border-radius:999px!important}
+
+/* ---------- NGO NETWORK ---------- */
+.ngo-grid{grid-template-columns:repeat(2,1fr)!important}
+.ngo-card{padding:24px!important;transition:.2s ease}
+.ngo-card:hover{background:#fcfaf6}
+.ngo-card h3{font-size:20px!important}
+.ngo-id{color:var(--rr-purple)!important}
+.ngo-info div,.ngo-services{border-radius:8px!important}
+
+/* ---------- CONTACT MESSAGES ---------- */
+.contact-message{padding:22px 26px!important}
+.contact-message.unread{border-left:4px solid var(--rr-purple)!important;background:linear-gradient(90deg,rgba(139,92,246,.045),transparent)}
+.contact-message-body{border-radius:9px!important}
+.contact-reviewed{border-radius:999px!important}
+
+/* ---------- COORDINATION MAP ---------- */
+.coordination-map-section{
+  margin:30px 0!important;
+  border:1px solid #dcd6cc!important;
+  border-radius:20px!important;
+  overflow:hidden;
+  background:#fffdf9!important;
+  box-shadow:var(--rr-shadow)!important;
+}
+.coordination-map-header{
+  padding:25px 28px!important;
+  background:#0b1220!important;
+  color:#fff!important;
+}
+.coordination-map-header h2{color:#fff!important;font-size:27px!important}
+.coordination-map-header p{color:#9eabbc!important}
+.coordination-map-header .control-eyebrow{color:#c084fc!important}
+.coordination-map-status{
+  background:rgba(255,255,255,.07)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#dbe1e9!important;
+  border-radius:999px!important;
+}
+.coordination-map-status-dot{background:#42d37d!important;box-shadow:0 0 0 5px rgba(66,211,125,.12)!important}
+#coordinationMap{height:560px!important;filter:saturate(.82) contrast(1.02)}
+.coordination-map-legend{padding:13px 20px!important;background:#fff!important}
+.coordination-legend-icon{border-radius:8px!important}
+
+/* ---------- DISASTER MAP ---------- */
+.disaster-map-wrap{
+  grid-template-columns:minmax(0,1.7fr) minmax(330px,.7fr)!important;
+  border-radius:18px!important;
+  overflow:hidden;
+  box-shadow:var(--rr-shadow)!important;
+}
+#disasterZoneMap{height:590px!important}
+.disaster-zone-panel{background:#0b1220!important;color:#fff!important;border-left:1px solid rgba(255,255,255,.08)!important}
+.disaster-zone-panel h3{color:#fff!important;font-size:22px!important}
+.disaster-zone-panel-description{color:#98a5b6!important}
+.zone-add-btn{border-radius:9px!important;background:linear-gradient(90deg,var(--rr-purple),#6d4ad8)!important;box-shadow:0 10px 30px rgba(139,92,246,.18)}
+.zone-form{border-radius:12px!important;background:#121b2b!important;border-color:rgba(255,255,255,.09)!important}
+.zone-field label{color:#9da8b8!important}
+.zone-field input,.zone-field select,.zone-field textarea{background:#0b1220!important;color:#fff!important;border-color:#2a3548!important;border-radius:8px!important}
+.zone-instruction{border-radius:9px!important}
+.zone-list-empty{color:#93a0b2!important}
+
+/* ---------- EMPTY STATES ---------- */
+.empty-state{min-height:190px!important;background:linear-gradient(180deg,#fffdf9,#faf7f1)}
+.empty-state .icon{border:1px solid #e5dfd4}
+
+/* ---------- FOOTER ---------- */
+.site-footer{
+  background:#07090d!important;
+  color:#fff!important;
+  border-top:1px solid rgba(255,255,255,.08)!important;
+}
+.site-footer p,.site-footer a,.site-footer span{color:#8e99a9!important}
+.site-footer h4{color:#fff!important}
+.site-footer a:hover{color:#c084fc!important}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:1000px){
+  .control-header{grid-template-columns:1fr!important;padding:42px 34px!important}
+  .live-indicator{justify-self:start}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important}
+  .disaster-map-wrap{grid-template-columns:1fr!important}
+  .disaster-zone-panel{border-left:0!important;border-top:1px solid rgba(255,255,255,.08)!important;max-height:none!important}
+}
+@media(max-width:700px){
+  .control-page{padding:18px 4vw 60px!important}
+  .control-header{min-height:430px;padding:34px 25px!important;border-radius:20px}
+  .control-header h1{font-size:55px!important}
+  .stats-grid,.match-list,.ngo-grid{grid-template-columns:1fr!important}
+  .section-heading{align-items:flex-start!important;flex-direction:column}
+  .detail-grid{grid-template-columns:repeat(2,1fr)!important}
+  .request-head{flex-direction:column}
+  #coordinationMap,#disasterZoneMap{height:430px!important}
+  .coordination-map-header{padding:22px!important;flex-direction:column}
+  .topbar nav{gap:2px!important}
+  .topbar nav a{padding-left:7px!important;padding-right:7px!important;font-size:8px!important}
+}
+
+
+/* ============================================================
+   COMPACT REQUEST CARDS — COMMAND CENTER LAYOUT
+   Replaces long horizontal information strips with compact
+   dashboard cards while preserving all existing IDs/JS hooks.
+   ============================================================ */
+.request-list{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(520px,1fr))!important;
+  gap:18px!important;
+  padding:18px!important;
+  background:#f6f3ec!important;
+}
+
+.request-card{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:
+    "head head"
+    "details details"
+    "reporter situation"
+    "verification verification"
+    "actions actions"!important;
+  gap:12px!important;
+  align-content:start!important;
+  padding:20px!important;
+  margin:0!important;
+  border:1px solid #e5dfd5!important;
+  border-radius:16px!important;
+  background:#fffdf9!important;
+  box-shadow:0 10px 35px rgba(15,23,42,.055)!important;
+  overflow:hidden!important;
+}
+
+.request-card:hover{
+  background:#fffdf9!important;
+  transform:translateY(-2px);
+  box-shadow:0 18px 45px rgba(15,23,42,.09)!important;
+}
+
+.request-head{
+  grid-area:head!important;
+  padding-bottom:14px!important;
+  border-bottom:1px solid #eee8de!important;
+}
+
+.request-title{font-size:22px!important}
+.urgency-box{min-width:70px!important}
+.urgency-box strong{font-size:28px!important}
+
+.detail-grid{
+  grid-area:details!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:0!important;
+}
+
+.detail{
+  min-height:62px!important;
+  padding:11px 12px!important;
+  border-radius:10px!important;
+}
+
+.reporter-row{
+  grid-area:reporter!important;
+  min-height:62px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+}
+
+.situation{
+  grid-area:situation!important;
+  min-height:62px!important;
+  margin:0!important;
+  padding:11px 12px!important;
+  border-left:3px solid var(--rr-purple)!important;
+  border-radius:10px!important;
+}
+
+.situation p{
+  margin-top:5px!important;
+  white-space:normal!important;
+}
+
+.verification-row{
+  grid-area:verification!important;
+  min-height:62px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+}
+
+.actions{
+  grid-area:actions!important;
+  margin:0!important;
+  padding-top:2px!important;
+}
+
+.actions .btn{
+  min-height:40px!important;
+}
+
+/* When only one request exists, don't let it become an enormous strip. */
+.request-list:has(.request-card:only-child){
+  grid-template-columns:minmax(0,760px)!important;
+  justify-content:center!important;
+}
+
+@media(max-width:900px){
+  .request-list{
+    grid-template-columns:1fr!important;
+  }
+  .request-list:has(.request-card:only-child){
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media(max-width:650px){
+  .request-card{
+    grid-template-columns:1fr!important;
+    grid-template-areas:
+      "head"
+      "details"
+      "reporter"
+      "situation"
+      "verification"
+      "actions"!important;
+  }
+  .detail-grid{grid-template-columns:1fr 1fr!important}
+}
+
+</style>
+
 </head>
 
 
