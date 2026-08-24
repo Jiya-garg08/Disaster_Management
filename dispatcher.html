@@ -3738,8 +3738,8 @@ body{
 .disaster-zone-tag{color:#ff8c82!important}
 .zone-header h2,.disaster-zone-header h2{color:#fff!important;font-size:27px!important;position:relative;z-index:2}
 .zone-header p,.disaster-zone-header p{color:#9eabbc!important;position:relative;z-index:2}
-
 /* ---------- GENERIC SECTIONS ---------- */
+
 .section{
   border:1px solid var(--rr-line)!important;
   border-radius:18px!important;
@@ -3747,12 +3747,42 @@ body{
   overflow:hidden;
   margin-bottom:22px!important;
 }
+
+/* FULL-WIDTH SECTION HEADER */
 .section-heading{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+
   padding:22px 26px!important;
-  background:#fffdf9;
+
+  background:#fffdf9!important;
+
+  text-align:left!important;
+  align-items:center!important;
 }
-.section-heading h2{font-size:21px!important}
-.section-heading p{font-size:11px!important}
+
+/* Keep heading content on the left */
+.section-heading > div{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  text-align:left!important;
+}
+
+.section-heading h2{
+  font-size:21px!important;
+  text-align:left!important;
+  margin:0 0 5px!important;
+}
+
+.section-heading p{
+  font-size:11px!important;
+  text-align:left!important;
+  margin:0!important;
+}
+
 .section-badge{
   border-radius:999px!important;
   background:#f1edf7!important;
@@ -4317,122 +4347,114 @@ body{
 
                 </div>
 
+<!-- VERIFY -->
 
-                <!-- VERIFY -->
+<section class="section verify-section">
 
-                <section class="section">
+    <div class="section-heading">
 
-                    <div class="section-heading">
+        <div>
 
-                        <div>
+            <h2>
+                1. Verify Emergency Requests
+            </h2>
 
-                            <h2>
-                                1. Verify Emergency Requests
-                            </h2>
+            <p>
+                Inspect the evidence before a request
+                enters the relief network.
+            </p>
 
-                            <p>
-                                Inspect the evidence before a request
-                                enters the relief network.
-                            </p>
+        </div>
 
-                        </div>
+        <span
+            class="section-badge"
+            id="reviewBadge"
+        >
+            0 awaiting review
+        </span>
 
-
-                        <span
-                            class="section-badge"
-                            id="reviewBadge"
-                        >
-                            0 awaiting review
-                        </span>
-
-                    </div>
+    </div>
 
 
-                    <div
-                        id="reviewList"
-                        class="request-list"
-                    ></div>
+    <div
+        id="reviewList"
+        class="request-list"
+    ></div>
 
-                </section>
-
-
-                <!-- COORDINATION -->
-
-                <section class="section">
-
-                    <div class="section-heading">
-
-                        <div>
-
-                            <h2>
-                                2. Coordinate Verified Requests
-                            </h2>
-
-                            <p>
-                                After verification, choose a suitable
-                                verified NGO and notify them.
-                            </p>
-
-                        </div>
+</section>
 
 
-                        <span
-                            class="section-badge"
-                            id="coordinationBadge"
-                        >
-                            0 active
-                        </span>
+<!-- COORDINATION -->
 
-                    </div>
+<section class="section coordination-section">
 
+    <div class="section-heading">
 
-                    <div
-                        id="coordinationList"
-                        class="request-list"
-                    ></div>
+        <div>
 
-                </section>
+            <h2>
+                2. Coordinate Verified Requests
+            </h2>
 
+            <p>
+                After verification, choose a suitable
+                verified NGO and notify them.
+            </p>
 
-                <!-- ALERTS -->
+        </div>
 
-                <section class="section">
+        <span
+            class="section-badge"
+            id="coordinationBadge"
+        >
+            0 active
+        </span>
 
-                    <div class="section-heading">
-
-                        <div>
-
-                            <h2>
-                                Verification Alerts
-                            </h2>
-
-                            <p>
-                                Requests automatically flagged for
-                                additional manual attention.
-                            </p>
-
-                        </div>
+    </div>
 
 
-                        <span
-                            class="section-badge"
-                            id="alertCount"
-                        >
-                            0 flagged
-                        </span>
+    <div
+        id="coordinationList"
+        class="request-list"
+    ></div>
 
-                    </div>
+</section>
 
 
-                    <div
-                        id="alertList"
-                    ></div>
+<!-- ALERTS -->
 
-                </section>
+<section class="section alerts-section">
 
-            </div>
+    <div class="section-heading">
+
+        <div>
+
+            <h2>
+                Verification Alerts
+            </h2>
+
+            <p>
+                Requests automatically flagged for
+                additional manual attention.
+            </p>
+
+        </div>
+
+        <span
+            class="section-badge"
+            id="alertCount"
+        >
+            0 flagged
+        </span>
+
+    </div>
 
 
+    <div
+        id="alertList"
+    ></div>
+
+</section>
             <!-- ====================================================
                  NGO SECTION
             ==================================================== -->
