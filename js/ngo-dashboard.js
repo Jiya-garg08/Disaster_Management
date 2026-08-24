@@ -3467,7 +3467,6 @@ function createRequestCard(
 
 }
 
-
 /* ================================================================
    NGO — WE CAN HELP
    ----------------------------------------------------------------
@@ -3476,21 +3475,18 @@ function createRequestCard(
    This only records that this NGO voluntarily offered to help.
 ================================================================ */
 
-function ngoAcceptRequest(
-    requestId
-) {
+function ngoAcceptRequest(requestId) {
 
     if (
         !currentNgo ||
         !currentNgo.id
     ) {
 
-        alert(
+        showNGOResponseMessage(
             "Your NGO session could not be identified."
         );
 
         return;
-
     }
 
 
@@ -3518,17 +3514,19 @@ function ngoAcceptRequest(
 
     if (!request) {
 
-        alert(
+        showNGOResponseMessage(
             "This request could not be found."
         );
 
         return;
-
     }
 
 
     /*
      * Safety check.
+     *
+     * Only verified requests that have actually
+     * been published to NGOs can receive responses.
      */
 
     if (
@@ -3537,12 +3535,11 @@ function ngoAcceptRequest(
             "notified"
     ) {
 
-        alert(
+        showNGOResponseMessage(
             "This request is not currently open for NGO responses."
         );
 
         return;
-
     }
 
 
@@ -3565,8 +3562,7 @@ function ngoAcceptRequest(
 
 
     /*
-     * Check whether this NGO already
-     * responded.
+     * Check whether this NGO already responded.
      */
 
     const alreadyResponded =
@@ -3581,42 +3577,529 @@ function ngoAcceptRequest(
             "accepted"
     ) {
 
-        alert(
+        showNGOResponseMessage(
             "Your NGO has already offered to help with this request."
         );
 
         return;
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT use browser confirm().
+     *
+     * Open our custom confirmation modal instead.
+     */
+
+    showNgoHelpConfirmation(
+        request
+    );
+
+}
+
+
+/* ================================================================
+   NGO HELP CONFIRMATION MODAL
+================================================================ */
+
+function showNgoHelpConfirmation(
+    request
+) {
+
+    /*
+     * Remove an old modal if one exists.
+     */
+
+    const existing =
+        document.getElementById(
+            "ngoHelpModal"
+        );
+
+
+    if (existing) {
+
+        existing.remove();
 
     }
 
 
-    const confirmed =
-        confirm(
-            `Can ${currentNgo.name || "your NGO"} help with ${request.id}?\n\n` +
+    const requestId =
+        request.id ||
+        request.requestNumber ||
+        "—";
 
-            `Location: ${
-                request.shelterName ||
-                "Affected location"
-            }\n` +
 
-            `Need: ${
-                request.supplyType ||
-                "Relief support"
-            }\n\n` +
+    const location =
+        [
+            request.shelterName,
+            request.city,
+            request.state
+        ]
+            .filter(Boolean)
+            .join(", ") ||
+        "Affected location";
 
-            `This will send your NGO's response to the Control Room.`
+
+    const need =
+        request.supplyType ||
+        "Relief support";
+
+
+    const people =
+        request.victims ??
+        request.peopleAffected ??
+        "—";
+
+
+    const modal =
+        document.createElement(
+            "div"
         );
 
 
-    if (!confirmed) {
+    modal.id =
+        "ngoHelpModal";
+
+
+    modal.innerHTML = `
+
+        <div class="ngo-help-modal-backdrop">
+
+            <div
+                class="ngo-help-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="ngoHelpModalTitle"
+            >
+
+
+                <!-- CLOSE -->
+
+                <button
+                    type="button"
+                    class="ngo-help-modal-close"
+                    id="ngoHelpModalClose"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+
+                <!-- ICON -->
+
+                <div class="ngo-help-modal-icon">
+
+                    ✓
+
+                </div>
+
+
+                <!-- EYEBROW -->
+
+                <div class="ngo-help-modal-eyebrow">
+
+                    NGO RESPONSE
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <h2 id="ngoHelpModalTitle">
+
+                    Confirm your response
+
+                </h2>
+
+
+                <!-- DESCRIPTION -->
+
+                <p class="ngo-help-modal-description">
+
+                    You are offering to help with this
+                    verified emergency request.
+
+                    Your response will be shared with
+                    the Control Room.
+
+                </p>
+
+
+                <!-- REQUEST DETAILS -->
+
+                <div class="ngo-help-request">
+
+
+                    <div class="ngo-help-request-row">
+
+                        <span>
+                            REQUEST
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                String(requestId)
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="ngo-help-request-row">
+
+                        <span>
+                            LOCATION
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                String(location)
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="ngo-help-request-row">
+
+                        <span>
+                            RELIEF NEEDED
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                String(need)
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="ngo-help-request-row">
+
+                        <span>
+                            PEOPLE AFFECTED
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                String(people)
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- IMPORTANT NOTE -->
+
+                <div class="ngo-help-modal-note">
+
+                    <span>
+                        ✓
+                    </span>
+
+                    <p>
+
+                        Your NGO is <strong>not automatically
+                        assigned</strong> to the request.
+
+                        This response simply tells the
+                        Control Room that your organization
+                        is willing to help.
+
+                    </p>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="ngo-help-modal-actions">
+
+
+                    <button
+                        type="button"
+                        class="ngo-help-cancel"
+                        id="ngoHelpCancel"
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="ngo-help-confirm"
+                        id="ngoHelpConfirm"
+                    >
+
+                        ✓
+                        Yes, We Can Help
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    /*
+     * Close buttons.
+     */
+
+    document
+        .getElementById(
+            "ngoHelpModalClose"
+        )
+        .addEventListener(
+            "click",
+            closeNgoHelpConfirmation
+        );
+
+
+    document
+        .getElementById(
+            "ngoHelpCancel"
+        )
+        .addEventListener(
+            "click",
+            closeNgoHelpConfirmation
+        );
+
+
+    /*
+     * Confirm button.
+     */
+
+    document
+        .getElementById(
+            "ngoHelpConfirm"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+                confirmNgoHelp(
+                    requestId
+                );
+
+            }
+        );
+
+
+    /*
+     * Clicking outside the modal closes it.
+     */
+
+    modal
+        .querySelector(
+            ".ngo-help-modal-backdrop"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    this
+                ) {
+
+                    closeNgoHelpConfirmation();
+
+                }
+
+            }
+        );
+
+
+    /*
+     * Escape key.
+     */
+
+    document.addEventListener(
+        "keydown",
+        handleNgoHelpEscape
+    );
+
+}
+
+
+/* ================================================================
+   ESCAPE KEY
+================================================================ */
+
+function handleNgoHelpEscape(
+    event
+) {
+
+    if (
+        event.key === "Escape"
+    ) {
+
+        closeNgoHelpConfirmation();
+
+    }
+
+}
+
+
+/* ================================================================
+   CLOSE NGO HELP MODAL
+================================================================ */
+
+function closeNgoHelpConfirmation() {
+
+    const modal =
+        document.getElementById(
+            "ngoHelpModal"
+        );
+
+
+    if (modal) {
+
+        modal.remove();
+
+    }
+
+
+    document.removeEventListener(
+        "keydown",
+        handleNgoHelpEscape
+    );
+
+}
+
+
+/* ================================================================
+   CONFIRM NGO HELP
+================================================================ */
+
+function confirmNgoHelp(
+    requestId
+) {
+
+    /*
+     * Close modal first.
+     */
+
+    closeNgoHelpConfirmation();
+
+
+    /*
+     * Reload latest request data.
+     */
+
+    const requests =
+        getRequests();
+
+
+    const request =
+        requests.find(
+            item => {
+
+                const id =
+                    item.id ||
+                    item.requestNumber ||
+                    "";
+
+                return (
+                    String(id) ===
+                    String(requestId)
+                );
+
+            }
+        );
+
+
+    if (!request) {
+
+        showNGOResponseMessage(
+            "This request could not be found."
+        );
 
         return;
+    }
+
+
+    /*
+     * Safety check again.
+     */
+
+    if (
+        request.verified !== true ||
+        request.ngoNotificationStatus !==
+            "notified"
+    ) {
+
+        showNGOResponseMessage(
+            "This request is no longer open for NGO responses."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Initialize NGO responses.
+     */
+
+    if (
+        !request.ngoResponses ||
+        typeof request.ngoResponses !==
+            "object" ||
+        Array.isArray(
+            request.ngoResponses
+        )
+    ) {
+
+        request.ngoResponses = {};
 
     }
 
 
     /*
-     * Save this NGO's response.
+     * Prevent duplicate response.
+     */
+
+    const existingResponse =
+        request.ngoResponses[
+            currentNgo.id
+        ];
+
+
+    if (
+        existingResponse &&
+        existingResponse.status ===
+            "accepted"
+    ) {
+
+        showNGOResponseMessage(
+            "Your NGO has already offered to help with this request."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Save this NGO's voluntary response.
      */
 
     request.ngoResponses[
@@ -3640,15 +4123,19 @@ function ngoAcceptRequest(
 
 
     /*
-     * DO NOT assign the NGO.
+     * IMPORTANT:
      *
-     * We only record a voluntary response.
+     * Do NOT assign the NGO.
      */
 
     delete request.assignedNgoId;
 
     delete request.assignedNgoName;
 
+
+    /*
+     * Save to localStorage.
+     */
 
     localStorage.setItem(
         REQUEST_STORAGE_KEY,
@@ -3659,19 +4146,82 @@ function ngoAcceptRequest(
 
 
     /*
-     * Refresh NGO dashboard immediately.
+     * Refresh NGO dashboard.
      */
 
     renderRequests();
 
 
     /*
-     * Optional confirmation message.
+     * Show success message.
      */
 
     showNGOResponseMessage(
         "✓ Your NGO has offered to help. The Control Room has been notified."
     );
+
+}
+
+
+/* ================================================================
+   NGO RESPONSE MESSAGE
+================================================================ */
+
+function showNGOResponseMessage(
+    message
+) {
+
+    let box =
+        document.getElementById(
+            "ngoResponseMessage"
+        );
+
+
+    if (!box) {
+
+        box =
+            document.createElement(
+                "div"
+            );
+
+        box.id =
+            "ngoResponseMessage";
+
+        box.className =
+            "ngo-response-toast";
+
+        document.body.appendChild(
+            box
+        );
+
+    }
+
+
+    box.textContent =
+        message;
+
+
+    box.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        box._hideTimer
+    );
+
+
+    box._hideTimer =
+        setTimeout(
+            function () {
+
+                box.classList.remove(
+                    "show"
+                );
+
+            },
+            4500
+        );
 
 }
 
