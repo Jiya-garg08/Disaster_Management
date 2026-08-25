@@ -1,6 +1,6 @@
 /* ============================================================
    NGO REGISTER.JS
-   RELIEF RESOLVER — NGO REGISTRATION
+   RELIEF RESOLVER — NGO REGISTERATION
 
    IMPORTANT:
 
