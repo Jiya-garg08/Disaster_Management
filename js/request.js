@@ -760,6 +760,25 @@ if (
                         ? supplyType.value.trim()
                         : "";
 
+                
+const urgencyLevelInput =
+    document.getElementById("urgencyLevel");
+
+const urgencyLevel =
+    urgencyLevelInput && urgencyLevelInput.value
+        ? urgencyLevelInput.value
+        : "routine";
+
+const vulnerablePersonInput =
+    document.getElementById("vulnerablePerson");
+
+const vulnerablePerson =
+    Boolean(
+        vulnerablePersonInput &&
+        vulnerablePersonInput.checked
+    );
+
+
                 const situationDetails =
                     situationInput
                         ? situationInput.value.trim()
@@ -1108,6 +1127,10 @@ const requestId = generateRequestId();
                         supplyType:
                             selectedSupplyType,
 
+                        urgencyLevel: urgencyLevel,
+
+                        vulnerablePerson: vulnerablePerson,
+
                         situationDetails:
                             situationDetails,
 
@@ -1296,9 +1319,7 @@ const requestId = generateRequestId();
                     });
 
 
-                saveRequestToControlRoom(
-                    request
-                );
+                await saveRequestToControlRoom(request);
                 removePendingRequest();
 
 
@@ -1539,6 +1560,13 @@ const requestId = generateRequestId();
                     supplyType:
                         pending.supplyType,
 
+                    urgencyLevel:
+                        pending.urgencyLevel || "routine",
+
+                    vulnerablePerson:
+                        pending.vulnerablePerson === true ||
+                        pending.vulnerablePerson === "true",
+
                     situationDetails:
                         pending.situationDetails,
 
@@ -1600,9 +1628,9 @@ const requestId = generateRequestId();
                SAVE TO CONTROL ROOM
             ================================================= */
 
-            saveRequestToControlRoom(
-                request
-            );
+            await saveRequestToControlRoom(
+    request
+);
 
 
             sessionStorage.setItem(
@@ -2120,6 +2148,17 @@ const requestId = generateRequestId();
             supplyType:
                 data.supplyType || "",
 
+            urgencyLevel:
+    ["routine", "urgent", "immediate"].includes(
+        data.urgencyLevel
+    )
+        ? data.urgencyLevel
+        : "routine",
+
+vulnerablePerson:
+    data.vulnerablePerson === true ||
+    data.vulnerablePerson === "true",
+
             situationDetails:
                 data.situationDetails || "",
 
@@ -2185,166 +2224,67 @@ const requestId = generateRequestId();
        SAVE REQUEST TO CONTROL ROOM
     ============================================================ */
 
-    function saveRequestToControlRoom(
-        request
-    ) {
+async function saveRequestToControlRoom(request) {
+    const token = sessionStorage.getItem("reliefAuthToken");
 
-        const STORAGE_KEY =
-            "relief_requests";
-
-
-        let requests = [];
-
-
-        try {
-
-            const raw =
-                localStorage.getItem(
-                    STORAGE_KEY
-                );
-
-            if (raw) {
-
-                const parsed =
-                    JSON.parse(raw);
-
-                if (
-                    Array.isArray(parsed)
-                ) {
-                    requests =
-                        parsed;
-                }
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Could not read existing requests:",
-                error
-            );
-
-            requests = [];
-        }
-
-
-        /* ========================================================
-           REMOVE OLD DUPLICATE
-        ======================================================== */
-
-        requests =
-            requests.filter(
-                function (item) {
-
-                    const existingId =
-                        item.id ||
-                        item.requestId ||
-                        item.requestNumber ||
-                        "";
-
-                    return (
-                        String(existingId) !==
-                        String(request.id)
-                    );
-                }
-            );
-
-
-        /* ADD NEW REQUEST */
-
-        requests.push(
-            request
-        );
-
-
-        /* ========================================================
-           SAVE
-        ======================================================== */
-
-        try {
-
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(
-                    requests
-                )
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Could not save request:",
-                error
-            );
-
-            throw new Error(
-                "The request could not be saved to the Control Room. Please try again with a smaller evidence photo."
-            );
-        }
-
-
-        /* ========================================================
-           VERIFY
-        ======================================================== */
-
-        let verificationData = [];
-
-
-        try {
-
-            verificationData =
-                JSON.parse(
-                    localStorage.getItem(
-                        STORAGE_KEY
-                    ) ||
-                    "[]"
-                );
-
-        } catch (error) {
-
-            throw new Error(
-                "The Control Room storage could not be verified."
-            );
-        }
-
-
-        const found =
-            Array.isArray(
-                verificationData
-            ) &&
-            verificationData.some(
-                function (item) {
-
-                    const itemId =
-                        item.id ||
-                        item.requestId ||
-                        item.requestNumber ||
-                        "";
-
-                    return (
-                        String(itemId) ===
-                        String(request.id)
-                    );
-                }
-            );
-
-
-        if (!found) {
-
-            throw new Error(
-                "The request was not found in Control Room storage after saving."
-            );
-        }
-
-
-        console.log(
-            "RELIEF RESOLVER — REQUEST SAVED TO CONTROL ROOM",
-            request
-        );
-
-
-        return true;
+    if (!token) {
+        throw new Error("Please log in again before submitting your request.");
     }
 
+    const response = await fetch("http://localhost:5000/api/requests", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            requestNumber: request.id,
+            emergencyType: request.supplyType,
+            description: request.situationDetails,
+evidencePhoto: request.evidencePhoto || request.verificationPhoto || request.photo || "",
+location: {
+    address: request.shelterName,
+    latitude: request.lat,
+    longitude: request.lng
+},
+            contactNumber: request.contactNumber,
+            peopleAffected: request.victims,
+            daysWithoutSupply: request.daysWithoutSupply,
+            urgencyLevel:
+                request.priority === "HIGH" ? "critical" :
+                request.priority === "MEDIUM" ? "urgent" : "normal",
+            vulnerablePerson: false
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || "The server could not save your request.");
+    }
+
+    // Keep the existing browser storage for the current UI.
+    const requests = JSON.parse(
+        localStorage.getItem("relief_requests") || "[]"
+    );
+
+    const updatedRequests = requests.filter(
+        item => String(item.id || item.requestNumber) !== String(request.id)
+    );
+
+    updatedRequests.push({
+        ...request,
+        mongoId: data.request._id,
+        serverSynced: true
+    });
+
+    localStorage.setItem(
+        "relief_requests",
+        JSON.stringify(updatedRequests)
+    );
+
+    return true;
+}
 
     /* ============================================================
        PENDING REQUEST STORAGE

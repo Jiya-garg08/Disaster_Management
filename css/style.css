@@ -1,6 +1,6 @@
 /* ============================================================
    RELIEF RESOLVER
-   HUMANITARIAN HOMEPAGE RESOLVER
+   HUMANITARIAN HOMEPAGE REDESIGN
    ============================================================ */
 
 
@@ -2495,4 +2495,525 @@ a {
 
     border-color: #071525;
 
+}
+/* =========================================================
+   NEARBY VERIFIED NGOs — UPDATED CARD LAYOUT
+   Scoped to .nearby-ngo-section so other pages are unchanged.
+========================================================= */
+.nearby-ngo-section {
+    overflow: hidden;
+    border: 1px solid #e4ddd2;
+    border-radius: 16px;
+    background: #fffdfa;
+    box-shadow: 0 6px 22px rgba(16, 34, 56, 0.045);
+}
+
+.nearby-ngo-section .card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 24px 28px;
+    border-bottom: 1px solid #e9e2d8;
+}
+
+.nearby-ngo-section .card-heading h2 {
+    margin: 7px 0;
+    color: #102238;
+    font-size: 24px;
+    line-height: 1.3;
+}
+
+.nearby-ngo-section .card-heading p {
+    margin: 0;
+    color: #6b7a8c;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.nearby-ngo-section .count-pill {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border: 1px solid #d7e8dc;
+    border-radius: 999px;
+    background: #eff7f0;
+    color: #287548;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+.nearby-ngo-section .ngo-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.nearby-ngo-section .ngo-list-item {
+    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: 54px minmax(0, 1fr) 105px;
+    align-items: start;
+    gap: 18px;
+    width: 100%;
+    margin: 0;
+    padding: 24px 28px;
+    border: 0;
+    border-bottom: 1px solid #ece5db;
+    border-radius: 0;
+    background: #fffdfa;
+}
+
+.nearby-ngo-section .ngo-list-item:last-child {
+    border-bottom: 0;
+}
+
+.nearby-ngo-section .ngo-icon {
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin: 0;
+    border: 1px solid #d4e7d9;
+    border-radius: 13px;
+    background: #eef7f0;
+    font-size: 24px;
+}
+
+.nearby-ngo-section .ngo-main {
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.nearby-ngo-section .ngo-identity {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    width: 100%;
+}
+
+.nearby-ngo-section .ngo-name {
+    display: inline-block;
+    margin: 0;
+    color: #102238;
+    font-size: 18px;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+.nearby-ngo-section .verified {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 4px 7px;
+    border-radius: 5px;
+    background: #edf7f0;
+    color: #287548;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.nearby-ngo-section .ngo-location {
+    color: #68798d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.nearby-ngo-section .ngo-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    color: #5f7186;
+    font-size: 13px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.nearby-ngo-section .ngo-detail-label {
+    color: #43566c;
+    font-weight: 700;
+}
+
+.nearby-ngo-section .ngo-capacity-status {
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 5px 0 3px;
+    padding: 7px 10px;
+    border: 1px solid #d5e8da;
+    border-radius: 7px;
+    background: #f0f8f2;
+    color: #287548;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.nearby-ngo-section .ngo-status-dot {
+    display: inline-block;
+    flex: 0 0 7px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.nearby-ngo-section .ngo-capacity-grid {
+    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 125px)) !important;
+    align-items: stretch;
+    gap: 9px;
+    width: 100%;
+    margin: 6px 0 0;
+}
+
+.nearby-ngo-section .ngo-capacity-stat {
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid #e7e0d6;
+    border-radius: 9px;
+    background: #faf8f4;
+}
+
+.nearby-ngo-section .ngo-capacity-stat strong {
+    display: block !important;
+    margin: 0;
+    color: #102238;
+    font-size: 22px !important;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.nearby-ngo-section .ngo-capacity-stat .ngo-stat-label {
+    display: block !important;
+    margin: 0;
+    color: #6f7d8d;
+    font-size: 11px !important;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.nearby-ngo-section .ngo-capacity-details {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    margin-top: 7px;
+    color: #65768a;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.nearby-ngo-section .ngo-inventory-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.nearby-ngo-section .ngo-inventory-items span {
+    display: inline-block;
+    padding: 5px 8px;
+    border: 1px solid #e7e0d6;
+    border-radius: 6px;
+    background: #fffdfa;
+}
+
+.nearby-ngo-section .ngo-distance {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 5px;
+    min-width: 0;
+    padding-top: 3px;
+    color: #748195;
+    font-size: 12px;
+    line-height: 1.45;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.nearby-ngo-section .ngo-distance strong {
+    margin: 0;
+    color: #102238;
+    font-size: 21px;
+    font-weight: 750;
+    line-height: 1.25;
+}
+
+.nearby-ngo-section .ngo-radius {
+    margin-top: 5px;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .nearby-ngo-section .card-heading {
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .nearby-ngo-section .ngo-list-item {
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 12px;
+        padding: 20px;
+    }
+
+    .nearby-ngo-section .ngo-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 21px;
+    }
+
+    .nearby-ngo-section .ngo-distance {
+        grid-column: 2;
+        align-items: flex-start !important;
+        text-align: left;
+        padding-top: 0;
+    }
+
+    .nearby-ngo-section .ngo-capacity-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 7px;
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat {
+        padding: 9px;
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat strong {
+        font-size: 19px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .nearby-ngo-section .ngo-list-item {
+        padding: 16px 12px;
+    }
+
+    .nearby-ngo-section .ngo-capacity-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 5px;
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat {
+        padding: 7px;
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat strong {
+        font-size: 17px !important;
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat .ngo-stat-label {
+        font-size: 10px !important;
+    }
+}
+
+
+.delete-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 99999 !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.delete-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.delete-modal {
+    position: relative;
+    width: min(100%, 480px);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* Disaster Zone Delete Modal — layout correction */
+.delete-modal-overlay .delete-modal {
+    width: min(480px, calc(100vw - 32px));
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 0;
+    margin: auto;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #1e293b;
+    font-family: inherit;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+}
+
+.delete-modal-overlay .delete-modal-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 24px 24px 16px;
+}
+
+.delete-modal-overlay .delete-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #dc2626;
+    font-size: 24px;
+}
+
+.delete-modal-overlay .delete-modal-eyebrow {
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.delete-modal-overlay .delete-modal-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.delete-modal-overlay .delete-modal-body {
+    padding: 0 24px 20px;
+    line-height: 1.6;
+}
+
+.delete-modal-overlay .delete-modal-message {
+    margin: 0 0 16px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.delete-modal-overlay .delete-modal-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.delete-modal-overlay .delete-modal-zone-label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.delete-modal-overlay .delete-modal-zone-name {
+    overflow-wrap: anywhere;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.delete-modal-overlay .delete-modal-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 12px;
+}
+
+.delete-modal-overlay .delete-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px 22px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.delete-modal-overlay .delete-modal-actions button {
+    min-height: 42px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.delete-modal-overlay .delete-modal-cancel {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.delete-modal-overlay .delete-modal-cancel:hover {
+    background: #e2e8f0;
+}
+
+.delete-modal-overlay .delete-modal-delete {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.delete-modal-overlay .delete-modal-delete:hover {
+    background: #b91c1c;
+}
+
+@media (max-width: 480px) {
+    .delete-modal-overlay .delete-modal-top {
+        padding: 18px 18px 14px;
+    }
+
+    .delete-modal-overlay .delete-modal-body {
+        padding: 0 18px 16px;
+    }
+
+    .delete-modal-overlay .delete-modal-actions {
+        padding: 14px 18px 18px;
+        flex-wrap: wrap;
+    }
 }

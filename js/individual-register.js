@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
        FORM SUBMIT
        ======================================================== */
 
-    form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
 
         event.preventDefault();
 
@@ -379,37 +379,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
         };
 
-
-        /* ====================================================
-           14. SAVE USER
-           ==================================================== */
-
-        users.push(user);
-
+        // 14. SAVE USER TO BACKEND
 
         try {
+            const response = await fetch(
+                "http://localhost:5000/api/auth/register",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password,
+                        phone: phone,
+                        role: "individual"
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                showResult(
+                    "error",
+                    data.message || "Registration failed. Please try again."
+                );
+                return;
+            }
+
+            // Keep a local copy for compatibility with existing UI code.
+            const registeredUser = {
+                ...user,
+                id: data.user?.id || user.id
+            };
+
+            users.push(registeredUser);
 
             localStorage.setItem(
                 "drr_users",
                 JSON.stringify(users)
             );
 
-        }
-        catch (error) {
-
-            console.error(
-                "Could not save individual account:",
-                error
-            );
+        } catch (error) {
+            console.error("Individual registration error:", error);
 
             showResult(
                 "error",
-                "The account could not be saved. Please try again."
+                "Unable to connect to the server. Please ensure the backend is running."
             );
-
             return;
         }
-
 
         /* ====================================================
            15. SHOW SUCCESS

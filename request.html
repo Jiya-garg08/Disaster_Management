@@ -1394,6 +1394,7 @@
 
 </style>
 
+
 </head>
 
 
@@ -2066,6 +2067,32 @@
                     </select>
 
                 </div>
+
+
+                
+<!-- SMART PRIORITY INPUTS -->
+
+<div class="field">
+    <label for="urgencyLevel">Situation Urgency</label>
+
+    <select id="urgencyLevel">
+        <option value="routine">Routine relief need</option>
+        <option value="urgent">Urgent — conditions worsening</option>
+        <option value="immediate">Immediate danger / urgent medical need</option>
+    </select>
+
+    <small class="field-help">
+        This helps the Control Room assess urgency. It does not automatically decide who receives assistance.
+    </small>
+</div>
+
+<div class="field priority-vulnerable-field">
+    <label class="priority-checkbox-label" for="vulnerablePerson">
+        <input type="checkbox" id="vulnerablePerson" value="true">
+        Request involves a vulnerable person or group
+        (for example, a child, older adult, or person with a disability)
+    </label>
+</div>
 
 
 

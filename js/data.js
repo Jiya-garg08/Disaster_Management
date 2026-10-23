@@ -1,21 +1,30 @@
 /* ============================================================
    data.js — Phase 1 application data
 
-   Disaster zones are intentionally NOT hard-coded.
+   Disaster zones are NOT hard-coded.
 
-   In Phase 2, current disaster alerts can be loaded from
-   an external/live disaster-data source.
+   Requests are NOT hard-coded.
+
+   Emergency requests come from request.html and are stored
+   in localStorage.
+
+   In Phase 2, disaster alerts and fleet information can be
+   loaded from the backend / live data sources.
    ============================================================ */
 
 
+/* ============================================================
+   ACTIVE DISASTER ZONES
+   ============================================================ */
+
 /*
-   Empty for Phase 1.
+   Empty in Phase 1.
 
-   IMPORTANT:
-   Do not add Kerala, Assam, Odisha, etc. here.
+   We do NOT pretend that any region is currently affected
+   without verified disaster information.
 
-   We don't want the application pretending that a region
-   is currently affected when we don't have live data.
+   Therefore, location verification should not reject a
+   request simply because it isn't inside a hardcoded zone.
 */
 
 const ACTIVE_ZONES = [];
@@ -23,7 +32,14 @@ const ACTIVE_ZONES = [];
 
 /* ============================================================
    DISPATCH FLEET
-============================================================ */
+   ============================================================ */
+
+/*
+   These represent the relief vehicles available to the
+   coordination team.
+
+   They are configuration data, not emergency requests.
+*/
 
 const TRUCK_FLEET = [
 
@@ -50,90 +66,47 @@ const TRUCK_FLEET = [
 
 /* ============================================================
    SUPPLY WEIGHT
-============================================================ */
+   ============================================================ */
+
+/*
+   Approximate relief cargo required per person per day.
+*/
 
 const SUPPLY_KG_PER_VICTIM_PER_DAY = 2.5;
 
 
 /* ============================================================
    ANOMALY THRESHOLD
-============================================================ */
+   ============================================================ */
+
+/*
+   Extremely large requests are sent for manual verification
+   instead of being automatically dispatched.
+*/
 
 const ANOMALY_VICTIM_THRESHOLD = 2000;
 
 
 /* ============================================================
-   SAMPLE REQUESTS
-============================================================ */
+   NO SAMPLE REQUESTS
+   ============================================================ */
 
-const SEED_REQUESTS = [
+/*
+   IMPORTANT:
+   There are intentionally NO SEED_REQUESTS here.
 
-    {
-        id: "REQ-1001",
-
-        shelterName:
-            "Govt. Higher Secondary School, Aluva",
-
-        lat: 10.11,
-
-        lng: 76.35,
-
-        victims: 340,
-
-        daysWithoutSupply: 3,
-
-        supplyType: "Food + Water",
-
-        status: "pending",
-
-        submittedAt:
-            Date.now() - 1000 * 60 * 60 * 5
-    },
+   All requests must come from:
+   
+       request.html
+             ↓
+       request.js
+             ↓
+       addRequest()
+             ↓
+       localStorage
+             ↓
+       Control Room
+*/
 
 
-    {
-        id: "REQ-1002",
-
-        shelterName:
-            "Community Hall, Kaziranga Road",
-
-        lat: 26.42,
-
-        lng: 91.1,
-
-        victims: 120,
-
-        daysWithoutSupply: 1,
-
-        supplyType: "Medicine",
-
-        status: "pending",
-
-        submittedAt:
-            Date.now() - 1000 * 60 * 60 * 2
-    },
-
-
-    {
-        id: "REQ-1003",
-
-        shelterName:
-            "Primary School, Puri Coastal Belt",
-
-        lat: 19.8,
-
-        lng: 85.83,
-
-        victims: 610,
-
-        daysWithoutSupply: 5,
-
-        supplyType: "Tents + Food",
-
-        status: "pending",
-
-        submittedAt:
-            Date.now() - 1000 * 60 * 60 * 20
-    }
-
-];
+const SEED_REQUESTS = [];

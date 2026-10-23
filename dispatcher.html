@@ -887,7 +887,7 @@
 
 body[data-cr-view="individual"] #cr-review-section,
 body[data-cr-view="ngo-requests"] #cr-coordination-section,
-body[data-cr-view="alerts"] #cr-alert-section,
+body[data-cr-view="assistance-tracking"] #cr-assistance-tracking-section,
 body[data-cr-view="ngo-verification"] #cr-ngo-verification-section,
 body[data-cr-view="ngo-network"] #cr-ngo-network-section,
 body[data-cr-view="messages"] #cr-messages-section,
@@ -2777,7 +2777,1052 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
         }
 
-    </style>
+    
+        .ngo-capacity-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;padding:12px;border:1px solid #e9e1d3;border-radius:12px;background:#fffcf3}
+        .ngo-capacity-summary>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+        .ngo-capacity-summary span{font-size:9px;letter-spacing:.7px;font-weight:800;color:#777}
+        .ngo-capacity-summary strong{font-size:12px;color:#222;overflow-wrap:anywhere}
+        .ngo-capacity-summary .ngo-availability-available{color:#187a43}
+        .ngo-capacity-summary .ngo-availability-limited{color:#946200}
+        .ngo-capacity-summary .ngo-availability-unavailable{color:#b42318}
+        .ngo-capacity-stock{font-size:11px;line-height:1.6;margin-top:9px;color:#666}
+        @media(max-width:600px){.ngo-capacity-summary{grid-template-columns:1fr 1fr}}
+
+
+        .ngo-network-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+        .ngo-network-filters label{display:flex;flex-direction:column;gap:6px;min-width:0}
+        .ngo-network-filters label span{font-size:10px;font-weight:800;letter-spacing:.5px;color:#666}
+        .ngo-network-filters select,.ngo-network-filters input{width:100%;min-height:40px;padding:9px 11px;border:1px solid #e0d9ce;border-radius:9px;background:#fffdf8;color:#222;font:inherit}
+        @media(max-width:650px){.ngo-network-filters{grid-template-columns:1fr}}
+
+
+/* ===== Relief Resolver: Assistance Tracking ===== */
+
+.assistance-tracking-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.assistance-tracking-card {
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e4ded2;
+    border-radius: 18px;
+    background: #fffdf9;
+    box-shadow: 0 10px 30px rgba(7, 21, 37, .045);
+    color: #0b1b2c;
+}
+
+.assistance-tracking-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 26px;
+    border-bottom: 1px solid #e9e2d7;
+    background: #fffdf9;
+}
+
+.assistance-request-id {
+    color: #718096;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.assistance-tracking-card h3 {
+    margin: 8px 0 4px;
+    color: #0b1b2c;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.assistance-reporter {
+    margin: 0;
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.assistance-status-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 13px;
+    border: 1px solid #d5e8da;
+    border-radius: 999px;
+    background: #eff7f0;
+    color: #237345;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.assistance-tracking-card > :not(.assistance-tracking-card-head) {
+    margin-left: 26px;
+    margin-right: 26px;
+}
+
+.assistance-tracking-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.assistance-tracking-meta > div {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e8e4da;
+    border-radius: 12px;
+    background: #f8f6f0;
+}
+
+.assistance-tracking-meta span {
+    display: block;
+    margin-bottom: 7px;
+    color: #718096;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.assistance-tracking-meta strong {
+    display: block;
+    color: #102137;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.assistance-tracking-progress {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 24px;
+    margin-bottom: 22px;
+}
+
+.assistance-stage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 56px;
+    padding: 10px;
+    border: 1px solid #e4ded2;
+    border-radius: 11px;
+    background: #fff;
+    color: #718096;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.assistance-stage-dot {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #e7eaed;
+    color: #64748b;
+    font-size: 10px;
+}
+
+.assistance-stage.complete {
+    border-color: #cfe4d4;
+    background: #f0f7f1;
+    color: #237345;
+}
+
+.assistance-stage.complete .assistance-stage-dot {
+    background: #168653;
+    color: #fff;
+}
+
+.assistance-stage.current {
+    border-color: #8bc49a;
+    background: #eaf5ec;
+    box-shadow: 0 0 0 2px rgba(47, 122, 74, .10);
+}
+
+.assistance-tracking-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 0;
+    padding: 16px 0 22px;
+    border-top: 1px solid #e9e2d7;
+    color: #718096;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.assistance-updated-note {
+    white-space: normal;
+}
+
+@media (max-width: 950px) {
+    .assistance-tracking-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .assistance-tracking-progress {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .assistance-tracking-card-head {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .assistance-tracking-card > :not(.assistance-tracking-card-head) {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .assistance-tracking-meta,
+    .assistance-tracking-progress {
+        grid-template-columns: 1fr;
+    }
+
+    .assistance-tracking-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* Tablet */
+@media (max-width: 900px) {
+    .assistance-tracking-progress {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .assistance-tracking-card {
+        padding: 22px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .assistance-tracking-card {
+        padding: 17px;
+        border-radius: 14px;
+    }
+
+    .assistance-tracking-card-head {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .assistance-status-tag {
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .assistance-tracking-meta {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .assistance-tracking-progress {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 19px;
+    }
+
+    .assistance-stage {
+        min-height: 45px;
+    }
+
+    .assistance-tracking-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+
+/* Saved disaster zone cards */
+.zone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.zone-item {
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid var(--line, #e5e0d7);
+    border-left: 4px solid #eab308;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(7, 21, 37, 0.05);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.zone-item:hover {
+    box-shadow: 0 7px 20px rgba(7, 21, 37, 0.09);
+    transform: translateY(-1px);
+}
+
+.zone-item:has(.zone-severity.high) {
+    border-left-color: #f97316;
+}
+
+.zone-item:has(.zone-severity.critical) {
+    border-left-color: #dc2626;
+}
+
+.zone-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.zone-item-name {
+    color: var(--ink, #172b3a);
+    font-size: 14px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.zone-item-type {
+    margin-top: 5px;
+    color: #78858e;
+    font-size: 11px;
+}
+
+.zone-severity {
+    flex-shrink: 0;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.zone-severity.high {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.zone-severity.critical {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.zone-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.zone-item-actions button {
+    min-width: 76px;
+    padding: 9px 13px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 800;
+    transition: opacity 0.2s ease;
+}
+
+.zone-item-actions button:hover {
+    opacity: 0.85;
+}
+
+.zone-edit-btn {
+    background: #e8f0eb;
+    color: #276749;
+}
+
+.zone-delete-btn {
+    background: #fde8e7;
+    color: #b42318;
+}
+
+.zone-list-empty {
+    padding: 22px 16px;
+    text-align: center;
+    border: 1px dashed #dcd5ca;
+    border-radius: 10px;
+    color: #8a9299;
+    background: #fff;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+    .disaster-map-wrap {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .disaster-zone-panel {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        max-height: none;
+    }
+
+    #disasterZoneMap {
+        height: 430px;
+        min-height: 350px;
+    }
+}
+
+/* Control Room assistance tracking refinements */
+.assistance-tracking-card > * {
+    min-width: 0;
+}
+
+.assistance-tracking-card-head {
+    padding-bottom: 20px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+.assistance-tracking-meta {
+    margin-top: 0;
+}
+
+.assistance-tracking-meta > div {
+    background: #faf8f3;
+    border-color: #e8e5dd;
+}
+
+.assistance-tracking-footer {
+    margin-top: 22px;
+    padding-top: 17px;
+}
+
+@media (max-width: 900px) {
+    .assistance-tracking-progress {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .assistance-tracking-progress {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ===== Final NGO Assistance Tracking UI Fix ===== */
+
+#assistanceTrackingList {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+}
+
+#assistanceTrackingList .assistance-tracking-card {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e4ded2;
+    border-radius: 18px;
+    background: #fffdf9;
+    color: #0b1b2c;
+    box-shadow: 0 10px 30px rgba(7, 21, 37, 0.05);
+}
+
+/* Card header — matches dispatcher.js */
+#assistanceTrackingList .tracking-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 26px;
+    margin: 0;
+    border-bottom: 1px solid #e9e2d7;
+    background: #fffdf9;
+}
+
+#assistanceTrackingList .tracking-card-header h3 {
+    margin: 7px 0 0;
+    font-size: 23px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+#assistanceTrackingList .tracking-request-label {
+    color: #718096;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+/* Current NGO status */
+#assistanceTrackingList .tracking-current-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 9px 13px;
+    border: 1px solid #cfe4d4;
+    border-radius: 999px;
+    background: #eff7f0;
+    color: #237345;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Individual, contact, location, relief and NGO details */
+#assistanceTrackingList .tracking-individual-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 22px 26px 0;
+}
+
+#assistanceTrackingList .tracking-detail {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e8e4da;
+    border-radius: 12px;
+    background: #f8f6f0;
+    overflow-wrap: anywhere;
+}
+
+#assistanceTrackingList .tracking-detail > span {
+    display: block;
+    margin-bottom: 7px;
+    color: #718096;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+}
+
+#assistanceTrackingList .tracking-detail > strong {
+    display: block;
+    color: #102137;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* Help received confirmation */
+#assistanceTrackingList
+> .assistance-tracking-card
+> .tracking-detail {
+    margin: 12px 26px 0;
+}
+
+/* Five tracking stages */
+#assistanceTrackingList .assistance-tracking-progress {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 9px;
+    margin: 24px 26px;
+}
+
+#assistanceTrackingList .assistance-stage {
+    min-width: 0;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #e4ded2;
+    border-radius: 11px;
+    background: #fff;
+    color: #718096;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#assistanceTrackingList .assistance-stage-dot {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e7eaed;
+    color: #64748b;
+}
+
+#assistanceTrackingList .assistance-stage.complete {
+    border-color: #cfe4d4;
+    background: #f0f7f1;
+    color: #237345;
+}
+
+#assistanceTrackingList .assistance-stage.complete
+.assistance-stage-dot {
+    background: #168653;
+    color: #fff;
+}
+
+#assistanceTrackingList .assistance-stage.current {
+    border-color: #8bc49a;
+    background: #eaf5ec;
+    box-shadow: 0 0 0 2px rgba(47, 122, 74, 0.10);
+}
+
+/* Footer */
+#assistanceTrackingList .assistance-tracking-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin: 0 26px;
+    padding: 17px 0 22px;
+    border-top: 1px solid #e9e2d7;
+    color: #718096;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+#assistanceTrackingList .assistance-updated-note {
+    overflow-wrap: anywhere;
+}
+
+/* Tablet */
+@media (max-width: 950px) {
+    #assistanceTrackingList .tracking-individual-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #assistanceTrackingList .assistance-tracking-progress {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #assistanceTrackingList .tracking-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    #assistanceTrackingList .tracking-individual-details {
+        grid-template-columns: minmax(0, 1fr);
+        margin: 18px 20px 0;
+    }
+
+    #assistanceTrackingList
+    > .assistance-tracking-card
+    > .tracking-detail {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-progress {
+        grid-template-columns: minmax(0, 1fr);
+        margin: 20px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-footer {
+        flex-direction: column;
+        margin: 0 20px;
+    }
+}
+
+
+.delivered-empty-section {
+    margin-top: 24px;
+    padding: 28px 24px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px dashed #d8d2c7;
+    border-radius: 16px;
+}
+
+.delivered-empty-icon {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: #278447;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.delivered-empty-section h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #172b3a;
+}
+
+.delivered-empty-section p {
+    margin: 0 0 6px;
+    color: #344054;
+}
+
+.delivered-empty-section span {
+    color: #777f89;
+    font-size: 13px;
+}
+
+
+
+/* ===== NGO ASSISTANCE TRACKING: UI POLISH ===== */
+
+#assistanceTrackingSummary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid #e5e0d6;
+    border-radius: 12px;
+    background: #fffdf9;
+    color: #243447;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+    line-height: 1.5;
+}
+
+/* Keep the checkbox and label neatly aligned */
+label:has(#showDeliveredAssistance) {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 0 10px;
+    padding: 10px 14px;
+    border: 1px solid #e5e0d6;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #344054;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+label:has(#showDeliveredAssistance):hover {
+    background: #f8f5ef;
+    border-color: #c9c0b1;
+}
+
+#showDeliveredAssistance {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #237a57;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Tracking list spacing */
+#assistanceTrackingList {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1180px;
+    margin: 12px auto 0;
+}
+
+/* Main request card */
+#assistanceTrackingList .assistance-tracking-card {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    background: #fffdfa;
+    border: 1px solid #e6dfd3;
+    border-radius: 20px;
+    box-shadow: 0 5px 18px rgba(38, 48, 60, 0.045);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#assistanceTrackingList .assistance-tracking-card:hover {
+    border-color: #d4c9b7;
+    box-shadow: 0 9px 26px rgba(38, 48, 60, 0.08);
+}
+
+/* Card header */
+#assistanceTrackingList .tracking-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 25px 30px;
+    border-bottom: 1px solid #eee8de;
+    background: linear-gradient(135deg, #fffdfa, #f9f6ef);
+}
+
+#assistanceTrackingList .tracking-request-label {
+    display: block;
+    margin-bottom: 9px;
+    color: #788397;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+#assistanceTrackingList .tracking-card-header h3 {
+    margin: 0;
+    color: #172b40;
+    font-size: clamp(19px, 2vw, 25px);
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+#assistanceTrackingList .tracking-current-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 9px 13px;
+    border: 1px solid #d5e9dd;
+    border-radius: 999px;
+    background: #edf7f0;
+    color: #237447;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-align: center;
+}
+
+/* Individual/request details */
+#assistanceTrackingList .tracking-individual-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 24px 30px;
+}
+
+#assistanceTrackingList .tracking-individual-details .tracking-detail {
+    min-width: 0;
+    padding: 17px 18px;
+    border: 1px solid #ebe5da;
+    border-radius: 13px;
+    background: #faf8f3;
+}
+
+#assistanceTrackingList .tracking-detail > span {
+    display: block;
+    margin-bottom: 8px;
+    color: #788397;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+#assistanceTrackingList .tracking-detail > strong {
+    display: block;
+    color: #172b40;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* Help receipt row */
+#assistanceTrackingList > .assistance-tracking-card > .tracking-detail {
+    margin: 0 30px 22px;
+    padding: 16px 18px;
+    border: 1px solid #e6e8eb;
+    border-radius: 13px;
+    background: #f8fafb;
+}
+
+/* Progress stages */
+#assistanceTrackingList .assistance-tracking-progress {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    padding: 24px 30px;
+    border-top: 1px solid #eee8de;
+    background: #ffffff;
+}
+
+#assistanceTrackingList .assistance-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    color: #89919d;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+#assistanceTrackingList .assistance-stage-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+    border: 2px solid #e0e4e8;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #8b95a2;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#assistanceTrackingList .assistance-stage.complete {
+    color: #237447;
+}
+
+#assistanceTrackingList .assistance-stage.complete .assistance-stage-dot {
+    border-color: #a9d8bb;
+    background: #eaf6ee;
+    color: #237447;
+}
+
+#assistanceTrackingList .assistance-stage.current .assistance-stage-dot {
+    outline: 4px solid #e1f0e6;
+    border-color: #237a57;
+    background: #237a57;
+    color: #ffffff;
+}
+
+/* Footer */
+#assistanceTrackingList .assistance-tracking-footer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 17px 30px;
+    border-top: 1px solid #eee8de;
+    background: #faf8f3;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#assistanceTrackingList .assistance-updated-note {
+    color: #788397;
+    font-weight: 600;
+}
+
+/* Empty states */
+#assistanceTrackingList .tracking-empty-state,
+#assistanceTrackingList .delivered-empty-section {
+    padding: 34px 22px;
+    border: 1px dashed #d9d2c6;
+    border-radius: 17px;
+    background: #fffdfa;
+    color: #667085;
+    text-align: center;
+}
+
+#assistanceTrackingList .delivered-empty-section h3 {
+    margin: 0 0 8px;
+    color: #172b40;
+}
+
+#assistanceTrackingList .delivered-empty-section p {
+    margin: 0 0 6px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    #assistanceTrackingList .tracking-individual-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 20px;
+    }
+
+    #assistanceTrackingList .tracking-card-header {
+        padding: 22px 20px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-progress {
+        padding: 22px 20px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-footer {
+        padding: 16px 20px;
+    }
+
+    #assistanceTrackingList > .assistance-tracking-card > .tracking-detail {
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+    #assistanceTrackingSummary {
+        font-size: 12px;
+        padding: 9px 11px;
+    }
+
+    label:has(#showDeliveredAssistance) {
+        margin: 8px 0 0;
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+
+    #assistanceTrackingList .tracking-individual-details {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 15px;
+    }
+
+    #assistanceTrackingList .tracking-card-header {
+        align-items: flex-start;
+        padding: 20px 16px;
+    }
+
+    #assistanceTrackingList .tracking-current-status {
+        font-size: 10px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-progress {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 10px;
+        padding: 20px 15px;
+    }
+
+    #assistanceTrackingList .assistance-tracking-footer {
+        padding: 15px;
+    }
+
+    #assistanceTrackingList > .assistance-tracking-card > .tracking-detail {
+        margin-right: 15px;
+        margin-left: 15px;
+    }
+}
+
+</style>
 
 </head>
 
@@ -3046,24 +4091,6 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
                 <nav class="cr-nav">
 
-
-                    <button
-                        type="button"
-                        class="cr-nav-btn active"
-                        data-view="dashboard"
-                    >
-
-                        <span class="cr-nav-icon">
-                            🏠
-                        </span>
-
-                        <span class="cr-nav-label">
-                            Dashboard
-                        </span>
-
-                    </button>
-
-
                     <button
                         type="button"
                         class="cr-nav-btn"
@@ -3109,6 +4136,20 @@ body[data-cr-view="zones"] #cr-disaster-section {
                             0
                         </span>
 
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="cr-nav-btn"
+                        data-view="assistance-tracking"
+                    >
+                        <span class="cr-nav-icon">🚚</span>
+                        <span class="cr-nav-label">NGO Assistance Tracking</span>
+                        <span
+                            class="cr-nav-count"
+                            id="sideAssistanceTrackingCount"
+                        >0</span>
                     </button>
 
 
@@ -3190,30 +4231,6 @@ body[data-cr-view="zones"] #cr-disaster-section {
                     <button
                         type="button"
                         class="cr-nav-btn"
-                        data-view="alerts"
-                    >
-
-                        <span class="cr-nav-icon">
-                            🔔
-                        </span>
-
-                        <span class="cr-nav-label">
-                            Alerts
-                        </span>
-
-                        <span
-                            class="cr-nav-count"
-                            id="sideAlertCount"
-                        >
-                            0
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="cr-nav-btn"
                         data-view="messages"
                     >
 
@@ -3260,91 +4277,7 @@ body[data-cr-view="zones"] #cr-disaster-section {
             <div class="cr-content">
 
 
-                <!-- =================================================
-                     DASHBOARD
-                ================================================= -->
-
-                <section class="cr-dashboard">
-
-                    <div class="control-eyebrow">
-                        Operations overview
-                    </div>
-
-                    <h2>
-                        Control Room Dashboard
-                    </h2>
-
-                    <p>
-                        This is the central coordination workspace.
-                        Use the menu on the left to verify emergency
-                        requests, manage NGOs, monitor responses,
-                        view the relief map and manage disaster zones.
-                    </p>
-
-
-                    <div class="dashboard-grid">
-
-
-                        <div class="dashboard-card">
-
-                            <div class="dashboard-card-icon">
-                                👤
-                            </div>
-
-                            <strong>
-                                Individual Requests
-                            </strong>
-
-                            <span>
-                                Review emergency information and
-                                inspect evidence before verification.
-                            </span>
-
-                        </div>
-
-
-                        <div class="dashboard-card">
-
-                            <div class="dashboard-card-icon">
-                                🤝
-                            </div>
-
-                            <strong>
-                                NGO Coordination
-                            </strong>
-
-                            <span>
-                                Publish verified emergencies and
-                                track responses from verified NGOs.
-                            </span>
-
-                        </div>
-
-
-                        <div class="dashboard-card">
-
-                            <div class="dashboard-card-icon">
-                                🗺️
-                            </div>
-
-                            <strong>
-                                Field Intelligence
-                            </strong>
-
-                            <span>
-                                Monitor emergency locations,
-                                NGOs and active disaster zones.
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-                </section>
-
-
-                <!-- =================================================
+                        <!-- =================================================
                      INDIVIDUAL REQUESTS
                 ================================================= -->
 
@@ -3431,46 +4364,50 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
 
                 <!-- =================================================
-                     ALERTS
+                     NGO ASSISTANCE TRACKING
                 ================================================= -->
 
                 <section
-                    id="cr-alert-section"
+                    id="cr-assistance-tracking-section"
                     class="section cr-view"
                 >
-
                     <div class="section-heading">
-
                         <div>
-
-                            <h2>
-                                Verification Alerts
-                            </h2>
-
+                            <h2>NGO Assistance Tracking</h2>
                             <p>
-                                Requests requiring additional
-                                manual attention.
+                                See which NGO has voluntarily accepted each individual request
+                                and monitor its current relief status.
                             </p>
-
                         </div>
-
 
                         <span
                             class="section-badge"
-                            id="alertCount"
-                        >
-                            0 flagged
-                        </span>
-
+                            id="assistanceTrackingBadge"
+                        >0 active</span>
                     </div>
 
+                    <div class="assistance-tracking-toolbar">
+                        <span id="assistanceTrackingSummary">
+                            0 active assistance records
+                        </span>
 
-                    <div id="alertList"></div>
+                        <label class="assistance-completed-toggle">
+                            <input
+                                type="checkbox"
+                                id="showDeliveredAssistance"
+                            >
+                            Show delivered assistance
+                        </label>
+                    </div>
 
+                    <div
+                        id="assistanceTrackingList"
+                        class="assistance-tracking-list"
+                    ></div>
                 </section>
 
 
-                <!-- =================================================
+                          <!-- =================================================
                      NGO VERIFICATION
                 ================================================= -->
 
@@ -3547,6 +4484,36 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
                     </div>
 
+
+                    <div class="ngo-network-filters">
+                        <label>
+                            <span>Availability</span>
+                            <select id="ngoAvailabilityFilter" onchange="renderNGOs()">
+                                <option value="all">All availability</option>
+                                <option value="available">Available</option>
+                                <option value="limited">Limited capacity</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Service</span>
+                            <select id="ngoServiceFilter" onchange="renderNGOs()">
+                                <option value="all">All services</option>
+                                <option value="food">Food</option>
+                                <option value="water">Water</option>
+                                <option value="medicine">Medicine</option>
+                                <option value="shelter">Shelter</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="rescue">Rescue</option>
+                                <option value="transport">Transport</option>
+                                <option value="other">Other relief support</option>
+                            </select>
+                        </label>
+                        <label class="ngo-network-search">
+                            <span>Search NGO or location</span>
+                            <input id="ngoNetworkSearch" type="search" placeholder="Search name, city or state" oninput="renderNGOs()">
+                        </label>
+                    </div>
 
                     <div
                         id="verifiedNgoList"
@@ -4115,148 +5082,116 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
 
     const validViews = [
-        "dashboard",
         "individual",
         "ngo-requests",
+        "assistance-tracking",
         "ngo-verification",
         "ngo-network",
         "map",
         "zones",
-        "alerts",
         "messages",
         
 
     ];
 
 
-    function showView(view) {
 
-        if (
-            !validViews.includes(view)
-        ) {
-
-            view =
-                "dashboard";
-
-        }
-
-
-        document.body.dataset.crView =
-            view;
-
-
-        buttons.forEach(
-            button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.view === view
-                );
-
-            }
-        );
-
-
-        try {
-
-            sessionStorage.setItem(
-                "reliefControlRoomView",
-                view
-            );
-
-        }
-        catch (error) {}
-
-
-
-        /*
-         * Leaflet needs a size recalculation
-         * after a hidden map becomes visible.
-         */
-
-        if (
-            view === "map" ||
-            view === "zones"
-        ) {
-
-            setTimeout(
-                () => {
-
-                    window.dispatchEvent(
-                        new Event("resize")
-                    );
-
-
-                    if (
-                        typeof renderCoordinationMap ===
-                        "function" &&
-                        view === "map"
-                    ) {
-
-                        renderCoordinationMap();
-
-                    }
-
-                },
-                150
-            );
-
-        }
-
+    
+function showView(view) {
+    if (!validViews.includes(view)) {
+        view = "individual";
     }
 
+    document.body.dataset.crView = view;
 
-    buttons.forEach(
-        button => {
+    // Update active navigation buttons.
+    buttons.forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.view === view
+        );
+    });
 
-            button.addEventListener(
-                "click",
-                () => {
+    // Remember the current Control Room view.
+    try {
+        sessionStorage.setItem(
+            "reliefControlRoomView",
+            view
+        );
+    } catch (error) {
+        console.warn("Could not save Control Room view:", error);
+    }
 
-                    showView(
-                        button.dataset.view
-                    );
+    // Recalculate map dimensions after a hidden view becomes visible.
+    if (view === "map" || view === "zones") {
+        setTimeout(() => {
+            window.dispatchEvent(new Event("resize"));
 
-                }
-            );
+            // Refresh the coordination map only on its own view.
+            if (
+                view === "map" &&
+                typeof renderCoordinationMap === "function"
+            ) {
+                renderCoordinationMap();
+            }
 
-        }
-    );
+            // Notify disaster-zones.js to resize its own map.
+            if (view === "zones") {
+                window.dispatchEvent(
+                    new Event("disaster-zone-map-resize")
+                );
+            }
+        }, 200);
+    }
+}
 
+// Attach navigation events.
+buttons.forEach(button => {
+    button.addEventListener("click", () => {
+        showView(button.dataset.view);
+    });
+});
 
+// Restore the last selected view when the page loads.
+function restoreControlRoomView() {
+    let savedView = "dashboard";
+
+    try {
+        savedView =
+            sessionStorage.getItem("reliefControlRoomView") ||
+            "dashboard";
+    } catch (error) {
+        console.warn("Could not restore Control Room view:", error);
+    }
+
+    showView(savedView);
+}
+
+if (document.readyState === "loading") {
     document.addEventListener(
         "DOMContentLoaded",
-        () => {
-
-            let savedView =
-                "dashboard";
-
-
-            try {
-
-                savedView =
-                    sessionStorage.getItem(
-                        "reliefControlRoomView"
-                    ) ||
-                    "dashboard";
-
-            }
-            catch (error) {}
-
-
-            showView(
-                savedView
-            );
-
-        }
+        restoreControlRoomView,
+        { once: true }
     );
+} else {
+    restoreControlRoomView();
+}
 
+// Expose the navigation function for existing integrations.
+window.setControlRoomView = showView;
 
-    window.setControlRoomView =
-        showView;
+// Resize the Disaster Zone map when its view is visible.
+window.addEventListener("resize", () => {
+    if (document.body.dataset.crView !== "zones") {
+        return;
+    }
 
+    window.dispatchEvent(
+        new Event("disaster-zone-map-resize")
+    );
+});
 
-})();
+ })();
 
 </script>
 

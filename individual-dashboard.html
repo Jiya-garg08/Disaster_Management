@@ -872,7 +872,594 @@
 
         }
 
+        /* ================================================================
+   RELIEF TRACKING
+================================================================ */
+
+.relief-tracking-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    margin-top: 20px;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
+
+    border:
+        1px solid rgba(0,0,0,0.06);
+}
+
+
+.tracking-partner {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+
+.tracking-partner span,
+.tracking-current-status span {
+
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    opacity: 0.6;
+}
+
+
+.tracking-partner h3 {
+    margin: 6px 0 0;
+}
+
+
+.tracking-current-status {
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background: #f5f7fb;
+
+    margin-bottom: 25px;
+}
+
+
+.tracking-current-status strong {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 16px;
+}
+
+
+.relief-tracking-timeline {
+    margin-top: 25px;
+}
+
+
+.relief-tracking-timeline
+.tracking-step {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 15px;
+
+    text-align: left;
+
+    min-height: 68px;
+
+    position: relative;
+}
+
+
+.relief-tracking-timeline
+.tracking-step:not(:last-child)::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 15px;
+
+    top: 32px;
+
+    width: 2px;
+
+    height: calc(100% - 5px);
+
+    background: #e5e7eb;
+}
+
+
+.relief-tracking-timeline
+.tracking-step.completed:not(:last-child)::after {
+
+    background: #198754;
+}
+
+
+.relief-tracking-timeline
+.tracking-node {
+
+    flex-shrink: 0;
+
+    width: 30px;
+
+    height: 30px;
+
+    margin: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e5e7eb;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.relief-tracking-timeline
+.tracking-step.completed
+.tracking-node {
+
+    background: #198754;
+
+    color: white;
+}
+
+
+.relief-tracking-timeline
+.tracking-step.current
+.tracking-node {
+
+    box-shadow:
+        0 0 0 5px
+        rgba(25,135,84,0.15);
+}
+
+
+.tracking-content strong {
+
+    display: block;
+
+    font-size: 14px;
+}
+
+
+.tracking-updated {
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    opacity: 0.6;
+}
+
+
+.additional-response-note {
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    background: #f8f9fa;
+
+    font-size: 13px;
+}
+
+
+.help-received-confirmed {
+
+    margin-top: 20px;
+
+    padding: 18px;
+
+    border-radius: 12px;
+
+    background: #e9f7ef;
+
+    color: #198754;
+}
+
+
+.review-section {
+
+    margin-top: 20px;
+}
+
+
+.received-help-button {
+
+    min-width: 210px;
+}
+
+
+@media (max-width: 600px) {
+
+    .relief-tracking-card {
+        padding: 18px;
+    }
+
+}
+
+
+/* ===== Improved NGO card layout ===== */
+
+.nearby-ngo-section .ngo-list {
+    padding: 12px 22px 22px;
+}
+
+.nearby-ngo-section .ngo-list-item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 18px;
+    padding: 24px;
+    margin: 12px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(7, 21, 37, 0.04);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.nearby-ngo-section .ngo-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(7, 21, 37, 0.08);
+}
+
+.nearby-ngo-section .ngo-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    font-size: 23px;
+}
+
+.nearby-ngo-section .ngo-main {
+    min-width: 0;
+}
+
+.nearby-ngo-section .ngo-identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.nearby-ngo-section .ngo-name {
+    font-size: 17px;
+    line-height: 1.4;
+    color: #071525;
+}
+
+.nearby-ngo-section .ngo-location {
+    margin-top: 5px;
+    color: #64758a;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.nearby-ngo-section .ngo-contact {
+    margin-top: 12px !important;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.nearby-ngo-section .ngo-contact strong {
+    display: inline-block;
+    min-width: 68px;
+    color: #475569;
+    font-size: 12px;
+}
+
+.nearby-ngo-section .ngo-contact a {
+    overflow-wrap: anywhere;
+}
+
+.nearby-ngo-section .ngo-services {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.nearby-ngo-section .ngo-detail-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #64758a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.nearby-ngo-section .ngo-capacity-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: #edf7ef;
+    color: #267444;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.nearby-ngo-section .ngo-capacity-status.limited {
+    background: #fff5dc;
+    color: #94630b;
+}
+
+.nearby-ngo-section .ngo-capacity-status.unavailable {
+    background: #fdf0ed;
+    color: #b83d34;
+}
+
+.nearby-ngo-section .ngo-status-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.nearby-ngo-section .ngo-capacity-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.nearby-ngo-section .ngo-capacity-stat {
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid #e8ecef;
+    border-radius: 12px;
+    background: #f8fafb;
+}
+
+.nearby-ngo-section .ngo-capacity-stat strong {
+    display: block;
+    margin: 0;
+    color: #071525;
+    font-size: 23px;
+    line-height: 1.3;
+}
+
+.nearby-ngo-section .ngo-capacity-stat .ngo-stat-label {
+    display: block;
+    margin-top: 5px;
+    color: #64758a;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.nearby-ngo-section .ngo-capacity-details {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e8ecef;
+}
+
+.nearby-ngo-section .ngo-inventory-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.nearby-ngo-section .ngo-inventory-items span {
+    padding: 7px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f8fafb;
+    color: #475569;
+    font-size: 11px;
+}
+
+.nearby-ngo-section .ngo-distance {
+    min-width: 95px;
+    padding: 10px 12px;
+    border: 1px solid #cfe2d5;
+    border-radius: 12px;
+    background: #edf7ef;
+    text-align: center;
+}
+
+.nearby-ngo-section .ngo-distance strong {
+    color: #267444;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.nearby-ngo-section .ngo-distance span {
+    color: #64758a;
+    font-size: 10px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+    .nearby-ngo-section .ngo-list {
+        padding: 10px 12px 16px;
+    }
+
+    .nearby-ngo-section .ngo-list-item {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .nearby-ngo-section .ngo-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 19px;
+    }
+
+    .nearby-ngo-section .ngo-distance {
+        grid-column: 2;
+        justify-self: start;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .nearby-ngo-section .ngo-capacity-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nearby-ngo-section .ngo-capacity-stat:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+}
+
+
+/* ===== Final map and tracking polish ===== */
+
+/* Map */
+.map-card {
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.individual-map {
+    height: 410px;
+    min-height: 410px;
+}
+
+.map-legend {
+    align-items: center;
+    gap: 12px 22px;
+    padding: 14px 20px;
+    line-height: 1.5;
+}
+
+/* Tracking card */
+.relief-tracking-card {
+    padding: 26px;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(7, 21, 37, 0.06);
+}
+
+.tracking-partner {
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.tracking-partner h3 {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.tracking-current-status {
+    padding: 17px 18px;
+    margin-bottom: 20px;
+    border: 1px solid #e1e9e4;
+    border-radius: 13px;
+    background: #f2f8f4;
+}
+
+.tracking-current-status span {
+    color: #64758a;
+    opacity: 1;
+}
+
+.tracking-current-status strong {
+    color: #237747;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* More compact progress timeline */
+.relief-tracking-timeline {
+    margin-top: 20px;
+}
+
+.relief-tracking-timeline .tracking-step {
+    min-height: 60px;
+    gap: 14px;
+}
+
+.relief-tracking-timeline .tracking-step:not(:last-child)::after {
+    left: 14px;
+    top: 30px;
+    height: calc(100% - 3px);
+}
+
+.relief-tracking-timeline .tracking-node {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+}
+
+.tracking-content {
+    min-width: 0;
+    padding: 4px 0 16px;
+}
+
+.tracking-content strong {
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .individual-map {
+        height: 340px;
+        min-height: 340px;
+    }
+
+    .map-legend {
+        gap: 10px 16px;
+        padding: 12px 14px;
+        font-size: 11px;
+    }
+
+    .relief-tracking-card {
+        padding: 18px;
+    }
+
+    .tracking-current-status {
+        padding: 14px;
+    }
+
+    .relief-tracking-timeline .tracking-step {
+        min-height: 58px;
+    }
+}
+
+
     </style>
+   
 </head>
 
 

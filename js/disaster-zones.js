@@ -35,351 +35,197 @@
         initializeDisasterZoneMap
     );
 
+function initializeDisasterZoneMap() {
+    const mapElement = document.getElementById("disasterZoneMap");
 
-    function initializeDisasterZoneMap(){
+    if (!mapElement) {
+        console.error("Disaster Zone Map: #disasterZoneMap not found.");
+        return;
+    }
 
-        const mapElement =
-            document.getElementById(
-                "disasterZoneMap"
-            );
+    if (typeof L === "undefined") {
+        console.error("Leaflet is not loaded.");
 
+        mapElement.innerHTML = `
+            <div style="
+                padding: 40px;
+                text-align: center;
+                color: #b43b32;
+                font-weight: 700;
+            ">
+                Map could not be loaded.
+                <br><br>
+                Please check your internet connection.
+            </div>
+        `;
+        return;
+    }
 
-        if(!mapElement){
+    // Create the map only once.
+    if (!map) {
+        map = L.map("disasterZoneMap");
 
-            console.error(
-                "Disaster Zone Map: #disasterZoneMap not found."
-            );
+        map.setView([22.9734, 78.6569], 5);
 
-            return;
-
-        }
-
-
-        if(
-            typeof L ===
-            "undefined"
-        ){
-
-            console.error(
-                "Leaflet is not loaded."
-            );
-
-            mapElement.innerHTML = `
-
-                <div
-                    style="
-                        padding:40px;
-                        text-align:center;
-                        color:#b43b32;
-                        font-weight:700;
-                    "
-                >
-
-                    Map could not be loaded.
-
-                    <br><br>
-
-                    Please check your internet connection.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        /* ========================================================
-           CREATE MAP
-        ======================================================== */
-
-        map =
-            L.map(
-                "disasterZoneMap"
-            );
-
-
-        map.setView(
-            [22.9734, 78.6569],
-            5
-        );
-
-
-        /* ========================================================
-           OPEN STREET MAP
-        ======================================================== */
-
+        // OpenStreetMap tiles.
         L.tileLayer(
             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             {
-
-                maxZoom:19,
-
-                attribution:
-                    "&copy; OpenStreetMap contributors"
-
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap contributors"
             }
-        ).addTo(
-            map
-        );
+        ).addTo(map);
 
+        // Saved disaster zones.
+        savedZonesLayer = new L.FeatureGroup();
+        map.addLayer(savedZonesLayer);
 
-        /* ========================================================
-           SAVED ZONES
-        ======================================================== */
+        // Temporary drawing layer.
+        drawingLayer = new L.FeatureGroup();
+        map.addLayer(drawingLayer);
 
-        savedZonesLayer =
-            new L.FeatureGroup();
+        // Drawing controls.
+        if (L.Control && L.Control.Draw) {
+            const drawControl = new L.Control.Draw({
+                position: "topleft",
 
-
-        map.addLayer(
-            savedZonesLayer
-        );
-
-
-        /* ========================================================
-           TEMPORARY DRAWING
-        ======================================================== */
-
-        drawingLayer =
-            new L.FeatureGroup();
-
-
-        map.addLayer(
-            drawingLayer
-        );
-
-
-        /* ========================================================
-           DRAW CONTROLS
-        ======================================================== */
-
-        if(
-            L.Control &&
-            L.Control.Draw
-        ){
-
-            const drawControl =
-                new L.Control.Draw({
-
-                    position:
-                        "topleft",
-
-                    draw:{
-
-                        polygon:{
-
-                            allowIntersection:
-                                false,
-
-                            showArea:
-                                true,
-
-                            shapeOptions:{
-
-                                color:
-                                    "#dc2626",
-
-                                fillColor:
-                                    "#dc2626",
-
-                                fillOpacity:
-                                    0.25,
-
-                                weight:
-                                    2
-
-                            }
-
-                        },
-
-
-                        rectangle:{
-
-                            shapeOptions:{
-
-                                color:
-                                    "#dc2626",
-
-                                fillColor:
-                                    "#dc2626",
-
-                                fillOpacity:
-                                    0.25,
-
-                                weight:
-                                    2
-
-                            }
-
-                        },
-
-
-                        polyline:false,
-
-                        circle:false,
-
-                        circlemarker:false,
-
-                        marker:false
-
+                draw: {
+                    polygon: {
+                        allowIntersection: false,
+                        showArea: true,
+                        shapeOptions: {
+                            color: "#dc2626",
+                            fillColor: "#dc2626",
+                            fillOpacity: 0.25,
+                            weight: 2
+                        }
                     },
 
+                    rectangle: {
+                        shapeOptions: {
+                            color: "#dc2626",
+                            fillColor: "#dc2626",
+                            fillOpacity: 0.25,
+                            weight: 2
+                        }
+                    },
 
-                    edit:{
+                    polyline: false,
+                    circle: false,
+                    circlemarker: false,
+                    marker: false
+                },
 
-                        featureGroup:
-                            drawingLayer,
-
-                        remove:false
-
-                    }
-
-                });
-
-
-            map.addControl(
-                drawControl
-            );
-
-
-            /* ====================================================
-               DRAW CREATED
-            ==================================================== */
-
-            map.on(
-                L.Draw.Event.CREATED,
-                function(event){
-
-                    drawingLayer.clearLayers();
-
-
-                    drawingLayer.addLayer(
-                        event.layer
-                    );
-
-
-                    const instruction =
-                        document.getElementById(
-                            "zoneInstruction"
-                        );
-
-
-                    if(instruction){
-
-                        instruction.classList.remove(
-                            "show"
-                        );
-
-                    }
-
-
-                    const form =
-                        document.getElementById(
-                            "disasterZoneForm"
-                        );
-
-
-                    if(form){
-
-                        form.classList.add(
-                            "show"
-                        );
-
-                    }
-
+                edit: {
+                    featureGroup: drawingLayer,
+                    remove: false
                 }
-            );
+            });
 
-        }
-        else{
+            map.addControl(drawControl);
 
-            console.error(
-                "Leaflet Draw is not loaded."
-            );
+            // Handle newly drawn zones.
+            map.on(L.Draw.Event.CREATED, function (event) {
+                drawingLayer.clearLayers();
+                drawingLayer.addLayer(event.layer);
 
-        }
+                const instruction =
+                    document.getElementById("zoneInstruction");
 
-
-        /* ========================================================
-           BUTTONS
-        ======================================================== */
-
-        const addButton =
-            document.getElementById(
-                "addDisasterZoneButton"
-            );
-
-
-        const saveButton =
-            document.getElementById(
-                "saveDisasterZoneButton"
-            );
-
-
-        const cancelButton =
-            document.getElementById(
-                "cancelDisasterZoneButton"
-            );
-
-
-        if(addButton){
-
-            addButton.addEventListener(
-                "click",
-                startNewZone
-            );
-
-        }
-
-
-        if(saveButton){
-
-            saveButton.addEventListener(
-                "click",
-                saveDisasterZone
-            );
-
-        }
-
-
-        if(cancelButton){
-
-            cancelButton.addEventListener(
-                "click",
-                cancelZone
-            );
-
-        }
-
-
-        /* ========================================================
-           LOAD SAVED ZONES
-        ======================================================== */
-
-        renderDisasterZones();
-
-
-        /* ========================================================
-           MAP RESIZE
-        ======================================================== */
-
-        setTimeout(
-            function(){
-
-                if(map){
-
-                    map.invalidateSize();
-
+                if (instruction) {
+                    instruction.classList.remove("show");
                 }
 
-            },
-            300
-        );
+                const form =
+                    document.getElementById("disasterZoneForm");
 
+                if (form) {
+                    form.classList.add("show");
+                }
+            });
+        } else {
+            console.error("Leaflet Draw is not loaded.");
+        }
     }
 
+    // Attach form button handlers only once.
+    const addButton =
+        document.getElementById("addDisasterZoneButton");
+
+    const saveButton =
+        document.getElementById("saveDisasterZoneButton");
+
+    const cancelButton =
+        document.getElementById("cancelDisasterZoneButton");
+
+    if (addButton && !addButton.dataset.zoneHandlerAttached) {
+        addButton.addEventListener("click", startNewZone);
+        addButton.dataset.zoneHandlerAttached = "true";
+    }
+
+    if (saveButton && !saveButton.dataset.zoneHandlerAttached) {
+        saveButton.addEventListener("click", saveDisasterZone);
+        saveButton.dataset.zoneHandlerAttached = "true";
+    }
+
+    if (cancelButton && !cancelButton.dataset.zoneHandlerAttached) {
+        cancelButton.addEventListener("click", cancelZone);
+        cancelButton.dataset.zoneHandlerAttached = "true";
+    }
+
+    // Render saved zones.
+    renderDisasterZones();
+
+    // Resize the map after its container becomes visible.
+    setTimeout(function () {
+        if (map) {
+            map.invalidateSize();
+        }
+    }, 300);
+}
+
+// Listen for resize requests from dispatcher.html.
+// Keep this outside initializeDisasterZoneMap() so it is registered once.
+window.addEventListener("disaster-zone-map-resize", function () {
+    if (map) {
+        requestAnimationFrame(function () {
+    modal.classList.add("show");
+
+    console.log(
+        "[Delete Debug] Modal classes:",
+        modal.className
+    );
+
+    console.log(
+        "[Delete Debug] Modal dimensions:",
+        modal.getBoundingClientRect()
+    );
+
+    console.log(
+        "[Delete Debug] Modal styles:",
+        getComputedStyle(modal).display,
+        getComputedStyle(modal).visibility,
+        getComputedStyle(modal).opacity
+    );
+});
+    }
+});
+
+
+    /* ============================================================
+       CLEAR FORM
+    ============================================================ */
+    function clearForm() {
+        const name = document.getElementById("zoneName");
+        const type = document.getElementById("zoneType");
+        const severity = document.getElementById("zoneSeverity");
+        const description = document.getElementById("zoneDescription");
+
+        if (name) name.value = "";
+        if (type) type.value = "Flood";
+        if (severity) severity.value = "moderate";
+        if (description) description.value = "";
+    }
 
     /* ============================================================
        START NEW ZONE
@@ -391,9 +237,11 @@
             null;
 
 
-        drawingLayer.clearLayers();
+        if (drawingLayer) {
+            drawingLayer.clearLayers();
+        }
 
-
+        // Reset the form before starting a new zone.
         clearForm();
 
 
@@ -863,324 +711,175 @@
        SIDEBAR
     ============================================================ */
 
-    function renderZoneSidebar(
-        zones
-    ){
+function renderZoneSidebar(zones) {
+    const list = document.getElementById("disasterZoneList");
 
-        const list =
-            document.getElementById(
-                "disasterZoneList"
-            );
-
-
-        if(!list){
-
-            return;
-
-        }
-
-
-        if(!zones.length){
-
-            list.innerHTML = `
-
-                <div
-                    class="zone-list-empty"
-                >
-
-                    No disaster zones have
-                    been marked yet.
-
-                    <br><br>
-
-                    Click
-                    <strong>
-                        + Add Disaster Zone
-                    </strong>
-                    to begin.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        list.innerHTML =
-            zones
-                .map(
-                    function(zone){
-
-                        const id =
-                            escapeAttribute(
-                                zone.id
-                            );
-
-
-                        return `
-
-                            <div
-                                class="zone-item"
-                            >
-
-                                <div
-                                    class="zone-item-top"
-                                >
-
-                                    <div>
-
-                                        <div
-                                            class="zone-item-name"
-                                        >
-                                            ${escapeHtml(
-                                                zone.name
-                                            )}
-                                        </div>
-
-
-                                        <div
-                                            class="zone-item-type"
-                                        >
-                                            ${escapeHtml(
-                                                zone.type
-                                            )}
-                                        </div>
-
-                                    </div>
-
-
-                                    <span
-                                        class="
-                                            zone-severity
-                                            ${escapeHtml(
-                                                zone.severity
-                                            )}
-                                        "
-                                    >
-                                        ${escapeHtml(
-                                            zone.severity
-                                        )}
-                                    </span>
-
-                                </div>
-
-
-                                ${
-                                    zone.description
-                                        ?
-                                        `
-                                        <div
-                                            class="
-                                                zone-item-description
-                                            "
-                                        >
-                                            ${escapeHtml(
-                                                zone.description
-                                            )}
-                                        </div>
-                                        `
-                                        :
-                                        ""
-                                }
-
-
-                                <div
-                                    class="zone-item-actions"
-                                >
-
-                                    <button
-                                        type="button"
-                                        class="zone-mini-btn"
-                                        data-zone-edit="${id}"
-                                    >
-                                        Edit
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="
-                                            zone-mini-btn
-                                            delete
-                                        "
-                                        data-zone-delete="${id}"
-                                    >
-                                        Delete
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                )
-                .join("");
-
-
-        /* ========================================================
-           EDIT EVENTS
-        ======================================================== */
-
-        list
-            .querySelectorAll(
-                "[data-zone-edit]"
-            )
-            .forEach(
-                function(button){
-
-                    button.addEventListener(
-                        "click",
-                        function(){
-
-                            editZone(
-                                button.dataset.zoneEdit
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
-
-        /* ========================================================
-           DELETE EVENTS
-        ======================================================== */
-
-        list
-            .querySelectorAll(
-                "[data-zone-delete]"
-            )
-            .forEach(
-                function(button){
-
-                    button.addEventListener(
-                        "click",
-                        function(){
-
-                            deleteZone(
-                                button.dataset.zoneDelete
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
+    if (!list) {
+        return;
     }
 
+    if (!zones.length) {
+        list.innerHTML = `
+            <div class="zone-list-empty">
+                No disaster zones have been marked yet.
+                <br><br>
+                Click <strong>+ Add Disaster Zone</strong> to begin.
+            </div>
+        `;
+        return;
+    }
 
+    list.innerHTML = zones.map(function (zone) {
+        const id = escapeAttribute(zone.id);
+
+        return `
+            <div class="zone-item">
+                <div class="zone-item-top">
+                    <div>
+                        <div class="zone-item-name">
+                            ${escapeHtml(zone.name)}
+                        </div>
+
+                        <div class="zone-item-type">
+                            ${escapeHtml(zone.type)}
+                        </div>
+                    </div>
+
+                    <span class="zone-severity ${escapeHtml(zone.severity)}">
+                        ${escapeHtml(zone.severity)}
+                    </span>
+                </div>
+
+                ${
+                    zone.description
+                        ? `
+                            <div class="zone-item-description">
+                                ${escapeHtml(zone.description)}
+                            </div>
+                        `
+                        : ""
+                }
+
+                <div class="zone-item-actions">
+                    <button
+                        type="button"
+                        class="zone-mini-btn zone-edit-btn"
+                        data-zone-edit="${id}">
+                        Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="zone-mini-btn delete zone-delete-btn"
+                        data-zone-delete="${id}">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    // Edit button events.
+    list.querySelectorAll("[data-zone-edit]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            editZone(button.dataset.zoneEdit);
+        });
+    });
+
+    
+    // Delete button events.
+    list.querySelectorAll("[data-zone-delete]").forEach(function (button) {
+        button.onclick = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const zoneId = button.getAttribute("data-zone-delete");
+
+            console.log("[Disaster Zones] Delete clicked:", zoneId);
+
+            if (!zoneId) {
+                console.error("Missing disaster zone ID on Delete button.");
+                return;
+            }
+
+            deleteZone(zoneId);
+        };
+    });
+
+}
     /* ============================================================
        EDIT ZONE
     ============================================================ */
 
-    function editZone(
-        id
-    ){
+function editZone(id) {
+    const zone = getZones().find(function (item) {
+        return String(item.id) === String(id);
+    });
 
-        const zone =
-            getZones().find(
-                function(item){
-
-                    return (
-                        item.id ===
-                        id
-                    );
-
-                }
-            );
-
-
-        if(!zone){
-
-            return;
-
-        }
-
-
-        editingZoneId =
-            id;
-
-
-        document.getElementById(
-            "zoneName"
-        ).value =
-            zone.name || "";
-
-
-        document.getElementById(
-            "zoneType"
-        ).value =
-            zone.type || "Flood";
-
-
-        document.getElementById(
-            "zoneSeverity"
-        ).value =
-            zone.severity || "moderate";
-
-
-        document.getElementById(
-            "zoneDescription"
-        ).value =
-            zone.description || "";
-
-
-        drawingLayer.clearLayers();
-
-
-        const polygon =
-            L.polygon(
-                zone.coordinates,
-                {
-
-                    color:
-                        zone.color ||
-                        "#dc2626",
-
-                    fillColor:
-                        zone.fillColor ||
-                        "#dc2626",
-
-                    fillOpacity:
-                        .25,
-
-                    weight:
-                        2
-
-                }
-            );
-
-
-        drawingLayer.addLayer(
-            polygon
-        );
-
-
-        document
-            .getElementById(
-                "disasterZoneForm"
-            )
-            .classList.add(
-                "show"
-            );
-
-
-        map.fitBounds(
-            polygon.getBounds(),
-            {
-                padding:
-                    [30,30]
-            }
-        );
-
+    if (!zone) {
+        console.error("Disaster zone not found:", id);
+        alert("Disaster zone not found. Please refresh and try again.");
+        return;
     }
 
+    const nameInput = document.getElementById("zoneName");
+    const typeInput = document.getElementById("zoneType");
+    const severityInput = document.getElementById("zoneSeverity");
+    const descriptionInput = document.getElementById("zoneDescription");
+    const form = document.getElementById("disasterZoneForm");
+
+    if (!nameInput || !typeInput || !severityInput ||
+        !descriptionInput || !form) {
+        console.error("Disaster zone form elements are missing.");
+        return;
+    }
+
+    if (!map || !drawingLayer) {
+        console.error("Disaster zone map is not initialized.");
+        alert("The map is not ready. Please refresh and try again.");
+        return;
+    }
+
+    if (!Array.isArray(zone.coordinates) || !zone.coordinates.length) {
+        console.error("Zone has no saved coordinates:", zone);
+        alert("This zone has no saved coordinates to edit.");
+        return;
+    }
+
+    // Set the zone being edited.
+    editingZoneId = zone.id;
+
+    // Populate the existing form.
+    nameInput.value = zone.name || "";
+    typeInput.value = zone.type || "Flood";
+    severityInput.value = zone.severity || "moderate";
+    descriptionInput.value = zone.description || "";
+
+    // Restore the polygon on the map.
+    drawingLayer.clearLayers();
+
+    const polygon = L.polygon(zone.coordinates, {
+        color: zone.color || "#dc2626",
+        fillColor: zone.fillColor || "#dc2626",
+        fillOpacity: 0.25,
+        weight: 2
+    });
+
+    drawingLayer.addLayer(polygon);
+
+    // Show the form and focus the selected zone.
+    form.classList.add("show");
+
+    map.fitBounds(polygon.getBounds(), {
+        padding: [30, 30]
+    });
+
+    // Ensure the form is visible on screen.
+    form.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+}
 
     /* ============================================================
        DELETE
@@ -1190,38 +889,32 @@
    DELETE ZONE — CUSTOM CONFIRMATION MODAL
 ============================================================ */
 
-function deleteZone(id){
+function deleteZone(id) {
+    console.log("[Delete Debug] deleteZone called with:", id);
 
-    const zones =
-        getZones();
+    const zones = getZones();
+    console.log("[Delete Debug] Zones loaded:", zones);
 
+    const zone = zones.find(function (item) {
+        return String(item.id) === String(id);
+    });
 
-    const zone =
-        zones.find(
-            function(item){
+    console.log("[Delete Debug] Matching zone:", zone);
 
-                return (
-                    item.id ===
-                    id
-                );
-
-            }
-        );
-
-
-    if(!zone){
-
+    if (!zone) {
+        console.error("[Delete Debug] Zone not found:", id);
+        showZoneMessage("Unable to find this disaster zone.");
         return;
-
     }
 
+    console.log("[Delete Debug] Opening confirmation modal...");
+    openDeleteModal(zone);
 
-    openDeleteModal(
-        zone
+    console.log(
+        "[Delete Debug] Modal in DOM:",
+        !!document.getElementById("deleteDisasterZoneModal")
     );
-
 }
-
 
 /* ============================================================
    OPEN DELETE MODAL
@@ -1425,20 +1118,25 @@ function openDeleteModal(zone){
        CONFIRM
     ============================================================ */
 
-    document
-        .getElementById(
-            "confirmDeleteZone"
-        )
-        .addEventListener(
-            "click",
-            function(){
+  
+    // CONFIRM DELETE
+    const confirmButton = modal.querySelector("#confirmDeleteZone");
 
-                permanentlyDeleteZone(
-                    zone.id
-                );
+    if (confirmButton) {
+        confirmButton.onclick = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
+            console.log("[Disaster Zones] Confirm clicked:", zone.id);
+console.log("[Disaster Zones] Calling permanentlyDeleteZone...");
+            try {
+                permanentlyDeleteZone(zone.id);
+            } catch (error) {
+                console.error("[Disaster Zones] Delete failed:", error);
+                alert("Could not delete the disaster zone. Check the browser console.");
             }
-        );
+        };
+    }
 
 
     /* ============================================================
@@ -1544,86 +1242,26 @@ function handleDeleteEscape(
    ACTUALLY DELETE ZONE
 ============================================================ */
 
-function permanentlyDeleteZone(
-    id
-){
+function permanentlyDeleteZone(id) {
+    const zones = getZones();
 
-    const zones =
-        getZones();
+    const remaining = zones.filter(function (zone) {
+        return String(zone.id) !== String(id);
+    });
 
-
-    const zone =
-        zones.find(
-            function(item){
-
-                return (
-                    item.id ===
-                    id
-                );
-
-            }
-        );
-
-
-    if(!zone){
-
+    if (remaining.length === zones.length) {
+        console.error("Zone not found for deletion:", id, zones);
         closeDeleteModal();
-
+        showZoneMessage("Unable to find this disaster zone.");
         return;
-
     }
 
-
-    /* ========================================================
-       REMOVE FROM STORAGE
-    ======================================================== */
-
-    const remaining =
-        zones.filter(
-            function(item){
-
-                return (
-                    item.id !==
-                    id
-                );
-
-            }
-        );
-
-
-    localStorage.setItem(
-
-        STORAGE_KEY,
-
-        JSON.stringify(
-            remaining
-        )
-
-    );
-
-
-    /* ========================================================
-       REMOVE FROM MAP
-    ======================================================== */
-
-    renderDisasterZones();
-
-
-    /* ========================================================
-       CLOSE MODAL
-    ======================================================== */
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
 
     closeDeleteModal();
+    renderDisasterZones();
 
-
-    /* ========================================================
-       SUCCESS MESSAGE
-    ======================================================== */
-
-    showZoneMessage(
-        "✓ Disaster zone removed successfully."
-    );
-
+    showZoneMessage("✓ Disaster zone removed successfully.");
 }
 
     /* ============================================================
@@ -1636,8 +1274,9 @@ function permanentlyDeleteZone(
             null;
 
 
-        drawingLayer.clearLayers();
-
+        if (drawingLayer) {
+            drawingLayer.clearLayers();
+        }
 
         clearForm();
 
@@ -1668,70 +1307,6 @@ function permanentlyDeleteZone(
             instruction.classList.remove(
                 "show"
             );
-
-        }
-
-    }
-
-
-    /* ============================================================
-       CLEAR FORM
-    ============================================================ */
-
-    function clearForm(){
-
-        const name =
-            document.getElementById(
-                "zoneName"
-            );
-
-
-        const type =
-            document.getElementById(
-                "zoneType"
-            );
-
-
-        const severity =
-            document.getElementById(
-                "zoneSeverity"
-            );
-
-
-        const description =
-            document.getElementById(
-                "zoneDescription"
-            );
-
-
-        if(name){
-
-            name.value =
-                "";
-
-        }
-
-
-        if(type){
-
-            type.value =
-                "Flood";
-
-        }
-
-
-        if(severity){
-
-            severity.value =
-                "moderate";
-
-        }
-
-
-        if(description){
-
-            description.value =
-                "";
 
         }
 

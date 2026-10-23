@@ -63,6 +63,140 @@ const DISASTER_STORAGE_KEY =
 
 
 /* ================================================================
+   NGO RELIEF TRACKING
+================================================================ */
+
+const NGO_TRACKING_STEPS = [
+    "accepted",
+    "preparing",
+    "on_the_way",
+    "reached",
+    "delivered"
+];
+
+const NGO_TRACKING_LABELS = {
+    accepted: "NGO ACCEPTED",
+    preparing: "PREPARING HELP",
+    on_the_way: "NGO ON THE WAY",
+    reached: "NGO REACHED",
+    delivered: "ASSISTANCE DELIVERED"
+};
+
+const NGO_TRACKING_BUTTONS = {
+    accepted: "START PREPARING HELP",
+    preparing: "MARK AS ON THE WAY",
+    on_the_way: "MARK AS REACHED",
+    reached: "MARK ASSISTANCE DELIVERED"
+};
+
+
+/* ================================================================
+   NGO TRACKING HELPERS
+================================================================ */
+
+function getCurrentNgoResponse(request) {
+    if (!request || !Array.isArray(request.ngoResponses)) {
+        return null;
+    }
+
+    const ngoId = String(
+        currentNgo?.userId ||
+        currentNgo?.user?._id ||
+        currentNgo?.user ||
+        currentNgo?.id ||
+        currentNgo?._id ||
+        ""
+    );
+
+    if (!ngoId) return null;
+
+    const response = request.ngoResponses.find(item =>
+        String(item.ngo?._id || item.ngo) === ngoId
+    );
+
+    if (!response || response.response !== "accepted") {
+        return null;
+    }
+
+    return {
+        ...response,
+        status: response.progressStatus || "accepted",
+        timeline: response.timeline || [
+            {
+                status: "accepted",
+                timestamp: response.respondedAt
+                    ? new Date(response.respondedAt).getTime()
+                    : Date.now()
+            }
+        ]
+    };
+}
+
+
+function ensureNgoTracking(response) {
+
+    if (!response) {
+        return;
+    }
+
+    if (!Array.isArray(response.timeline)) {
+        response.timeline = [];
+    }
+
+    if (
+        response.timeline.length === 0 &&
+        response.status
+    ) {
+        response.timeline.push({
+            status: response.status,
+            timestamp:
+                response.statusUpdatedAt ||
+                response.respondedAt ||
+                Date.now()
+        });
+    }
+}
+
+
+function formatTrackingTime(timestamp) {
+
+    if (!timestamp) {
+        return "—";
+    }
+
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
+    }
+
+    return date.toLocaleString([], {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+function getNextNgoTrackingStatus(currentStatus) {
+
+    const index =
+        NGO_TRACKING_STEPS.indexOf(
+            currentStatus
+        );
+
+    if (
+        index === -1 ||
+        index >= NGO_TRACKING_STEPS.length - 1
+    ) {
+        return null;
+    }
+
+    return NGO_TRACKING_STEPS[index + 1];
+}
+
+/* ================================================================
    DOM READY
 ================================================================ */
 
@@ -88,15 +222,13 @@ async function initializeNGODashboard() {
      * ------------------------------------------------------------
      */
 
-    const loggedIn =
-        sessionStorage.getItem(
-            "reliefNgoLoggedIn"
-        );
+    
+const loggedIn =
+    localStorage.getItem("reliefNgoLoggedIn");
 
-    const ngoId =
-        sessionStorage.getItem(
-            "reliefNgoId"
-        );
+const ngoId =
+    localStorage.getItem("reliefNgoId");
+
 
 
     if (
@@ -124,10 +256,57 @@ async function initializeNGODashboard() {
      * ------------------------------------------------------------
      */
 
-    currentNgo =
-        getNgoById(
-            ngoId
-        );
+    
+const token = localStorage.getItem("reliefAuthToken");
+
+console.log("Dashboard token:", token ? "FOUND" : "MISSING");
+console.log("Dashboard URL:", window.location.href);
+
+if (!token) {
+  alert("Please log in to access your NGO dashboard.");
+  window.location.href = "login.html";
+  return;
+}
+
+try {
+  const response = await fetch("http://localhost:5000/api/auth/me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Unable to load NGO profile.");
+  }
+
+  if (data.user.role !== "ngo") {
+    throw new Error("This account is not an NGO account.");
+  }
+
+  currentNgo = {
+    id: data.user.id,
+    name: data.user.organizationName,
+    contactPerson: data.user.name,
+    email: data.user.email,
+    phone: data.user.phone,
+    address: data.user.address,
+    latitude: data.user.latitude,
+    longitude: data.user.longitude,
+    serviceAreas: data.user.serviceAreas,
+    supportedEmergencies: data.user.supportedEmergencies,
+    operatingRadiusKm: data.user.serviceRadiusKm,
+    status: data.user.status
+  };
+} catch (error) {
+  console.error("NGO profile loading error:", error);
+
+  alert(error.message || "Unable to load your NGO profile.");
+  window.location.href = "index.html";
+  return;
+}
 
 
     if (!currentNgo) {
@@ -212,6 +391,8 @@ async function initializeNGODashboard() {
 
     renderNGOProfile();
 
+    initializeNGOCapacityForm();
+
 
     /*
      * ------------------------------------------------------------
@@ -228,7 +409,8 @@ async function initializeNGODashboard() {
      * ------------------------------------------------------------
      */
 
-    renderRequests();
+    await renderRequests();
+    await renderActiveReliefCases();
 
 
     /*
@@ -1001,6 +1183,249 @@ function persistCurrentNgoCoordinates(
 
 }
 
+
+/* ================================================================
+   NGO CAPACITY AND AVAILABILITY
+================================================================ */
+
+async function getNGOActiveCaseCount(ngoId) {
+    const requests = await getRequests();
+
+
+
+    return requests.filter(request => {
+        const response = (request.ngoResponses || {})[ngoId];
+
+        return Boolean(
+            response &&
+            Array.isArray(NGO_TRACKING_STEPS) &&
+            NGO_TRACKING_STEPS.includes(response.status) &&
+            response.status !== "delivered"
+        );
+    }).length;
+}
+
+
+async function initializeNGOCapacityForm() {
+    const form = document.getElementById("ngoCapacityForm");
+    if (!form || !currentNgo) return;
+
+    const capacity = currentNgo.capacity || {};
+    const inventory = currentNgo.inventory || {};
+
+    const availabilityInput = document.getElementById("ngoAvailabilityInput");
+    const volunteersInput = document.getElementById("ngoVolunteersInput");
+    const vehiclesInput = document.getElementById("ngoVehiclesInput");
+    const medicineInput = document.getElementById("ngoMedicineStockInput");
+    const foodInput = document.getElementById("ngoFoodStockInput");
+    const waterInput = document.getElementById("ngoWaterStockInput");
+    const additionalServicesInput = document.getElementById("ngoAdditionalServicesInput");
+
+    if (availabilityInput) {
+        const value = String(currentNgo.availability || "available").toLowerCase();
+
+        availabilityInput.value =
+            value === "unavailable" || value === "not_available" ? "unavailable" :
+            value === "busy" || value.includes("limited") ? "limited" :
+            "available";
+    }
+
+    if (volunteersInput && capacity.volunteersAvailable != null) {
+        volunteersInput.value = capacity.volunteersAvailable;
+    }
+    if (vehiclesInput && capacity.vehiclesAvailable != null) {
+        vehiclesInput.value = capacity.vehiclesAvailable;
+    }
+    if (medicineInput && inventory.medicine != null) {
+        medicineInput.value = inventory.medicine;
+    }
+    if (foodInput && inventory.foodPackets != null) {
+        foodInput.value = inventory.foodPackets;
+    }
+    if (waterInput && inventory.waterUnits != null) {
+        waterInput.value = inventory.waterUnits;
+    }
+
+    const services = Array.isArray(currentNgo.services)
+        ? currentNgo.services
+        : Array.isArray(currentNgo.supportedEmergencies)
+            ? currentNgo.supportedEmergencies
+            : currentNgo.services
+                ? [currentNgo.services]
+                : [];
+
+    form.querySelectorAll('input[name="ngoCapacityService"]').forEach(input => {
+        input.checked = services.some(service =>
+            String(service).trim().toLowerCase() === input.value.toLowerCase()
+        );
+    });
+
+    const predefinedServices = [
+        "food", "water", "medicine", "shelter",
+        "clothing", "rescue", "transport", "other"
+    ];
+
+    if (additionalServicesInput) {
+        additionalServicesInput.value = services
+            .map(service => String(service).trim())
+            .filter(service =>
+                service && !predefinedServices.includes(service.toLowerCase())
+            )
+            .join(", ");
+    }
+
+    const activeCount = await getNGOActiveCaseCount(currentNgo.id);
+    setText("ngoActiveCaseCount", activeCount);
+
+    if (form.dataset.capacityBound === "true") return;
+    form.dataset.capacityBound = "true";
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const message = document.getElementById("ngoCapacitySaveMessage");
+
+        const showMessage = text => {
+            if (message) message.textContent = text;
+        };
+
+        const readNumber = (input, label) => {
+            if (!input || input.value.trim() === "") return null;
+
+            const value = Number(input.value);
+
+            if (!Number.isInteger(value) || value < 0) {
+                throw new Error(
+                    label + " must be a non-negative whole number."
+                );
+            }
+
+            return value;
+        };
+
+        try {
+            const volunteersAvailable = readNumber(
+                volunteersInput, "Volunteers"
+            );
+            const vehiclesAvailable = readNumber(
+                vehiclesInput, "Vehicles"
+            );
+            const medicine = readNumber(
+                medicineInput, "Medicine stock"
+            );
+            const foodPackets = readNumber(
+                foodInput, "Food stock"
+            );
+            const waterUnits = readNumber(
+                waterInput, "Water stock"
+            );
+
+            const selectedServices = Array.from(
+                form.querySelectorAll(
+                    'input[name="ngoCapacityService"]:checked'
+                )
+            ).map(input => input.value);
+
+            const customServices = additionalServicesInput
+                ? additionalServicesInput.value
+                    .split(",")
+                    .map(value => value.trim())
+                    .filter(Boolean)
+                : [];
+
+            const combinedServices = Array.from(
+                new Map(
+                    [...selectedServices, ...customServices].map(
+                        service => [service.toLowerCase(), service]
+                    )
+                ).values()
+            );
+
+            const availabilityValue = availabilityInput
+                ? availabilityInput.value
+                : "available";
+
+            // Map the existing UI value to the backend enum.
+            const backendAvailability =
+                availabilityValue === "limited"
+                    ? "busy"
+                    : availabilityValue;
+
+            // Find the authentication token used by the existing app.
+            const token = localStorage.getItem("reliefAuthToken");
+
+            if (!token) {
+                throw new Error(
+                    "Your login session was not found. Please log in again."
+                );
+            }
+
+            const payload = {
+                availability: backendAvailability,
+                services: combinedServices
+            };
+
+            if (volunteersAvailable !== null) {
+                payload.volunteersAvailable = volunteersAvailable;
+            }
+            if (vehiclesAvailable !== null) {
+                payload.vehiclesAvailable = vehiclesAvailable;
+            }
+            if (medicine !== null) {
+                payload.medicine = medicine;
+            }
+            if (foodPackets !== null) {
+                payload.foodPackets = foodPackets;
+            }
+            if (waterUnits !== null) {
+                payload.waterUnits = waterUnits;
+            }
+
+            showMessage("Saving capacity details...");
+
+            const response = await fetch(
+                "http://localhost:5000/api/ngos/me/capacity",
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Could not save capacity details."
+                );
+            }
+
+            // Update the current in-memory NGO from the saved database result.
+            currentNgo = {
+                ...currentNgo,
+                availability: result.ngo.availability,
+                services: result.ngo.services,
+                capacity: result.ngo.capacity,
+                inventory: result.ngo.inventory
+            };
+
+            renderNGOProfile();
+
+            const updatedCount = await getNGOActiveCaseCount(currentNgo.id);
+            setText("ngoActiveCaseCount", updatedCount);
+
+            showMessage("✓ Capacity details saved successfully.");
+        } catch (error) {
+            console.error("Save NGO capacity error:", error);
+            showMessage(
+                error.message || "Could not save capacity details."
+            );
+        }
+    });
+}
 
 /* ================================================================
    PROFILE
@@ -1813,50 +2238,46 @@ function createNgoPopup(
    REQUEST STORAGE
 ================================================================ */
 
-function getRequests() {
+async function getRequests() {
+   const token = localStorage.getItem("reliefAuthToken");
+
+    if (!token) {
+        console.error("NGO authentication token is missing.");
+        return [];
+    }
 
     try {
+        const response = await fetch(
+            "http://localhost:5000/api/requests/ngo",
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
 
-        const raw =
-            localStorage.getItem(
-                REQUEST_STORAGE_KEY
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Unable to fetch NGO requests."
             );
-
-
-        if (
-            !raw
-        ) {
-
-            return [];
-
         }
 
-
-        const parsed =
-            JSON.parse(
-                raw
-            );
-
-
-        return Array.isArray(
-            parsed
-        )
-            ? parsed
+        return Array.isArray(data.requests)
+            ? data.requests
             : [];
-
-    }
-    catch (error) {
-
+    } catch (error) {
         console.error(
-            "Unable to read requests:",
+            "Unable to fetch requests from the server:",
             error
         );
 
         return [];
-
     }
-
 }
+
 
 /* ================================================================
    VERIFIED + NGO-NOTIFIED REQUESTS
@@ -1865,67 +2286,29 @@ function getRequests() {
    has verified it AND published it to the NGO network.
 ================================================================ */
 
-function getVerifiedRequests() {
 
-    return getRequests()
+async function getVerifiedRequests() {
+    const requests = await getRequests();
 
-        .filter(
-            request => {
+    return requests.filter(request => {
+        // Only show Control Room verified requests.
+        if (request.verified !== true) {
+            return false;
+        }
 
-                /*
-                 * Request must be verified.
-                 */
+        // Only show requests published to the NGO network.
+        if (request.ngoNotificationStatus !== "notified") {
+            return false;
+        }
 
-                if (
-                    request.verified !==
-                    true
-                ) {
+        // The map requires valid coordinates.
+        const lat = getRequestLat(request);
+        const lng = getRequestLng(request);
 
-                    return false;
-
-                }
-
-
-                /*
-                 * Request must have been
-                 * published to NGO network.
-                 */
-
-                if (
-                    request.ngoNotificationStatus !==
-                    "notified"
-                ) {
-
-                    return false;
-
-                }
-
-
-                /*
-                 * Request must have coordinates.
-                 */
-
-                const lat =
-                    getRequestLat(
-                        request
-                    );
-
-
-                const lng =
-                    getRequestLng(
-                        request
-                    );
-
-
-                return (
-                    lat !== null &&
-                    lng !== null
-                );
-
-            }
-        );
-
+        return lat !== null && lng !== null;
+    });
 }
+
 
 /* ================================================================
    REQUEST LATITUDE
@@ -2352,112 +2735,48 @@ function isRequestInDisasterZone(
    RENDER REQUEST MARKERS
 ================================================================ */
 
+
+
+
 function renderRequestMarkers() {
-
-    if (
-        !ngoDashboardMap
-    ) {
-
+    if (!ngoDashboardMap) {
         return;
-
     }
 
-
-    /*
-     * Remove previous request markers.
-     */
-
-    requestMarkers.forEach(
-        marker => {
-
-            if (
-                ngoDashboardMap.hasLayer(
-                    marker
-                )
-            ) {
-
-                ngoDashboardMap.removeLayer(
-                    marker
-                );
-
-            }
-
+    // Remove previous request markers.
+    requestMarkers.forEach(marker => {
+        if (ngoDashboardMap.hasLayer(marker)) {
+            ngoDashboardMap.removeLayer(marker);
         }
-    );
+    });
 
+    requestMarkers = [];
 
-    requestMarkers =
-        [];
+    // Use the requests already fetched from the backend.
+    const requests = currentRequests.map(item => item.request);
 
+    requests.forEach(request => {
+        const lat = getRequestLat(request);
+        const lng = getRequestLng(request);
 
-    const requests =
-        getVerifiedRequests();
-
-
-    requests.forEach(
-        request => {
-
-            const lat =
-                getRequestLat(
-                    request
-                );
-
-            const lng =
-                getRequestLng(
-                    request
-                );
-
-
-            if (
-                lat === null ||
-                lng === null
-            ) {
-
-                return;
-
-            }
-
-
-            const disaster =
-                isRequestInDisasterZone(
-                    request
-                );
-
-
-            const marker =
-                L.marker(
-                    [
-                        lat,
-                        lng
-                    ],
-                    {
-                        icon:
-                            createPersonIcon(
-                                disaster
-                            )
-                    }
-                )
-                .addTo(
-                    ngoDashboardMap
-                );
-
-
-            marker.bindPopup(
-                createRequestPopup(
-                    request
-                )
-            );
-
-
-            requestMarkers.push(
-                marker
-            );
-
+        if (lat === null || lng === null) {
+            return;
         }
-    );
 
+        const disaster = isRequestInDisasterZone(request);
+
+        const marker = L.marker(
+            [lat, lng],
+            {
+                icon: createPersonIcon(disaster)
+            }
+        ).addTo(ngoDashboardMap);
+
+        marker.bindPopup(createRequestPopup(request));
+
+        requestMarkers.push(marker);
+    });
 }
-
 
 /* ================================================================
    REQUEST POPUP
@@ -2902,144 +3221,461 @@ function renderDisasterZones() {
    REQUEST RENDERING / CARDS
 ================================================================ */
 
-function renderRequests() {
 
-    currentRequests =
-        getVerifiedRequests()
+async function renderRequests() {
+    const verifiedRequests = await getVerifiedRequests();
+
+    currentRequests = verifiedRequests
+        .map(request => {
+            const distance = distanceFromNgo(request);
+            const radius = getNgoRadius(currentNgo);
+
+            return {
+                request,
+                distance,
+                insideRadius: distance <= radius,
+                disaster: isRequestInDisasterZone(request)
+            };
+        })
+        .sort(function (a, b) {
+            // Disaster requests first.
+            if (a.disaster !== b.disaster) {
+                return a.disaster ? -1 : 1;
+            }
+
+            // Then nearest.
+            return a.distance - b.distance;
+        });
+
+    // Counts
+    const nearby = currentRequests.filter(
+        item => item.insideRadius
+    ).length;
+
+    const outside = currentRequests.filter(
+        item => !item.insideRadius
+    ).length;
+
+    const disaster = currentRequests.filter(
+        item => item.disaster
+    ).length;
+
+    setText("nearbyCount", nearby);
+    setText("outsideCount", outside);
+    setText("disasterCount", disaster);
+    setText("allRequestsCount", currentRequests.length);
+    setText("nearRequestsCount", nearby);
+    setText("disasterRequestsCount", disaster);
+
+    // Map and cards
+    renderRequestMarkers();
+    renderRequestCards();
+}
+
+
+/* ================================================================
+   NGO ACTIVE RELIEF CASES
+================================================================ */
+
+async function renderActiveReliefCases() {
+    console.log("ACTIVE RELIEF CASES FUNCTION CALLED");
+
+    const panel = document.getElementById("ngoActiveCasesPanel");
+    const list = document.getElementById("ngoActiveCasesList");
+
+    if (!panel || !list) {
+        console.error("Active cases HTML elements not found.");
+        return;
+    }
+
+    try {
+        const requests = await getRequests();
+
+        console.log("Requests loaded:", requests.length);
+
+        const activeCases = requests
+            .map(request => {
+                const response = getCurrentNgoResponse(request);
+
+                console.log(
+                    "Active case check:",
+                    request.requestNumber,
+                    response
+                );
+
+                if (!response) return null;
+
+                const status = response.status || "accepted";
+
+                if (!NGO_TRACKING_STEPS.includes(status)) {
+                    console.warn("Unknown tracking status:", status);
+                    return null;
+                }
+
+                ensureNgoTracking(response);
+
+                return { request, response };
+            })
+            .filter(Boolean);
+
+        console.log("Active cases found:", activeCases.length);
+
+        // Always show the section so its state is visible.
+        panel.hidden = false;
+        panel.style.display = "block";
+
+        if (activeCases.length === 0) {
+            list.innerHTML = "<p>No active relief cases found.</p>";
+            return;
+        }
+
+        list.innerHTML = activeCases
+            .map(({ request, response }) =>
+                createActiveCaseCard(request, response)
+            )
+            .join("");
+
+    } catch (error) {
+        console.error("Failed to render active relief cases:", error);
+        panel.hidden = false;
+        panel.style.display = "block";
+        list.innerHTML = "<p>Unable to load active relief cases. Please refresh.</p>";
+    }
+}
+
+
+/* ================================================================
+   ACTIVE CASE CARD
+================================================================ */
+
+function createActiveCaseCard(
+    request,
+    response
+) {
+
+    const currentStatus =
+        response.status || "accepted";
+
+    const currentIndex =
+        NGO_TRACKING_STEPS.indexOf(
+            currentStatus
+        );
+
+    const nextStatus =
+        getNextNgoTrackingStatus(
+            currentStatus
+        );
+
+    const timeline =
+        Array.isArray(response.timeline)
+            ? response.timeline
+            : [];
+
+    const timelineHTML =
+        NGO_TRACKING_STEPS
             .map(
-                request => {
+                (
+                    step,
+                    index
+                ) => {
 
-                    const distance =
-                        distanceFromNgo(
-                            request
+                    const completed =
+                        index <= currentIndex;
+
+                    const timelineItem =
+                        timeline.find(
+                            item =>
+                                item.status === step
                         );
 
-                    const radius =
-                        getNgoRadius(
-                            currentNgo
-                        );
-
-
-                    return {
-                        request,
-                        distance,
-                        insideRadius:
-                            distance <=
-                            radius,
-                        disaster:
-                            isRequestInDisasterZone(
-                                request
+                    const timestamp =
+                        timelineItem
+                            ? formatTrackingTime(
+                                timelineItem.timestamp
                             )
-                    };
+                            : "";
 
+                    return `
+                        <div
+                            class="
+                                tracking-step
+                                ${completed ? "completed" : ""}
+                                ${step === currentStatus ? "current" : ""}
+                            "
+                        >
+
+                            <div class="tracking-node">
+                                ${completed ? "✓" : index + 1}
+                            </div>
+
+                            <div class="tracking-step-content">
+
+                                <strong>
+                                    ${NGO_TRACKING_LABELS[step]}
+                                </strong>
+
+                                ${
+                                    timestamp
+                                        ? `
+                                            <small>
+                                                ${timestamp}
+                                            </small>
+                                          `
+                                        : ""
+                                }
+
+                            </div>
+
+                        </div>
+                    `;
                 }
             )
-            .sort(
-                function (a, b) {
+            .join("");
 
-                    /*
-                     * Disaster requests first.
-                     */
+    return `
+        <article
+            class="active-case-card"
+            data-request-id="${escapeHTML(
+                String(
+                    request.id ||
+                    request.requestNumber ||
+                    ""
+                )
+            )}"
+        >
 
-                    if (
-                        a.disaster !==
-                        b.disaster
-                    ) {
+            <div class="active-case-header">
 
-                        return a.disaster
-                            ? -1
-                            : 1;
+                <div>
 
+                    <span class="active-case-label">
+                        ACTIVE RELIEF CASE
+                    </span>
+
+                    <h3>
+                        ${escapeHTML(
+                            String(
+                                request.reporterName ||
+                                request.submittedByName ||
+                                "Affected individual"
+                            )
+                        )}
+                    </h3>
+
+                    <p>
+                        Request ID:
+                        <strong>
+                            ${escapeHTML(
+                                String(
+                                    request.id ||
+                                    request.requestNumber ||
+                                    "—"
+                                )
+                            )}
+                        </strong>
+                    </p>
+
+                </div>
+
+                <span class="active-status-pill">
+                    ${NGO_TRACKING_LABELS[currentStatus]}
+                </span>
+
+            </div>
+
+
+            <div class="active-case-details">
+
+                <div>
+                    <strong>Location:</strong>
+                    ${escapeHTML(
+                        String(
+                            request.shelterName ||
+                            request.locationName ||
+                            request.city ||
+                            "Affected location"
+                        )
+                    )}
+                </div>
+
+                <div>
+                    <strong>People affected:</strong>
+                    ${
+                        Number(
+                            request.victims ||
+                            request.peopleAffected ||
+                            0
+                        )
                     }
+                </div>
+
+                <div>
+                    <strong>Relief needed:</strong>
+                    ${escapeHTML(
+                        String(
+                            request.supplyType ||
+                            "Relief support"
+                        )
+                    )}
+                </div>
+
+            </div>
 
 
-                    /*
-                     * Then nearest.
-                     */
+            <div class="ngo-tracking-stepper">
 
-                    return (
-                        a.distance -
-                        b.distance
-                    );
+                ${timelineHTML}
 
-                }
+            </div>
+
+
+            ${
+                nextStatus
+                    ? `
+                        <button
+                            type="button"
+                            class="ngo-tracking-action"
+                            onclick="
+                                updateNgoCaseStatus(
+                                    '${escapeJS(
+                                        String(
+                                            request.id ||
+                                            request.requestNumber ||
+                                            ""
+                                        )
+                                    )}',
+                                    '${nextStatus}'
+                                )
+                            "
+                        >
+                            ${NGO_TRACKING_BUTTONS[currentStatus]}
+                        </button>
+                      `
+                    : `
+                        <div class="delivery-complete-message">
+                            ✓ Assistance has been delivered
+                        </div>
+                      `
+            }
+
+        </article>
+    `;
+}
+
+/* ================================================================
+   UPDATE NGO TRACKING STATUS
+================================================================ */
+
+async function updateNgoCaseStatus(requestId, newStatus) {
+    if (!currentNgo || !currentNgo.id) {
+        showNGOResponseMessage(
+            "Your NGO session could not be identified."
+        );
+        return;
+    }
+
+    try {
+        // Always get the latest data from MongoDB.
+        const requests = await getRequests();
+
+        const request = requests.find(item =>
+            String(
+                item.mongoId ||
+                item._id ||
+                item.id ||
+                item.requestNumber ||
+                ""
+            ) === String(requestId)
+        );
+
+        if (!request) {
+            showNGOResponseMessage(
+                "This request could not be found. Refresh and try again."
             );
+            return;
+        }
+
+        const tracking = getCurrentNgoResponse(request);
+
+        if (!tracking) {
+            showNGOResponseMessage(
+                "Your NGO has not accepted this request."
+            );
+            return;
+        }
+
+        const currentStatus = tracking.status || "accepted";
+        const currentIndex = NGO_TRACKING_STEPS.indexOf(currentStatus);
+        const newIndex = NGO_TRACKING_STEPS.indexOf(newStatus);
+
+        // Only allow the next tracking stage.
+        if (
+            currentIndex === -1 ||
+            newIndex === -1 ||
+            newIndex !== currentIndex + 1
+        ) {
+            showNGOResponseMessage(
+                "Please complete the previous tracking step first."
+            );
+            return;
+        }
+
+        const token = localStorage.getItem("reliefAuthToken");
+
+        const response = await fetch(
+            `http://localhost:5000/api/requests/${encodeURIComponent(
+                request.mongoId || request._id || request.id
+            )}/tracking`,
+            {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: newStatus })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showNGOResponseMessage(
+                data.message || "Unable to update tracking."
+            );
+            return;
+        }
+
+        // Refresh both NGO panels from the backend.
+        await renderRequests();
+        await renderActiveReliefCases();
+
+        showNGOResponseMessage(
+            `✓ ${NGO_TRACKING_LABELS[newStatus]}`
+        );
+    } catch (error) {
+        console.error("Tracking update error:", error);
+
+        showNGOResponseMessage(
+            "Unable to update tracking. Please try again."
+        );
+    }
+}
+
+window.updateNgoCaseStatus = updateNgoCaseStatus;
 
 
-    /*
-     * Counts
-     */
-
-    const nearby =
-        currentRequests.filter(
-            item =>
-                item.insideRadius
-        ).length;
-
-
-    const outside =
-        currentRequests.filter(
-            item =>
-                !item.insideRadius
-        ).length;
-
-
-    const disaster =
-        currentRequests.filter(
-            item =>
-                item.disaster
-        ).length;
-
-
-    setText(
-        "nearbyCount",
-        nearby
+function getCurrentStatusForRequest(requestId) {
+    const requests = window.currentRequests || [];
+    const request = requests.find(item =>
+        String(item.id || item.mongoId || item._id || item.requestNumber) ===
+        String(requestId)
     );
 
+    const response = request
+        ? getCurrentNgoResponse(request)
+        : null;
 
-    setText(
-        "outsideCount",
-        outside
-    );
-
-
-    setText(
-        "disasterCount",
-        disaster
-    );
-
-
-    setText(
-        "allRequestsCount",
-        currentRequests.length
-    );
-
-
-    setText(
-        "nearRequestsCount",
-        nearby
-    );
-
-
-    setText(
-        "disasterRequestsCount",
-        disaster
-    );
-
-
-    /*
-     * Map
-     */
-
-    renderRequestMarkers();
-
-
-    /*
-     * Cards
-     */
-
-    renderRequestCards();
-
+    return response?.status || "accepted";
 }
 
 
@@ -3294,6 +3930,52 @@ function createRequestCard(
 
     }
 
+        const ngoResponse =
+        getCurrentNgoResponse(
+            request
+        );
+
+    let ngoActionHTML = "";
+
+    if (!ngoResponse) {
+
+        ngoActionHTML = `
+            <button
+                type="button"
+                class="ngo-help-button"
+                onclick="
+                    ngoAcceptRequest(
+                        '${escapeJS(
+                            String(requestId)
+                        )}'
+                    )
+                "
+            >
+                ✓ WE CAN HELP
+            </button>
+        `;
+
+    } else {
+
+        ensureNgoTracking(
+            ngoResponse
+        );
+
+        ngoActionHTML = `
+            <button
+                type="button"
+                class="ngo-help-button responded"
+                disabled
+            >
+                ${
+                    NGO_TRACKING_LABELS[
+                        ngoResponse.status ||
+                        "accepted"
+                    ]
+                }
+            </button>
+        `;
+    }
 
     return `
         <article class="request-card">
@@ -3428,8 +4110,7 @@ function createRequestCard(
 
             ${nearestHTML}
 
-
-<div class="request-actions">
+    <div class="request-actions">
 
     <button
         class="view-request"
@@ -3446,19 +4127,7 @@ function createRequestCard(
     </button>
 
 
-    <button
-        type="button"
-        class="ngo-help-button"
-        onclick="
-            ngoAcceptRequest(
-                '${escapeJS(
-                    String(requestId)
-                )}'
-            )
-        "
-    >
-        ✓ WE CAN HELP
-    </button>
+    ${ngoActionHTML}
 
 </div>
 
@@ -3475,129 +4144,66 @@ function createRequestCard(
    This only records that this NGO voluntarily offered to help.
 ================================================================ */
 
-function ngoAcceptRequest(requestId) {
-
-    if (
-        !currentNgo ||
-        !currentNgo.id
-    ) {
-
+async function ngoAcceptRequest(requestId) {
+    if (!currentNgo || !currentNgo.id) {
         showNGOResponseMessage(
             "Your NGO session could not be identified."
         );
-
         return;
     }
 
+    try {
+        const requests = await getRequests();
 
-    const requests =
-        getRequests();
+        const request = requests.find(item => {
+            const id =
+                item.id ||
+                item.mongoId ||
+                item._id ||
+                item.requestNumber ||
+                "";
 
+            return String(id) === String(requestId);
+        });
 
-    const request =
-        requests.find(
-            item => {
+        if (!request) {
+            showNGOResponseMessage(
+                "This request could not be found."
+            );
+            return;
+        }
 
-                const id =
-                    item.id ||
-                    item.requestNumber ||
-                    "";
+        if (
+            request.verified !== true ||
+            request.ngoNotificationStatus !== "notified"
+        ) {
+            showNGOResponseMessage(
+                "This request is not currently open for NGO responses."
+            );
+            return;
+        }
 
-                return (
-                    String(id) ===
-                    String(requestId)
-                );
+        const existingResponse =
+            request.ngoResponses?.[currentNgo.id];
 
-            }
-        );
+        if (existingResponse?.status === "accepted") {
+            showNGOResponseMessage(
+                "Your NGO has already offered to help with this request."
+            );
+            return;
+        }
 
+        showNgoHelpConfirmation(request);
 
-    if (!request) {
-
+    } catch (error) {
+        console.error("Unable to prepare NGO response:", error);
         showNGOResponseMessage(
-            "This request could not be found."
+            "Unable to load this request. Please try again."
         );
-
-        return;
     }
-
-
-    /*
-     * Safety check.
-     *
-     * Only verified requests that have actually
-     * been published to NGOs can receive responses.
-     */
-
-    if (
-        request.verified !== true ||
-        request.ngoNotificationStatus !==
-            "notified"
-    ) {
-
-        showNGOResponseMessage(
-            "This request is not currently open for NGO responses."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Initialize response object.
-     */
-
-    if (
-        !request.ngoResponses ||
-        typeof request.ngoResponses !==
-            "object" ||
-        Array.isArray(
-            request.ngoResponses
-        )
-    ) {
-
-        request.ngoResponses = {};
-
-    }
-
-
-    /*
-     * Check whether this NGO already responded.
-     */
-
-    const alreadyResponded =
-        request.ngoResponses[
-            currentNgo.id
-        ];
-
-
-    if (
-        alreadyResponded &&
-        alreadyResponded.status ===
-            "accepted"
-    ) {
-
-        showNGOResponseMessage(
-            "Your NGO has already offered to help with this request."
-        );
-
-        return;
-    }
-
-
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT use browser confirm().
-     *
-     * Open our custom confirmation modal instead.
-     */
-
-    showNgoHelpConfirmation(
-        request
-    );
-
 }
+
+window.ngoAcceptRequest = ngoAcceptRequest;
 
 
 /* ================================================================
@@ -3991,177 +4597,93 @@ function closeNgoHelpConfirmation() {
    CONFIRM NGO HELP
 ================================================================ */
 
-function confirmNgoHelp(
-    requestId
-) {
 
-    /*
-     * Close modal first.
-     */
-
+async function confirmNgoHelp(requestId) {
     closeNgoHelpConfirmation();
 
+    if (!currentNgo || !currentNgo.id) {
+        showNGOResponseMessage(
+            "Your NGO session could not be identified."
+        );
+        return;
+    }
 
-    /*
-     * Reload latest request data.
-     */
+    const token = localStorage.getItem("reliefAuthToken");
 
-    const requests =
-        getRequests();
+    if (!token) {
+        showNGOResponseMessage("Please log in again.");
+        return;
+    }
 
+    try {
+        // Use the backend data to find the request.
+        const requests = await getRequests();
 
-    const request =
-        requests.find(
-            item => {
+        const request = requests.find(item =>
+            String(
+                item.mongoId ||
+                item._id ||
+                item.id ||
+                item.requestNumber ||
+                ""
+            ) === String(requestId)
+        );
 
-                const id =
-                    item.id ||
-                    item.requestNumber ||
-                    "";
+        if (!request) {
+            showNGOResponseMessage(
+                "This request could not be found. Please refresh."
+            );
+            return;
+        }
 
-                return (
-                    String(id) ===
-                    String(requestId)
-                );
+        if (
+            request.verified !== true ||
+            request.ngoNotificationStatus !== "notified"
+        ) {
+            showNGOResponseMessage(
+                "This request is no longer open for NGO responses."
+            );
+            return;
+        }
 
+        // Persist acceptance in MongoDB.
+        const response = await fetch(
+            `http://localhost:5000/api/requests/${encodeURIComponent(
+                request.mongoId || request._id || request.id
+            )}/accept`,
+            {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
             }
         );
 
+        const data = await response.json();
 
-    if (!request) {
+        if (!response.ok || !data.success) {
+            showNGOResponseMessage(
+                data.message || "Unable to accept this request."
+            );
+            return;
+        }
 
-        showNGOResponseMessage(
-            "This request could not be found."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Safety check again.
-     */
-
-    if (
-        request.verified !== true ||
-        request.ngoNotificationStatus !==
-            "notified"
-    ) {
+        // Refresh both request lists from the backend.
+        await renderRequests();
+        await renderActiveReliefCases();
 
         showNGOResponseMessage(
-            "This request is no longer open for NGO responses."
+            "✓ Your NGO has accepted this request. The Control Room has been notified."
         );
-
-        return;
-    }
-
-
-    /*
-     * Initialize NGO responses.
-     */
-
-    if (
-        !request.ngoResponses ||
-        typeof request.ngoResponses !==
-            "object" ||
-        Array.isArray(
-            request.ngoResponses
-        )
-    ) {
-
-        request.ngoResponses = {};
-
-    }
-
-
-    /*
-     * Prevent duplicate response.
-     */
-
-    const existingResponse =
-        request.ngoResponses[
-            currentNgo.id
-        ];
-
-
-    if (
-        existingResponse &&
-        existingResponse.status ===
-            "accepted"
-    ) {
+    } catch (error) {
+        console.error("Accept request error:", error);
 
         showNGOResponseMessage(
-            "Your NGO has already offered to help with this request."
+            "Unable to connect to the server. Please try again."
         );
-
-        return;
     }
-
-
-    /*
-     * Save this NGO's voluntary response.
-     */
-
-    request.ngoResponses[
-        currentNgo.id
-    ] = {
-
-        ngoId:
-            currentNgo.id,
-
-        ngoName:
-            currentNgo.name ||
-            "Verified NGO",
-
-        status:
-            "accepted",
-
-        respondedAt:
-            Date.now()
-
-    };
-
-
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT assign the NGO.
-     */
-
-    delete request.assignedNgoId;
-
-    delete request.assignedNgoName;
-
-
-    /*
-     * Save to localStorage.
-     */
-
-    localStorage.setItem(
-        REQUEST_STORAGE_KEY,
-        JSON.stringify(
-            requests
-        )
-    );
-
-
-    /*
-     * Refresh NGO dashboard.
-     */
-
-    renderRequests();
-
-
-    /*
-     * Show success message.
-     */
-
-    showNGOResponseMessage(
-        "✓ Your NGO has offered to help. The Control Room has been notified."
-    );
-
 }
-
 
 /* ================================================================
    NGO RESPONSE MESSAGE
@@ -4434,9 +4956,25 @@ function findNearestVerifiedNGO(
 /* ================================================================
    FOCUS REQUEST
 ================================================================ */
-function focusRequestOnMap(requestId) {
+async function focusRequestOnMap(requestId) {
 
     console.log("VIEW ON MAP clicked:", requestId);
+
+    
+console.log("Map initialized:", !!ngoDashboardMap);
+
+const verifiedRequests = await getVerifiedRequests();
+
+console.log(
+    "Verified requests:",
+    verifiedRequests.map(r => ({
+        id: r.id,
+        mongoId: r.mongoId,
+        requestNumber: r.requestNumber,
+        lat: getRequestLat(r),
+        lng: getRequestLng(r)
+    }))
+);
 
     // Make sure the map exists
     if (!ngoDashboardMap) {
@@ -4455,16 +4993,18 @@ function focusRequestOnMap(requestId) {
     }
 
     // Find the request from the latest verified requests
-    const request = getVerifiedRequests().find(function (item) {
+const requests = await getVerifiedRequests();
 
-        const id =
-            item.id ||
-            item.requestNumber ||
-            "";
+const request = requests.find(function (item) {
+    const id =
+        item.id ||
+        item.mongoId ||
+        item._id ||
+        item.requestNumber ||
+        "";
 
-        return String(id) === String(requestId);
-
-    });
+    return String(id) === String(requestId);
+});
 
     if (!request) {
 
@@ -4878,9 +5418,10 @@ async function refreshDashboard() {
 
     renderDisasterZones();
 
+    await renderRequests();
+    await renderActiveReliefCases();
 
-    renderRequests();
-
+    setText("ngoActiveCaseCount", getNGOActiveCaseCount(currentNgo.id));
 
     /*
      * Refresh map size.

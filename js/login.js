@@ -127,26 +127,19 @@ document.addEventListener(
            sessions can NEVER remain active together.
            ============================================================ */
 
+           
+function clearIndividualSession() {
+    sessionStorage.removeItem("reliefUserLoggedIn");
+    sessionStorage.removeItem("reliefUserName");
+    sessionStorage.removeItem("reliefUserEmail");
+    sessionStorage.removeItem("reliefUserPhone");
 
-        function clearIndividualSession() {
+    // Clear stale authentication tokens
+    sessionStorage.removeItem("reliefAuthToken");
+    localStorage.removeItem("reliefAuthToken");
 
-            sessionStorage.removeItem(
-                "reliefUserLoggedIn"
-            );
-
-            sessionStorage.removeItem(
-                "reliefUserName"
-            );
-
-            sessionStorage.removeItem(
-                "reliefUserEmail"
-            );
-
-            sessionStorage.removeItem(
-                "reliefUserPhone"
-            );
-
-        }
+    sessionStorage.removeItem("reliefAccountRole");
+}
 
 
         function clearNgoSession() {
@@ -534,7 +527,7 @@ document.addEventListener(
 
         form.addEventListener(
             "submit",
-            (event) => {
+            async (event) => {
 
                 event.preventDefault();
 
@@ -567,81 +560,57 @@ document.addEventListener(
 
                 }
 
+ 
+if (
+    identifier.toLowerCase() === STAFF_USERNAME.toLowerCase()
+) {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/auth/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: "coordinator@relief.local",
+                    password: password,
+                    role: "control_room"
+                })
+            }
+        );
 
-                /* ====================================================
-                   1. STAFF LOGIN
+        const data = await response.json();
 
-                   Staff can log in regardless of whether
-                   Individual or NGO is selected.
+        // Temporary debugging
+        console.log("CONTROL ROOM LOGIN RESPONSE:", data);
+        console.log("TOKEN ROLE:", data.user?.role);
 
-                   Staff remains hidden from normal users.
-                   ==================================================== */
+        if (!response.ok || !data.success || !data.token) {
+            showError(data.message || "Control Room login failed.");
+            return;
+        }
 
-                if (
-                    identifier
-                        .toLowerCase() ===
-                    STAFF_USERNAME.toLowerCase()
-                    &&
-                    password ===
-                    STAFF_PASSWORD
-                ) {
+        clearAllSessions();
 
-                    /* ----------------------------------------------
-                       IMPORTANT:
-                       Remove every other role before creating
-                       Staff session.
-                       ---------------------------------------------- */
+        sessionStorage.setItem("reliefStaffLoggedIn", "true");
+        sessionStorage.setItem("reliefStaffName", "Relief Coordinator");
+        sessionStorage.setItem("reliefAccountRole", "staff");
+        sessionStorage.setItem("reliefAuthToken", data.token);
 
-                    clearIndividualSession();
+        showSuccess("Credentials verified. Opening Control Room...");
 
-                    clearNgoSession();
+        setTimeout(() => {
+            window.location.href = "dispatcher.html";
+        }, 500);
 
-                    clearStaffSession();
+    } catch (err) {
+        console.error("Control Room login error:", err);
+        showError("Unable to connect to the server. Please try again.");
+    }
 
-                    sessionStorage.removeItem(
-                        "reliefAccountRole"
-                    );
-
-
-                    /* Set Staff session */
-
-                    sessionStorage.setItem(
-                        "reliefStaffLoggedIn",
-                        "true"
-                    );
-
-
-                    sessionStorage.setItem(
-                        "reliefStaffName",
-                        "Relief Coordinator"
-                    );
-
-
-                    sessionStorage.setItem(
-                        "reliefAccountRole",
-                        "staff"
-                    );
-
-
-                    showSuccess(
-                        "Credentials verified. Opening Control Room..."
-                    );
-
-
-                    setTimeout(
-                        () => {
-
-                            window.location.href =
-                                "dispatcher.html";
-
-                        },
-                        500
-                    );
-
-
-                    return;
-
-                }
+    return;
+}
 
 
                 /* ====================================================
@@ -680,509 +649,148 @@ document.addEventListener(
            NGO LOGIN
            ============================================================ */
 
-        function loginNgo(
-            email,
-            password
-        ) {
-
-            let ngos = [];
-
-
-            try {
-
-                ngos =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "drr_ngos"
-                        ) || "[]"
-                    );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Could not read NGO accounts:",
-                    error
-                );
-
-
-                showError(
-                    "Unable to read NGO account data."
-                );
-
-                return;
-
-            }
-
-
-            const ngo =
-                ngos.find(
-                    (item) =>
-                        item.email &&
-                        item.email
-                            .toLowerCase() ===
-                        email.toLowerCase()
-                );
-
-
-            if (!ngo) {
-
-                showError(
-                    "No NGO account was found with this email."
-                );
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               PASSWORD
-               ======================================================== */
-
-            if (
-                ngo.password !==
-                password
-            ) {
-
-                showError(
-                    "Incorrect NGO password."
-                );
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               NGO VERIFICATION
-
-               NGO cannot access its dashboard
-               until staff verifies it.
-               ======================================================== */
-
-            if (
-                ngo.status !==
-                "verified"
-            ) {
-
-                showError(
-                    "Your organization is registered but is still awaiting verification by Relief Resolver staff."
-                );
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               NGO SESSION
-
-               IMPORTANT:
-
-               NGO and Individual sessions must NEVER coexist.
-               ======================================================== */
-
-
-            /* Clear old Individual session */
-
-            clearIndividualSession();
-
-
-            /* Clear old Staff session */
-
-            clearStaffSession();
-
-
-            /* Clear any previous NGO session */
-
-            clearNgoSession();
-
-
-            /* Set NGO session */
-
-            sessionStorage.setItem(
-                "reliefNgoLoggedIn",
-                "true"
-            );
-
-
-            sessionStorage.setItem(
-                "reliefNgoId",
-                ngo.id
-            );
-
-
-            sessionStorage.setItem(
-                "reliefNgoName",
-                ngo.name
-            );
-
-
-            sessionStorage.setItem(
-                "reliefAccountRole",
-                "ngo"
-            );
-
-
-            showSuccess(
-                "NGO verified successfully."
-            );
-
-
-            /* ========================================================
-               IMPORTANT
-
-               NGO dashboard has NOT been created yet.
-
-               Therefore DO NOT send NGO to:
-
-                   individual-dashboard.html
-
-               For now send NGO to the home page.
-
-               Later, when ngo-dashboard.html is created,
-               this can simply become:
-
-                   window.location.href =
-                       "ngo-dashboard.html";
-               ======================================================== */
-
-            setTimeout(
-                () => {
-
-                    window.location.href =
-                        "ngo-dashboard.html";
-
+async function loginNgo(email, password) {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/auth/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-                500
-            );
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    password: password,
+                    role: "ngo"
+                })
+            }
+        );
 
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showError(
+                data.message || "NGO login failed. Please try again."
+            );
+            return;
         }
 
+        // Clear other account sessions first.
+        clearIndividualSession();
+        clearStaffSession();
+        clearNgoSession();
+
+        // Save the NGO session in localStorage.
+        localStorage.setItem("reliefAuthToken", data.token);
+        localStorage.setItem("reliefNgoLoggedIn", "true");
+        localStorage.setItem("reliefNgoId", data.user.id);
+        localStorage.setItem("reliefNgoName", data.user.name);
+        localStorage.setItem("reliefAccountRole", "ngo");
+
+        showSuccess("Login successful.");
+
+        setTimeout(() => {
+           
+            window.location.href = "ngo-dashboard.html";
+        }, 500);
+
+    } catch (error) {
+        console.error("NGO login error:", error);
+
+        showError(
+            "Unable to connect to the server. Please ensure the backend is running."
+        );
+    }
+}
 
         /* ============================================================
            INDIVIDUAL LOGIN
            ============================================================ */
 
-        function loginIndividual(
-            email,
-            password
-        ) {
-
-
-            /*
-             * Your individual registration may use
-             * different localStorage names depending
-             * on the version of registration code.
-             *
-             * We keep compatibility with all of them.
-             */
-
-
-            const possibleKeys = [
-
-                "drr_users",
-
-                "drr_users_data",
-
-                "relief_users",
-
-                "users"
-
-            ];
-
-
-            let users = [];
-
-
-            for (
-                const key of possibleKeys
-            ) {
-
-                const stored =
-                    localStorage.getItem(
-                        key
-                    );
-
-
-                if (!stored) {
-
-                    continue;
-
-                }
-
-
-                try {
-
-                    const parsed =
-                        JSON.parse(
-                            stored
-                        );
-
-
-                    if (
-                        Array.isArray(
-                            parsed
-                        )
-                    ) {
-
-                        users =
-                            parsed;
-
-                        break;
-
-                    }
-
-                }
-
-                catch (error) {
-
-                    console.warn(
-                        "Could not read user storage:",
-                        key
-                    );
-
-                }
-
-            }
-
-
-            /* ========================================================
-               FIND INDIVIDUAL
-               ======================================================== */
-
-            const normalizedEmail =
-                email
-                    .trim()
-                    .toLowerCase();
-
-
-            const user =
-                users.find(
-                    (item) => {
-
-                        const userEmail =
-                            item.email ||
-                            item.userEmail;
-
-
-                        return (
-                            userEmail &&
-                            String(
-                                userEmail
-                            )
-                                .trim()
-                                .toLowerCase() ===
-                            normalizedEmail
-                        );
-
-                    }
-                );
-
-
-            if (!user) {
-
-                showError(
-                    "No individual account was found with this email."
-                );
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               PASSWORD
-               ======================================================== */
-
-            const storedPassword =
-                user.password ||
-                user.userPassword;
-
-
-            if (
-                storedPassword !==
-                password
-            ) {
-
-                showError(
-                    "Incorrect password."
-                );
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               INDIVIDUAL SESSION
-               ======================================================== */
-
-            const userName =
-                user.name ||
-                user.fullName ||
-                user.userName ||
-                "Relief User";
-
-
-            const userEmail =
-                user.email ||
-                user.userEmail ||
-                email;
-
-
-            /* --------------------------------------------------------
-               IMPORTANT:
-               Clear NGO and Staff sessions first.
-               -------------------------------------------------------- */
-
-            clearNgoSession();
-
-            clearStaffSession();
-
-            sessionStorage.removeItem(
-                "reliefAccountRole"
-            );
-
-
-            /* Set Individual session */
-
-            sessionStorage.setItem(
-                "reliefUserLoggedIn",
-                "true"
-            );
-
-
-            sessionStorage.setItem(
-                "reliefUserName",
-                userName
-            );
-
-
-            sessionStorage.setItem(
-                "reliefUserEmail",
-                userEmail
-            );
-
-
-            sessionStorage.setItem(
-                "reliefAccountRole",
-                "individual"
-            );
-
-
-            /*
-             * Keep the phone number if it exists.
-             * This allows the emergency request to
-             * use the registered contact number.
-             */
-
-            const phone =
-                user.phone ||
-                user.contactNumber ||
-                user.mobile ||
-                "";
-
-
-            if (phone) {
-
-                sessionStorage.setItem(
-                    "reliefUserPhone",
-                    phone
-                );
-
-            }
-
-
-            showSuccess(
-                "Login successful. Continuing..."
-            );
-
-
-            /* ========================================================
-               IMPORTANT REQUEST FLOW
-
-               If the user originally came here because
-               they submitted an emergency request while
-               logged out, request.js stored:
-
-                   reliefPendingRequest
-
-               and:
-
-                   reliefLoginPurpose = submit_request
-
-               We MUST return to:
-
-                   request.html?resumeRequest=true
-
-               NOT simply request.html.
-
-               request.js will then:
-
-               1. Read the pending request
-               2. Keep the SAME Request Number
-               3. Create the final request object
-               4. Save it to relief_requests
-               5. Remove the temporary request
-               6. Show the request confirmation
-               7. Redirect to the individual dashboard
-               ======================================================== */
-
-            const pendingRequest =
-                sessionStorage.getItem(
-                    "reliefPendingRequest"
-                );
-
-
-            const loginPurpose =
-                sessionStorage.getItem(
-                    "reliefLoginPurpose"
-                );
-
-
-            if (
-                pendingRequest &&
-                loginPurpose ===
-                "submit_request"
-            ) {
-
-                setTimeout(
-                    () => {
-
-                        window.location.href =
-                            "request.html?resumeRequest=true";
-
-                    },
-                    500
-                );
-
-
-                return;
-
-            }
-
-
-            /* ========================================================
-               NORMAL INDIVIDUAL LOGIN
-
-               If the user did NOT come from an emergency
-               request, continue normally.
-               ======================================================== */
-
-            setTimeout(
-                () => {
-
-                    window.location.href =
-                        "individual-dashboard.html";
-
+async function loginIndividual(email, password) {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/auth/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-                500
-            );
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    password: password,
+                    role: "individual"
+                })
+            }
+        );
 
+        const data = await response.json();
+        console.log("INDIVIDUAL LOGIN FUNCTION RAN");
+console.log("LOGIN RESPONSE:", data);
+console.log("RETURNED ROLE:", data.user?.role);
+console.log("RETURNED TOKEN:", data.token);
+
+        console.log("Individual login response:", data);
+        console.log("Authenticated role:", data.user?.role);
+
+        if (!response.ok || !data.success || !data.token) {
+            showError(data.message || "Individual login failed.");
+            return;
         }
+
+        if (!data.user || data.user.role !== "individual") {
+            showError("Please use a valid Individual account.");
+            return;
+        }
+
+        clearNgoSession();
+        clearStaffSession();
+
+        sessionStorage.removeItem("reliefAuthToken");
+        localStorage.removeItem("reliefAuthToken");
+
+        sessionStorage.setItem("reliefAuthToken", data.token);
+        sessionStorage.setItem("reliefUserLoggedIn", "true");
+        sessionStorage.setItem(
+            "reliefUserName",
+            data.user.name || "Relief User"
+        );
+        sessionStorage.setItem(
+            "reliefUserEmail",
+            data.user.email || email
+        );
+        sessionStorage.setItem("reliefAccountRole", "individual");
+
+        if (data.user.phone) {
+            sessionStorage.setItem("reliefUserPhone", data.user.phone);
+        } else {
+            sessionStorage.removeItem("reliefUserPhone");
+        }
+
+        showSuccess("Login successful. Continuing...");
+
+        const pendingRequest =
+            sessionStorage.getItem("reliefPendingRequest");
+        const loginPurpose =
+            sessionStorage.getItem("reliefLoginPurpose");
+
+        if (pendingRequest && loginPurpose === "submit_request") {
+            setTimeout(() => {
+                window.location.href =
+                    "request.html?resumeRequest=true";
+            }, 500);
+            return;
+        }
+
+        setTimeout(() => {
+            window.location.href = "individual-dashboard.html";
+        }, 500);
+
+    } catch (error) {
+        console.error("Individual login error:", error);
+        showError("Cannot connect to the server. Please try again.");
+    }
+}
 
 
         /* ============================================================

@@ -1,6 +1,6 @@
 /* ============================================================
    NGO REGISTER.JS
-   RELIEF RESOLVER — NGO REGISTERATION
+   RELIEF RESOLVER — NGO REGISTRATION
 
    IMPORTANT:
 
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ============================================================
        FORM REFERENCES
     ============================================================ */
-
     const form = document.getElementById("ngoRegisterForm");
     const result = document.getElementById("ngoResult");
 
@@ -736,7 +735,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     form.addEventListener(
         "submit",
-        function (event) {
+        async function (event) {
 
             event.preventDefault();
 
@@ -1703,55 +1702,115 @@ document.addEventListener("DOMContentLoaded", function () {
                SAVE NGO
             ==================================================== */
 
-            ngos.push(ngo);
+try {
+    const formData = new FormData();
 
+    // Basic account details
+    formData.append("name", contactPerson);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("phone", phone);
+    formData.append("role", "ngo");
 
-            try {
+    // Organization details
+    formData.append("organizationName", name);
+    formData.append("registrationNumber", registrationNumber);
+    formData.append("organisationPan", organisationPan);
+    formData.append("city", city);
+    formData.append("state", state);
+    formData.append("country", country);
 
-                localStorage.setItem(
-                    "drr_ngos",
-                    JSON.stringify(ngos)
-                );
+    formData.append(
+        "address",
+        [city, state, country].filter(Boolean).join(", ")
+    );
 
-            }
-            catch (error) {
+    // Location details
+    formData.append("latitude", String(Number(latitude)));
+    formData.append("longitude", String(Number(longitude)));
 
-                console.error(
-                    "Unable to save NGO:",
-                    error
-                );
+    // Service details
+    formData.append(
+        "serviceAreas",
+        JSON.stringify([city, state].filter(Boolean))
+    );
 
+    formData.append(
+        "supportedEmergencies",
+        JSON.stringify(Array.isArray(services) ? services : [])
+    );
 
-                showResult(
-                    "error",
-                    "The organization could not be saved."
-                );
+    formData.append("serviceRadiusKm", String(Number(radius)));
 
-                return;
-            }
+    // Actual uploaded files (File objects)
+    if (registrationCertificate instanceof File) {
+        formData.append(
+            "registrationCertificate",
+            registrationCertificate
+        );
+    }
 
+    if (panDocument instanceof File) {
+        formData.append("panDocument", panDocument);
+    }
+
+    // Send registration request
+    const response = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+            method: "POST",
+            body: formData
+        }
+    );
+
+   const responseText = await response.text();
+
+let data;
+
+try {
+    data = JSON.parse(responseText);
+} catch (parseError) {
+    console.error("Non-JSON registration response:", responseText);
+
+    throw new Error(
+        `Server returned a non-JSON response (HTTP ${response.status}). Check the backend terminal for details.`
+    );
+}
+
+    if (!response.ok || !data.success) {
+        throw new Error(
+            data.message || "NGO registration failed."
+        );
+    }
+
+    console.log(
+        "NGO successfully registered in MongoDB:",
+        data.user
+    );
+
+    showResult(
+        "success",
+        data.message || "NGO registered successfully."
+    );
+
+} catch (error) {
+    console.error("Unable to register NGO:", error);
+
+    showResult(
+        "error",
+        error.message ||
+            "The organization could not be saved. Please try again."
+    );
+
+    return;
+}
 
             /* ====================================================
                VERIFY SAVE
                ----------------------------------------------------
                This is useful while testing.
             ==================================================== */
-
-            console.log(
-                "NGO successfully saved:",
-                ngo
-            );
-
-
-            console.log(
-                "All NGOs:",
-                JSON.parse(
-                    localStorage.getItem(
-                        "drr_ngos"
-                    ) || "[]"
-                )
-            );
-
+            console.log("NGO registration completed successfully.");
 
             /* ====================================================
                SUCCESS
