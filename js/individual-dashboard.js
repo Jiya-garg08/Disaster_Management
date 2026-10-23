@@ -900,6 +900,103 @@ function getNGOCoordinates(ngo) {
        This function is ONLY called after request verification.
        ======================================================== */
 
+
+function normalizeReliefTypes(value) {
+    if (!value) return [];
+
+    const values = Array.isArray(value)
+        ? value
+        : String(value).split(/[,;|]/);
+
+    return values
+        .flatMap(item => String(item).split(/[,;|]/))
+        .map(item => item.trim().toLowerCase())
+        .filter(Boolean);
+}
+
+function getRequestReliefTypes(request) {
+    const value = firstValue(
+        request?.reliefNeeded,
+        request?.reliefNeededType,
+        request?.reliefType,
+        request?.supplyType,
+        request?.suppliesNeeded,
+        request?.serviceNeeded,
+        request?.requiredSupplies,
+        request?.reliefItems,
+        request?.needs,
+        request?.resourcesNeeded,
+        request?.helpNeeded,
+        request?.itemsNeeded
+    );
+
+    return normalizeReliefTypes(value);
+}
+
+function getNGOReliefTypes(ngo) {
+    const value = firstValue(
+        ngo?.services,
+        ngo?.availableServices,
+        ngo?.serviceTypes,
+        ngo?.helpTypes,
+        ngo?.supportedEmergencies,
+        ngo?.reliefTypes,
+        ngo?.suppliesProvided,
+        ngo?.resourcesProvided,
+        ngo?.specializations
+    );
+
+    return normalizeReliefTypes(value);
+}
+
+function reliefTypeMatches(required, offered) {
+    const aliases = {
+        shelter: ["shelter", "housing", "temporary housing", "accommodation"],
+        food: ["food", "meals", "rations", "food supplies"],
+        water: ["water", "drinking water", "clean water"],
+        medical: ["medical", "medicine", "medicines", "healthcare", "medical aid"],
+        clothing: ["clothing", "clothes", "garments"],
+        rescue: ["rescue", "evacuation", "search and rescue"]
+    };
+
+    function expand(value) {
+        const normalized = value
+            .toLowerCase()
+            .replace(/[_-]/g, " ")
+            .trim();
+
+        const group = Object.values(aliases).find(items =>
+            items.includes(normalized)
+        );
+
+        return new Set([normalized, ...(group || [])]);
+    }
+
+    const requiredTerms = expand(required);
+    const offeredTerms = expand(offered);
+
+    return [...requiredTerms].some(term => offeredTerms.has(term));
+}
+
+function ngoSupportsRequest(ngo, request) {
+    const requiredTypes = getRequestReliefTypes(request);
+
+    // If the request has no recognizable relief requirement,
+    // don't silently hide all otherwise eligible NGOs.
+    if (!requiredTypes.length) return true;
+
+    const offeredTypes = getNGOReliefTypes(ngo);
+
+    // No declared services means we cannot confirm a match.
+    if (!offeredTypes.length) return false;
+
+    return requiredTypes.some(required =>
+        offeredTypes.some(offered =>
+            reliefTypeMatches(required, offered)
+        )
+    );
+}
+
 function getNearestVerifiedNGOs(request) {
     const coordinates = getRequestCoordinates(request);
 
@@ -908,8 +1005,6 @@ function getNearestVerifiedNGOs(request) {
     const allNGOs = getNGOs();
     const assignedNGO = getAssignedNGO(request);
 
-    // Include the assigned NGO even if its profile uses a
-    // different verification field or radius format.
     const candidates = [
         ...allNGOs,
         ...(assignedNGO ? [assignedNGO] : [])
@@ -918,7 +1013,12 @@ function getNearestVerifiedNGOs(request) {
     const uniqueNGOs = [
         ...new Map(
             candidates.map(ngo => [
-                String(ngo.id || ngo._id || ngo.userId || ngo.user?._id),
+                String(
+                    ngo.id ||
+                    ngo._id ||
+                    ngo.userId ||
+                    ngo.user?._id
+                ),
                 ngo
             ])
         ).values()
@@ -929,8 +1029,9 @@ function getNearestVerifiedNGOs(request) {
             isVerifiedNGO(ngo) ||
             (
                 assignedNGO &&
-                String(ngo.id || ngo._id || ngo.userId || ngo.user?._id) ===
                 String(
+                    ngo.id || ngo._id || ngo.userId || ngo.user?._id
+                ) === String(
                     assignedNGO.id ||
                     assignedNGO._id ||
                     assignedNGO.userId ||
@@ -938,26 +1039,19 @@ function getNearestVerifiedNGOs(request) {
                 )
             )
         )
+        // NEW: Match NGO services to the individual's relief requirement.
+        .filter(ngo => ngoSupportsRequest(ngo, request))
         .map(ngo => {
             const ngoCoordinates = getNGOCoordinates(ngo);
 
             if (!ngoCoordinates) return null;
 
-            
-const distance = distanceKm(
-    coordinates.lat,
-    coordinates.lng,
-    ngoCoordinates.lat,
-    ngoCoordinates.lng
-);
-
-console.log("NGO distance check:", {
-    ngo: ngo.name || ngo.organizationName,
-    emergencyCoordinates: coordinates,
-    ngoCoordinates: ngoCoordinates,
-    calculatedDistanceKm: distance
-});
-
+            const distance = distanceKm(
+                coordinates.lat,
+                coordinates.lng,
+                ngoCoordinates.lat,
+                ngoCoordinates.lng
+            );
 
             const radius = Number(
                 firstValue(
@@ -971,8 +1065,9 @@ console.log("NGO distance check:", {
 
             const isAssigned =
                 assignedNGO &&
-                String(ngo.id || ngo._id || ngo.userId || ngo.user?._id) ===
                 String(
+                    ngo.id || ngo._id || ngo.userId || ngo.user?._id
+                ) === String(
                     assignedNGO.id ||
                     assignedNGO._id ||
                     assignedNGO.userId ||
@@ -983,10 +1078,10 @@ console.log("NGO distance check:", {
                 ...ngo,
                 mapLat: ngoCoordinates.lat,
                 mapLng: ngoCoordinates.lng,
-                distance: distance,
+                distance,
                 operatingRadius: radius,
                 withinRadius:
-                    isAssigned ||
+                    Boolean(isAssigned) ||
                     (radius > 0 && distance <= radius),
                 isAssigned: Boolean(isAssigned)
             };
@@ -997,13 +1092,6 @@ console.log("NGO distance check:", {
         .slice(0, 5);
 }
 
-
-       /* ========================================================
-       ASSIGNED NGO
-       
-       Kept only for compatibility with old data.
-       The new workflow does NOT automatically assign NGOs.
-       ======================================================== */
 
 function getAssignedNGO(request) {
     if (!request) return null;

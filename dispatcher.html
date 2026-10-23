@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Control Room — Relief Resolver</title>
+    <title>Control Room â€” Relief Resolver</title>
 
 
     <!-- =========================================================
@@ -883,6 +883,10 @@
 
 .cr-view {
     display: none !important;
+}
+
+body[data-cr-view="complaints"] #cr-complaints-section {
+    display: block !important;
 }
 
 body[data-cr-view="individual"] #cr-review-section,
@@ -2777,7 +2781,7 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
         }
 
-    
+
         .ngo-capacity-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;padding:12px;border:1px solid #e9e1d3;border-radius:12px;background:#fffcf3}
         .ngo-capacity-summary>div{display:flex;flex-direction:column;gap:4px;min-width:0}
         .ngo-capacity-summary span{font-size:9px;letter-spacing:.7px;font-weight:800;color:#777}
@@ -3252,7 +3256,7 @@ body[data-cr-view="zones"] #cr-disaster-section {
     box-shadow: 0 10px 30px rgba(7, 21, 37, 0.05);
 }
 
-/* Card header — matches dispatcher.js */
+/* Card header â€” matches dispatcher.js */
 #assistanceTrackingList .tracking-card-header {
     display: flex;
     align-items: center;
@@ -3822,6 +3826,178 @@ label:has(#showDeliveredAssistance):hover {
     }
 }
 
+/* ==========================================
+   COMPLAINT MANAGEMENT â€” RELIEF RESOLVER
+   Scoped styles; existing dashboard preserved
+========================================== */
+
+#cr-complaints-section {
+    color: #102033;
+    padding: 28px;
+    font-family: inherit;
+}
+
+#cr-complaints-section h2,
+#cr-complaints-section h3 {
+    color: #102033;
+    letter-spacing: -0.025em;
+}
+
+#cr-complaints-section p {
+    line-height: 1.65;
+}
+
+#cr-complaints-section #complaintManagementMessage {
+    margin: 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Complaint list layout */
+#complaintManagementList {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    margin-top: 22px;
+}
+
+/* Individual complaint card */
+#complaintManagementList > article {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 26px !important;
+    margin: 0 !important;
+    background: #fffdf9 !important;
+    border: 1px solid #e6e0d5 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 26px rgba(16, 32, 51, 0.045);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#complaintManagementList > article:hover {
+    border-color: #c8d2df !important;
+    box-shadow: 0 12px 32px rgba(16, 32, 51, 0.075);
+}
+
+#complaintManagementList > article h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+#complaintManagementList > article p {
+    margin: 10px 0;
+    color: #526176;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+#complaintManagementList > article p strong {
+    color: #172b43;
+}
+
+/* Update form */
+#complaintManagementList .complaint-update-form {
+    margin-top: 22px !important;
+    padding-top: 20px;
+    border-top: 1px solid #ebe5db;
+    gap: 16px !important;
+}
+
+#complaintManagementList .complaint-update-form label {
+    display: block;
+    color: #263b53;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+}
+
+#complaintManagementList .complaint-update-form select,
+#complaintManagementList .complaint-update-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 8px !important;
+    padding: 12px 14px !important;
+    border: 1px solid #d8dfe7 !important;
+    border-radius: 10px !important;
+    background-color: #ffffff !important;
+    color: #172b43 !important;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+    box-shadow: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#complaintManagementList .complaint-update-form select {
+    min-height: 46px;
+    cursor: pointer;
+}
+
+#complaintManagementList .complaint-update-form textarea {
+    min-height: 105px;
+    resize: vertical;
+}
+
+#complaintManagementList .complaint-update-form select:focus,
+#complaintManagementList .complaint-update-form textarea:focus {
+    border-color: #173451 !important;
+    box-shadow: 0 0 0 3px rgba(23, 52, 81, 0.1);
+}
+
+#complaintManagementList .complaint-update-form textarea::placeholder {
+    color: #929cab;
+}
+
+/* Save button */
+#complaintManagementList .complaint-update-form button {
+    width: fit-content;
+    min-width: 190px;
+    min-height: 44px;
+    padding: 12px 20px;
+    border: 1px solid #07182b;
+    border-radius: 10px;
+    background: #07182b;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#complaintManagementList .complaint-update-form button:hover {
+    background: #183650;
+    transform: translateY(-1px);
+}
+
+#complaintManagementList .complaint-update-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+/* Responsive spacing */
+@media (max-width: 700px) {
+    #cr-complaints-section {
+        padding: 16px;
+    }
+
+    #complaintManagementList > article {
+        padding: 18px !important;
+        border-radius: 14px !important;
+    }
+
+    #complaintManagementList .complaint-update-form button {
+        width: 100%;
+    }
+}
+
+
+
 </style>
 
 </head>
@@ -4098,7 +4274,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            👤
+                            ðŸ‘¤
                         </span>
 
                         <span class="cr-nav-label">
@@ -4122,7 +4298,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            🤝
+                            ðŸ¤
                         </span>
 
                         <span class="cr-nav-label">
@@ -4144,7 +4320,7 @@ label:has(#showDeliveredAssistance):hover {
                         class="cr-nav-btn"
                         data-view="assistance-tracking"
                     >
-                        <span class="cr-nav-icon">🚚</span>
+                        <span class="cr-nav-icon">ðŸšš</span>
                         <span class="cr-nav-label">NGO Assistance Tracking</span>
                         <span
                             class="cr-nav-count"
@@ -4160,7 +4336,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            📄
+                            ðŸ“„
                         </span>
 
                         <span class="cr-nav-label">
@@ -4184,7 +4360,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            🏠
+                            ðŸ 
                         </span>
 
                         <span class="cr-nav-label">
@@ -4201,7 +4377,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            🗺️
+                            ðŸ—ºï¸
                         </span>
 
                         <span class="cr-nav-label">
@@ -4218,7 +4394,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            🌪️
+                            ðŸŒªï¸
                         </span>
 
                         <span class="cr-nav-label">
@@ -4235,7 +4411,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            💬
+                            ðŸ’¬
                         </span>
 
                         <span class="cr-nav-label">
@@ -4251,8 +4427,12 @@ label:has(#showDeliveredAssistance):hover {
 
                     </button>
 
-     
 
+                <button type="button" class="cr-nav-btn" data-view="complaints">
+    <span class="cr-nav-icon">ðŸ“‹</span>
+    <span class="cr-nav-label">Complaint Management</span>
+    <span class="cr-nav-count" id="sideComplaintsCount">0</span>
+</button>
 
                 </nav>
 
@@ -4563,6 +4743,21 @@ label:has(#showDeliveredAssistance):hover {
                 </section>
 
 
+                <section id="cr-complaints-section" class="section cr-view">
+    <div class="section-heading">
+        <div>
+            <h2>Complaint Management</h2>
+            <p>Review complaints from individuals across all three categories.</p>
+        </div>
+        <span class="section-badge" id="complaintsBadge">0 complaints</span>
+    </div>
+
+    <div id="complaintManagementMessage" role="status" aria-live="polite"></div>
+    <div id="complaintManagementList" class="request-list">
+        Loading complaints...
+    </div>
+</section>
+
                 <!-- =================================================
                      RELIEF MAP
                 ================================================= -->
@@ -4615,7 +4810,7 @@ label:has(#showDeliveredAssistance):hover {
                             <span
                                 class="coordination-legend-icon coordination-legend-person"
                             >
-                                👤
+                                ðŸ‘¤
                             </span>
 
                             Verified Individual Request
@@ -4628,7 +4823,7 @@ label:has(#showDeliveredAssistance):hover {
                             <span
                                 class="coordination-legend-icon coordination-legend-ngo"
                             >
-                                🏠
+                                ðŸ 
                             </span>
 
                             Verified NGO
@@ -4661,7 +4856,7 @@ label:has(#showDeliveredAssistance):hover {
                     <div class="disaster-zone-header">
 
                         <div class="disaster-zone-icon">
-                            🗺️
+                            ðŸ—ºï¸
                         </div>
 
 
@@ -5015,7 +5210,7 @@ label:has(#showDeliveredAssistance):hover {
             </span>
 
             <span>
-                v2.0 — NGO coordination workflow
+                v2.0 â€” NGO coordination workflow
             </span>
 
         </div>
@@ -5025,7 +5220,7 @@ label:has(#showDeliveredAssistance):hover {
 
     <div class="footer-bottom">
 
-        © 2026 Relief Resolver.
+        Â© 2026 Relief Resolver.
         Not affiliated with any government emergency service.
 
     </div>
@@ -5063,6 +5258,8 @@ label:has(#showDeliveredAssistance):hover {
 
 <script src="js/dispatcher.js"></script>
 
+<script src="js/control-room-complaints.js"></script>
+
 <script src="js/disaster-zones.js"></script>
 
 
@@ -5090,13 +5287,13 @@ label:has(#showDeliveredAssistance):hover {
         "map",
         "zones",
         "messages",
-        
+        "complaints"
 
     ];
 
 
 
-    
+
 function showView(view) {
     if (!validViews.includes(view)) {
         view = "individual";
@@ -5322,7 +5519,7 @@ window.addEventListener("resize", () => {
                     <div class="empty-state">
 
                         <div class="empty-icon">
-                            ✓
+                            âœ“
                         </div>
 
                         No messages have been received yet.
@@ -5447,7 +5644,7 @@ window.addEventListener("resize", () => {
                                                             contact-reviewed
                                                         "
                                                     >
-                                                        ✓ REVIEWED
+                                                        âœ“ REVIEWED
                                                     </span>
                                                 `
 
@@ -5550,7 +5747,7 @@ window.addEventListener("resize", () => {
 
 
             showControlMessage(
-                "✓ Message marked as reviewed."
+                "âœ“ Message marked as reviewed."
             );
 
         };

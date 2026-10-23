@@ -1457,9 +1457,218 @@
     }
 }
 
+/* =========================================
+   INDIVIDUAL COMPLAINTS — LAYOUT REFINEMENT
+========================================= */
+
+#complaintsSection {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #e6dfd3;
+    border-radius: 20px;
+    background: #fffdf9;
+    box-shadow: 0 12px 34px rgba(16, 32, 51, 0.045);
+}
+
+#complaintsSection .card-heading {
+    padding: 24px 30px;
+    border-bottom: 1px solid #e9e3d9;
+}
+
+#complaintsSection .card-heading h2 {
+    margin: 6px 0;
+    color: #0a1b2d;
+    font-size: 24px;
+    font-weight: 750;
+    letter-spacing: -0.6px;
+}
+
+#complaintsSection .card-heading p {
+    margin: 8px 0 0;
+    color: #68788c;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Form layout */
+#complaintForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 22px;
+    padding: 26px 30px 30px;
+}
+
+#complaintForm label {
+    display: block;
+    margin: 0 0 8px;
+    color: #26394e;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#complaintForm select,
+#complaintForm input,
+#complaintForm textarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    border: 1px solid #d9e0e8 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #14283d !important;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+    box-shadow: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#complaintForm select,
+#complaintForm input {
+    min-height: 46px;
+}
+
+#complaintForm textarea {
+    min-height: 125px;
+    resize: vertical;
+}
+
+#complaintForm select:focus,
+#complaintForm input:focus,
+#complaintForm textarea:focus {
+    border-color: #183650 !important;
+    box-shadow: 0 0 0 3px rgba(24, 54, 80, 0.09);
+}
+
+#complaintForm textarea::placeholder,
+#complaintForm input::placeholder {
+    color: #94a0af;
+}
+
+/* Let description and related request span both columns */
+#complaintForm label[for="complaintDescription"],
+#complaintForm #complaintDescription,
+#complaintForm label[for="complaintRequestId"],
+#complaintForm #complaintRequestId,
+#complaintForm #complaintFormMessage {
+    grid-column: 1 / -1;
+}
+
+#complaintForm button[type="submit"] {
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-height: 46px;
+    padding: 13px 22px !important;
+    border: 1px solid #08192b;
+    border-radius: 10px;
+    background: #08192b;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+#complaintForm button[type="submit"]:hover {
+    background: #193b59;
+    transform: translateY(-1px);
+}
+
+#complaintForm button[type="submit"]:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+}
+
+#complaintFormMessage {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* My Complaints section */
+#myComplaintsList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 22px 30px 30px !important;
+}
+
+#myComplaintsList > article {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 20px !important;
+    margin: 0 !important;
+    border: 1px solid #e2e6ec !important;
+    border-radius: 15px !important;
+    background: #ffffff !important;
+    box-shadow: 0 5px 18px rgba(16, 32, 51, 0.035);
+}
+
+#myComplaintsList > article strong {
+    color: #14283d;
+}
+
+#myComplaintsList > article p {
+    color: #526176;
+    font-size: 13px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+#myComplaintsList > article details {
+    padding-top: 12px;
+    border-top: 1px solid #edf0f4;
+    color: #34475c;
+    font-size: 13px;
+}
+
+#myComplaintsList > article summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+/* Mobile and tablet */
+@media (max-width: 760px) {
+    #complaintsSection .card-heading {
+        padding: 20px;
+    }
+
+    #complaintForm {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 20px;
+        gap: 16px;
+    }
+
+    #complaintForm label[for="complaintDescription"],
+    #complaintForm #complaintDescription,
+    #complaintForm label[for="complaintRequestId"],
+    #complaintForm #complaintRequestId,
+    #complaintForm #complaintFormMessage {
+        grid-column: auto;
+    }
+
+    #complaintForm button[type="submit"] {
+        grid-column: auto;
+        width: 100%;
+    }
+
+    #myComplaintsList {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 18px 20px 24px !important;
+    }
+}
+
+
 
     </style>
-   
+
 </head>
 
 
@@ -1525,6 +1734,57 @@
 
     <div id="dashboardContent"></div>
 
+    <section class="dashboard-card full-width" id="complaintsSection">
+    <div class="card-heading">
+        <span class="eyebrow">SUPPORT CENTER</span>
+        <h2>Complaints &amp; Feedback</h2>
+        <p>Report a relief, NGO, or disaster-related issue and track its resolution.</p>
+    </div>
+
+    <div style="padding:24px 26px;">
+        <form id="complaintForm">
+            <label for="complaintCategory">Complaint category</label>
+            <select id="complaintCategory" name="category" required
+                    style="display:block;width:100%;padding:12px;margin:8px 0 16px;">
+                <option value="">Select a category</option>
+                <option value="relief">Relief-related</option>
+                <option value="ngo">NGO-related</option>
+                <option value="disaster">General disaster</option>
+            </select>
+
+            <label for="complaintIssueType">Issue type</label>
+            <select id="complaintIssueType" name="issueType" required
+                    style="display:block;width:100%;padding:12px;margin:8px 0 16px;">
+                <option value="">Select an issue</option>
+            </select>
+
+            <label for="complaintDescription">Describe the issue</label>
+            <textarea id="complaintDescription" name="description"
+                      rows="4" maxlength="2000" required
+                      placeholder="Explain what happened..."
+                      style="display:block;width:100%;padding:12px;margin:8px 0 16px;resize:vertical;"></textarea>
+
+            <label for="complaintRequestId">Related emergency request (optional)</label>
+            <input id="complaintRequestId" name="requestId"
+                   placeholder="Enter your request ID if applicable"
+                   style="display:block;width:100%;padding:12px;margin:8px 0 16px;">
+
+            <button type="submit" class="primary-button"
+                    style="margin:0;">SUBMIT COMPLAINT</button>
+
+            <p id="complaintFormMessage" role="status" aria-live="polite"></p>
+        </form>
+    </div>
+
+    <div class="card-heading">
+        <h2>My Complaints</h2>
+        <p>Review complaint status and Control Room updates.</p>
+    </div>
+    <div id="myComplaintsList" style="padding:0 26px 24px;">
+        Loading complaints...
+    </div>
+</section>
+
 </main>
 
 
@@ -1582,6 +1842,8 @@
 
 
 <script src="js/individual-dashboard.js"></script>
+
+<script src="js/complaints.js"></script>
 
 </body>
 </html>
