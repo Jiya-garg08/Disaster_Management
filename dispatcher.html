@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Control Room â€” Relief Resolver</title>
+    <title>Control Room — Relief Resolver</title>
 
 
     <!-- =========================================================
@@ -2781,7 +2781,7 @@ body[data-cr-view="zones"] #cr-disaster-section {
 
         }
 
-
+    
         .ngo-capacity-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;padding:12px;border:1px solid #e9e1d3;border-radius:12px;background:#fffcf3}
         .ngo-capacity-summary>div{display:flex;flex-direction:column;gap:4px;min-width:0}
         .ngo-capacity-summary span{font-size:9px;letter-spacing:.7px;font-weight:800;color:#777}
@@ -3256,7 +3256,7 @@ body[data-cr-view="zones"] #cr-disaster-section {
     box-shadow: 0 10px 30px rgba(7, 21, 37, 0.05);
 }
 
-/* Card header â€” matches dispatcher.js */
+/* Card header — matches dispatcher.js */
 #assistanceTrackingList .tracking-card-header {
     display: flex;
     align-items: center;
@@ -3827,7 +3827,7 @@ label:has(#showDeliveredAssistance):hover {
 }
 
 /* ==========================================
-   COMPLAINT MANAGEMENT â€” RELIEF RESOLVER
+   COMPLAINT MANAGEMENT — RELIEF RESOLVER
    Scoped styles; existing dashboard preserved
 ========================================== */
 
@@ -3997,8 +3997,1482 @@ label:has(#showDeliveredAssistance):hover {
 }
 
 
+/* Reject Request button */
+#cr-review-section .btn-reject-request {
+    background: #e53943;
+    color: #ffffff;
+    border: 1px solid #e53943;
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+#cr-review-section .btn-reject-request:hover {
+    background: #c9232e;
+    border-color: #c9232e;
+}
+
+#cr-review-section .btn-reject-request:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+
+/* ===== Individual Request: Reference Layout ===== */
+
+#cr-review-section .rr-detail-card {
+    padding: 18px;
+    border: 0;
+    background: #f1f5fb;
+}
+
+#cr-review-section .rr-breadcrumb {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: #7b8ba0;
+    font-size: 10px;
+}
+
+#cr-review-section .rr-page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#cr-review-section .rr-page-title {
+    margin: 0;
+    color: #132b49;
+    font-family: "DM Sans", Arial, sans-serif;
+    font-size: clamp(21px, 2.2vw, 29px);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+#cr-review-section .rr-page-subtitle {
+    margin: 5px 0 0;
+    color: #718198;
+    font-size: 11px;
+}
+
+#cr-review-section .rr-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(245px, .88fr);
+    gap: 13px;
+    align-items: start;
+}
+
+#cr-review-section .rr-main-column,
+#cr-review-section .rr-side-column {
+    min-width: 0;
+}
+
+#cr-review-section .rr-request-overview,
+#cr-review-section .rr-side-panel {
+    padding: 14px;
+    border: 1px solid #e2e9f2;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(27, 48, 75, .04);
+}
+
+#cr-review-section .rr-overview-top,
+#cr-review-section .rr-id-line,
+#cr-review-section .rr-panel-heading,
+#cr-review-section .rr-side-heading,
+#cr-review-section .rr-score-row,
+#cr-review-section .rr-score-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#cr-review-section .rr-overview-top,
+#cr-review-section .rr-id-line {
+    flex-wrap: wrap;
+}
+
+#cr-review-section .rr-id-line .priority {
+    margin-left: 0;
+}
+
+#cr-review-section .rr-request-id,
+#cr-review-section .rr-coordinates,
+#cr-review-section .rr-received-pill {
+    color: #74839a;
+    font-size: 9px;
+    overflow-wrap: anywhere;
+}
+
+#cr-review-section .rr-received-pill,
+#cr-review-section .rr-count-pill {
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #f0f4fb;
+    font-size: 8px;
+}
+
+#cr-review-section .rr-location-title {
+    margin: 12px 0 2px;
+    color: #1a2e49;
+    font-size: 17px;
+}
+
+#cr-review-section .rr-coordinates {
+    margin: 0;
+}
+
+#cr-review-section .rr-detail-card .detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+}
+
+#cr-review-section .rr-detail-card .detail {
+    padding: 11px;
+    border: 0;
+    border-radius: 8px;
+    background: #eff5fd;
+}
+
+#cr-review-section .rr-detail-card .detail span {
+    font-size: 8px;
+}
+
+#cr-review-section .rr-detail-card .detail strong {
+    color: #263b58;
+    font-size: 11px;
+}
+
+#cr-review-section .rr-situation-panel {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #e8edf4;
+    border-radius: 9px;
+    background: #f9fbfe;
+}
+
+#cr-review-section .rr-situation-panel h5,
+#cr-review-section .rr-panel-heading h5,
+#cr-review-section .rr-side-heading h5 {
+    margin: 0;
+    color: #2a3e58;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-review-section .rr-situation-panel p {
+    margin: 8px 0 0;
+    padding: 10px;
+    border-radius: 7px;
+    background: #eef2f7;
+    color: #4e6078;
+    font-size: 10px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+#cr-review-section .rr-media-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    gap: 10px;
+    margin-top: 11px;
+}
+
+#cr-review-section .rr-media-panel {
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #e5ebf3;
+    border-radius: 9px;
+    background: #fff;
+}
+
+#cr-review-section .rr-panel-heading a {
+    color: #315f9a;
+    font-size: 8px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+#cr-review-section .rr-evidence-preview {
+    display: block;
+    width: 100%;
+    margin-top: 9px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 7px;
+    background: #edf2f8;
+    text-align: left;
+}
+
+#cr-review-section .rr-evidence-preview img {
+    display: block;
+    width: 100%;
+    height: 155px;
+    object-fit: cover;
+}
+
+#cr-review-section .rr-evidence-preview > span {
+    display: block;
+    padding: 8px;
+    background: #f1f5fa;
+    color: #37516f;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+#cr-review-section .rr-no-evidence,
+#cr-review-section .rr-no-map {
+    display: flex;
+    min-height: 155px;
+    margin-top: 9px;
+    padding: 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px dashed #cbd6e4;
+    border-radius: 7px;
+    color: #77879c;
+    font-size: 10px;
+    text-align: center;
+}
+
+#cr-review-section .rr-no-evidence small {
+    font-size: 9px;
+}
+#cr-review-section .rr-map-frame {
+    display: block;
+    width: 100%;
+    height: 220px;
+    margin-top: 9px;
+    border: 0;
+    border-radius: 7px;
+    overflow: hidden;
+    background: #f4f0e8;
+}
+
+#cr-review-section .rr-leaflet-map {
+    position: relative;
+    z-index: 0;
+}
+
+#cr-review-section .rr-reporter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 11px;
+    padding: 10px;
+    border: 1px solid #e5ebf3;
+    border-radius: 9px;
+    background: #fbfcfe;
+}
+
+#cr-review-section .rr-reporter-row .reporter-main {
+    min-width: 0;
+}
+
+#cr-review-section .rr-reporter-row .reporter-main span {
+    overflow-wrap: anywhere;
+}
+
+#cr-review-section .rr-side-column {
+    display: grid;
+    gap: 11px;
+}
+
+#cr-review-section .rr-side-heading {
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+#cr-review-section .rr-side-icon {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    flex: 0 0 25px;
+    place-items: center;
+    border-radius: 7px;
+    background: #eaf2ff;
+    color: #2863ad;
+}
+
+#cr-review-section .rr-score-row {
+    color: #74839a;
+    font-size: 9px;
+}
+
+#cr-review-section .rr-score-row strong {
+    flex-shrink: 0;
+    color: #ed3d43;
+    font-size: 22px;
+}
+
+#cr-review-section .rr-score-row strong small {
+    color: #8a97a8;
+    font-size: 10px;
+}
+
+#cr-review-section .rr-score-track {
+    height: 6px;
+    margin: 9px 0 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf0f5;
+}
+
+#cr-review-section .rr-score-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #ef4448;
+}
+
+#cr-review-section .rr-breakdown {
+    padding: 10px;
+    border-radius: 8px;
+    background: #eff5ff;
+}
+
+#cr-review-section .rr-breakdown h6 {
+    margin: 0 0 9px;
+    color: #354e70;
+    font-size: 10px;
+}
+
+#cr-review-section .rr-breakdown ul {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding-left: 16px;
+    color: #526781;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+#cr-review-section .rr-score-total {
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid #dbe6f7;
+    color: #304a6e;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+#cr-review-section .rr-decision-note,
+#cr-review-section .rr-evidence-warning {
+    margin: 9px 0 0;
+    color: #8390a2;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+#cr-review-section .rr-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+#cr-review-section .rr-quick-actions .btn {
+    display: flex;
+    min-width: 0;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 7px;
+    font-size: 9px;
+    letter-spacing: 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+#cr-review-section .rr-verify-btn {
+    background: #0da66b;
+    color: #fff;
+}
+
+#cr-review-section .rr-reject-btn {
+    border: 0;
+    background: #f43f46;
+    color: #fff;
+    font-weight: 800;
+    text-transform: none;
+}
+
+#cr-review-section .rr-quick-actions .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+#cr-review-section .rr-evidence-warning {
+    color: #9a6a00;
+}
+
+#cr-review-section .rr-timeline {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#cr-review-section .rr-timeline li {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    min-height: 48px;
+    padding-bottom: 12px;
+}
+
+#cr-review-section .rr-timeline li:not(:last-child)::after {
+    position: absolute;
+    top: 13px;
+    bottom: 0;
+    left: 5px;
+    width: 2px;
+    background: #e1e8f1;
+    content: "";
+}
+
+#cr-review-section .rr-timeline-dot {
+    position: relative;
+    z-index: 1;
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    margin-top: 2px;
+    border: 2px solid #c8d3e1;
+    border-radius: 50%;
+    background: #fff;
+}
+
+#cr-review-section .rr-timeline-complete .rr-timeline-dot {
+    border-color: #10a56c;
+    background: #10a56c;
+}
+
+#cr-review-section .rr-timeline-current .rr-timeline-dot {
+    border-color: #3278ed;
+    background: #3278ed;
+}
+
+#cr-review-section .rr-timeline strong,
+#cr-review-section .rr-timeline small {
+    display: block;
+}
+
+#cr-review-section .rr-timeline strong {
+    color: #354963;
+    font-size: 10px;
+}
+
+#cr-review-section .rr-timeline small {
+    margin-top: 4px;
+    color: #8290a2;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+@media (max-width: 1050px) {
+    #cr-review-section .rr-detail-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cr-review-section .rr-side-column {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #cr-review-section .rr-side-column > :last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 680px) {
+    #cr-review-section .rr-detail-card {
+        padding: 10px;
+    }
+
+    #cr-review-section .rr-page-heading {
+        flex-direction: column;
+    }
+
+    #cr-review-section .rr-side-column,
+    #cr-review-section .rr-media-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cr-review-section .rr-side-column > :last-child {
+        grid-column: auto;
+    }
+
+    #cr-review-section .rr-evidence-preview img {
+        height: 190px;
+    }
+}
+
+
+/* ===== Warm Neutral Theme: Individual Requests ===== */
+
+#cr-review-section .rr-detail-card {
+    background: #f7f5f0;
+    color: #171717;
+}
+
+#cr-review-section .rr-page-title,
+#cr-review-section .rr-location-title {
+    color: #171717;
+}
+
+#cr-review-section .rr-page-subtitle,
+#cr-review-section .rr-breadcrumb,
+#cr-review-section .rr-request-id,
+#cr-review-section .rr-coordinates {
+    color: #77736c;
+}
+
+#cr-review-section .rr-request-overview,
+#cr-review-section .rr-side-panel,
+#cr-review-section .rr-media-panel {
+    background: #fffefa;
+    border-color: #e7e1d7;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.025);
+}
+
+#cr-review-section .rr-detail-card .detail {
+    background: #f4f0e8;
+    border: 1px solid #e9e2d6;
+}
+
+#cr-review-section .rr-detail-card .detail span {
+    color: #777168;
+}
+
+#cr-review-section .rr-detail-card .detail strong {
+    color: #22201c;
+}
+
+#cr-review-section .rr-situation-panel {
+    background: #fffefa;
+    border-color: #e7e1d7;
+}
+
+#cr-review-section .rr-situation-panel h5,
+#cr-review-section .rr-panel-heading h5,
+#cr-review-section .rr-side-heading h5 {
+    color: #24211d;
+}
+
+#cr-review-section .rr-situation-panel p {
+    background: #f4f0e8;
+    color: #393630;
+}
+
+#cr-review-section .rr-reporter-row {
+    background: #fffefa;
+    border-color: #e7e1d7;
+}
+
+#cr-review-section .rr-evidence-preview {
+    background: #f4f0e8;
+}
+
+#cr-review-section .rr-evidence-preview > span {
+    background: #f4f0e8;
+    color: #292620;
+}
+
+#cr-review-section .rr-no-evidence,
+#cr-review-section .rr-no-map {
+    background: #faf8f3;
+    border-color: #dcd4c7;
+    color: #777168;
+}
+
+#cr-review-section .rr-received-pill,
+#cr-review-section .rr-count-pill {
+    background: #f3efe7;
+    color: #5f594f;
+}
+
+#cr-review-section .rr-breakdown {
+    background: #f5f1e9;
+}
+
+#cr-review-section .rr-breakdown h6,
+#cr-review-section .rr-breakdown ul,
+#cr-review-section .rr-score-total {
+    color: #292620;
+}
+
+#cr-review-section .rr-score-total {
+    border-top-color: #ded6c9;
+}
+
+#cr-review-section .rr-side-icon {
+    background: #f0ece4;
+    color: #292620;
+}
+
+#cr-review-section .rr-side-icon.rr-red-icon {
+    background: #fae9e5;
+    color: #b42318;
+}
+
+#cr-review-section .rr-timeline strong {
+    color: #292620;
+}
+
+#cr-review-section .rr-timeline small {
+    color: #777168;
+}
+
+#cr-review-section .rr-timeline li:not(:last-child)::after {
+    background: #ded8cd;
+}
+
+/* Keep action colors unchanged */
+#cr-review-section .rr-verify-btn {
+    background: #0da66b;
+    color: #fff;
+}
+
+#cr-review-section .rr-reject-btn {
+    background: #f43f46;
+    color: #fff;
+}
+
+
+/* ==========================================
+   NGO VERIFICATION — WARM NEUTRAL REDESIGN
+   UI ONLY: no JavaScript or functionality changes
+========================================== */
+
+#cr-ngo-verification-section {
+    color: #171717;
+}
+
+/* Page heading */
+#cr-ngo-verification-section .section-heading {
+    margin-bottom: 24px;
+    align-items: flex-start;
+}
+
+#cr-ngo-verification-section .section-heading h2 {
+    color: #171717;
+    font-size: clamp(28px, 3vw, 42px);
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+#cr-ngo-verification-section .section-heading p {
+    color: #777168;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+#cr-ngo-verification-section .section-badge {
+    padding: 8px 12px;
+    border: 1px solid #eadfc9;
+    border-radius: 999px;
+    background: #f4ead5;
+    color: #795b23;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* NGO card grid: one card should use the available width */
+#cr-ngo-verification-section .ngo-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+/* Main NGO card */
+#cr-ngo-verification-section .ngo-card {
+    min-width: 0;
+    padding: clamp(18px, 2.2vw, 28px);
+    border: 1px solid #e6dfd3;
+    border-radius: 16px;
+    background: #fffefa;
+    box-shadow: 0 5px 20px rgba(35, 28, 17, 0.035);
+    overflow: hidden;
+}
+
+#cr-ngo-verification-section .ngo-card:nth-child(even) {
+    border-right: 1px solid #e6dfd3;
+}
+
+#cr-ngo-verification-section .ngo-id {
+    margin-bottom: 7px;
+    color: #28784b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+}
+
+#cr-ngo-verification-section .ngo-card h3 {
+    margin: 5px 0;
+    color: #171717;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+#cr-ngo-verification-section .ngo-location {
+    color: #777168;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Registration, PAN, contact and phone details */
+#cr-ngo-verification-section .ngo-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#cr-ngo-verification-section .ngo-info > div {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e9e2d6;
+    border-radius: 10px;
+    background: #f7f3eb;
+}
+
+#cr-ngo-verification-section .ngo-info span {
+    color: #777168;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+}
+
+#cr-ngo-verification-section .ngo-info strong {
+    margin-top: 7px;
+    color: #201e1a;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Services */
+#cr-ngo-verification-section .ngo-services {
+    margin-top: 16px;
+    color: #625c52;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#cr-ngo-verification-section .ngo-services strong {
+    color: #201e1a;
+}
+
+/* Supporting documents */
+#cr-ngo-verification-section .document-box {
+    margin-top: 20px;
+    padding: 17px;
+    border: 1px solid #e6dfd3;
+    border-radius: 12px;
+    background: #faf7f1;
+}
+
+#cr-ngo-verification-section .document-box-title {
+    margin-bottom: 12px;
+    color: #655d51;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+}
+
+#cr-ngo-verification-section .document-row {
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom-color: #e7dfd3;
+}
+
+#cr-ngo-verification-section .document-row > span {
+    color: #302c26;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+#cr-ngo-verification-section .document-buttons {
+    gap: 8px;
+}
+
+/* Document preview buttons */
+#cr-ngo-verification-section .document-buttons .btn {
+    min-height: 40px;
+    padding: 10px 14px;
+    border: 1px solid #dcd3c5;
+    border-radius: 9px;
+    background: #fffefa;
+    color: #292620;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-ngo-verification-section .document-buttons .btn:hover {
+    background: #f2ede4;
+}
+
+#cr-ngo-verification-section .document-buttons .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Document review checklist */
+#cr-ngo-verification-section .check-row {
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+    color: #514b42;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+#cr-ngo-verification-section .check-row input {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    accent-color: #28784b;
+}
+
+/* Approve / reject actions */
+#cr-ngo-verification-section .ngo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e8e1d6;
+}
+
+#cr-ngo-verification-section .ngo-actions .btn {
+    min-height: 43px;
+    padding: 12px 18px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-ngo-verification-section .ngo-actions .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Empty state */
+#cr-ngo-verification-section .empty-state {
+    border: 1px solid #e6dfd3;
+    border-radius: 12px;
+    background: #fffefa;
+    color: #625c52;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+    #cr-ngo-verification-section .ngo-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    #cr-ngo-verification-section .ngo-info {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cr-ngo-verification-section .document-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #cr-ngo-verification-section .ngo-actions {
+        flex-direction: column;
+    }
+
+    #cr-ngo-verification-section .ngo-actions .btn {
+        width: 100%;
+    }
+}
+
+
+/* ================================================
+   NGO VERIFICATION — MATCH INDIVIDUAL REQUESTS UI
+   CSS ONLY — preserve existing functionality
+================================================ */
+
+#cr-ngo-verification-section {
+    min-width: 0;
+    color: #171717;
+}
+
+/* Page heading */
+#cr-ngo-verification-section .section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+#cr-ngo-verification-section .section-heading h2 {
+    margin: 0;
+    color: #101820;
+    font-family: "DM Sans", Arial, sans-serif;
+    font-size: clamp(30px, 3.2vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+}
+
+#cr-ngo-verification-section .section-heading p {
+    margin-top: 9px;
+    color: #777168;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+/* Pending count */
+#cr-ngo-verification-section .section-badge {
+    padding: 8px 13px;
+    border: 1px solid #eadfc9;
+    border-radius: 999px;
+    background: #f4ead5;
+    color: #795b23;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Make the NGO card use the available width */
+#cr-ngo-verification-section .ngo-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    min-width: 0;
+}
+
+#cr-ngo-verification-section .ngo-card,
+#cr-ngo-verification-section .ngo-card:nth-child(even) {
+    min-width: 0;
+    padding: clamp(18px, 2.1vw, 28px);
+    border: 1px solid #e6dfd3;
+    border-radius: 16px;
+    background: #fffefa;
+    box-shadow: 0 5px 20px rgba(35, 28, 17, 0.035);
+    overflow: hidden;
+}
+
+/* NGO name and location */
+#cr-ngo-verification-section .ngo-id {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #28784b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+}
+
+#cr-ngo-verification-section .ngo-card h3 {
+    margin: 5px 0;
+    color: #171717;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+#cr-ngo-verification-section .ngo-location {
+    color: #777168;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Registration, PAN, contact and phone */
+#cr-ngo-verification-section .ngo-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#cr-ngo-verification-section .ngo-info > div {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #e9e2d6;
+    border-radius: 10px;
+    background: #f7f3eb;
+}
+
+#cr-ngo-verification-section .ngo-info span {
+    color: #777168;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+#cr-ngo-verification-section .ngo-info strong {
+    margin-top: 7px;
+    color: #201e1a;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Services */
+#cr-ngo-verification-section .ngo-services {
+    margin-top: 15px;
+    color: #625c52;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#cr-ngo-verification-section .ngo-services strong {
+    color: #201e1a;
+}
+
+/* Supporting documents */
+#cr-ngo-verification-section .document-box {
+    margin-top: 20px;
+    padding: 17px;
+    border: 1px solid #e6dfd3;
+    border-radius: 12px;
+    background: #faf7f1;
+}
+
+#cr-ngo-verification-section .document-box-title {
+    margin-bottom: 12px;
+    color: #655d51;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+#cr-ngo-verification-section .document-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid #e7dfd3;
+}
+
+#cr-ngo-verification-section .document-row > span {
+    min-width: 0;
+    color: #302c26;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+#cr-ngo-verification-section .document-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#cr-ngo-verification-section .document-buttons .btn {
+    min-height: 40px;
+    padding: 10px 14px;
+    border: 1px solid #dcd3c5;
+    border-radius: 9px;
+    background: #fffefa;
+    color: #292620;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-ngo-verification-section .document-buttons .btn:hover:not(:disabled) {
+    background: #f2ede4;
+}
+
+/* Review checklist */
+#cr-ngo-verification-section .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+    color: #514b42;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+#cr-ngo-verification-section .check-row input {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    accent-color: #28784b;
+}
+
+/* Existing approval and rejection buttons */
+#cr-ngo-verification-section .ngo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e8e1d6;
+}
+
+#cr-ngo-verification-section .ngo-actions .btn {
+    min-height: 43px;
+    padding: 12px 18px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-ngo-verification-section .ngo-actions .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Empty state */
+#cr-ngo-verification-section .empty-state {
+    padding: 35px 20px;
+    border: 1px solid #e6dfd3;
+    border-radius: 12px;
+    background: #fffefa;
+    color: #625c52;
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+    #cr-ngo-verification-section .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #cr-ngo-verification-section .ngo-info {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cr-ngo-verification-section .document-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #cr-ngo-verification-section .ngo-actions {
+        flex-direction: column;
+    }
+
+    #cr-ngo-verification-section .ngo-actions .btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   VERIFIED NGO NETWORK — CLEAN CARD GRID
+   Scoped to the network section only.
+========================================================= */
+
+#cr-ngo-network-section {
+    min-width: 0;
+}
+
+#cr-ngo-network-section .section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+#cr-ngo-network-section .section-heading h2 {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.12;
+    letter-spacing: -0.04em;
+}
+
+#cr-ngo-network-section .section-heading p {
+    max-width: 650px;
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+#cr-ngo-network-section .section-badge {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    border: 1px solid #cfe4d4;
+    border-radius: 999px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Search and filters */
+#cr-ngo-network-section .ngo-network-filters {
+    display: grid;
+    grid-template-columns:
+        minmax(150px, .8fr)
+        minmax(150px, .8fr)
+        minmax(220px, 1.5fr);
+    gap: 12px;
+    align-items: end;
+    margin: 0 0 18px;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #faf8f3;
+}
+
+#cr-ngo-network-section .ngo-network-filters label {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 7px;
+    color: #65717c;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#cr-ngo-network-section .ngo-network-filters select,
+#cr-ngo-network-section .ngo-network-filters input {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #ded8cd;
+    border-radius: 8px;
+    outline: none;
+    background: #fffdf9;
+    color: var(--ink);
+    font-size: 12px;
+}
+
+#cr-ngo-network-section .ngo-network-filters select:focus,
+#cr-ngo-network-section .ngo-network-filters input:focus {
+    border-color: #8298a8;
+    box-shadow: 0 0 0 3px rgba(40, 95, 150, .09);
+}
+
+/* Two equal columns with consistent gaps */
+#cr-ngo-network-section #verifiedNgoList.ngo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+    min-width: 0;
+}
+
+/* Individual NGO cards */
+#cr-ngo-network-section #verifiedNgoList > .ngo-card,
+#cr-ngo-network-section #verifiedNgoList > .ngo-card:nth-child(even) {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: 0 6px 20px rgba(7, 21, 37, .045);
+    overflow: hidden;
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+#cr-ngo-network-section #verifiedNgoList > .ngo-card:hover {
+    transform: translateY(-2px);
+    border-color: #d2c8b8;
+    box-shadow: 0 12px 28px rgba(7, 21, 37, .075);
+}
+
+/* NGO ID and title */
+#cr-ngo-network-section #verifiedNgoList .ngo-id {
+    display: inline-flex;
+    align-self: flex-start;
+    margin: 0 0 7px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 9px;
+    letter-spacing: .07em;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-card h3 {
+    margin: 3px 0 4px;
+    font-size: 19px;
+    line-height: 1.3;
+    letter-spacing: -.025em;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-location {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Registration, PAN, contact and radius */
+#cr-ngo-network-section #verifiedNgoList .ngo-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 16px;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-info > div {
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #eae4d9;
+    border-radius: 9px;
+    background: #f9f6f0;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-info span,
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary span {
+    display: block;
+    color: #7d8790;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .06em;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-info strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--ink);
+    font-size: 11px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+/* Services */
+#cr-ngo-network-section #verifiedNgoList .ngo-services {
+    margin-top: 13px;
+    color: #596772;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+/* Availability, active cases, volunteers and vehicles */
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px 16px;
+    margin-top: 15px;
+    padding: 14px;
+    border: 1px solid #e8e1d5;
+    border-radius: 11px;
+    background: #fbf9f4;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary > div {
+    min-width: 0;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary .ngo-availability-available {
+    color: var(--green);
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary .ngo-availability-limited {
+    color: var(--amber);
+}
+
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-summary .ngo-availability-unavailable {
+    color: var(--red);
+}
+
+/* Optional stock / supplies information */
+#cr-ngo-network-section #verifiedNgoList .ngo-capacity-stock {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #dce6ef;
+    border-radius: 9px;
+    background: var(--blue-bg);
+    color: #355875;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+/* Verified partner footer stays at the bottom of the card */
+#cr-ngo-network-section #verifiedNgoList .ngo-card > div[style*="VERIFIED RELIEF PARTNER"] {
+    margin-top: auto !important;
+    padding: 10px 12px !important;
+    border: 1px solid #d5e9d9;
+    border-radius: 9px !important;
+    font-size: 9px !important;
+    line-height: 1.4;
+}
+
+/* Empty state */
+#cr-ngo-network-section #verifiedNgoList .empty-state {
+    grid-column: 1 / -1;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    border: 1px dashed #d8d0c3;
+    border-radius: 13px;
+    background: #fffdf9;
+    color: var(--muted);
+    text-align: center;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    #cr-ngo-network-section #verifiedNgoList.ngo-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #cr-ngo-network-section .ngo-network-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #cr-ngo-network-section .ngo-network-search {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #cr-ngo-network-section .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #cr-ngo-network-section .ngo-network-filters {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 12px;
+    }
+
+    #cr-ngo-network-section .ngo-network-search {
+        grid-column: auto;
+    }
+
+    #cr-ngo-network-section #verifiedNgoList > .ngo-card,
+    #cr-ngo-network-section #verifiedNgoList > .ngo-card:nth-child(even) {
+        padding: 15px;
+    }
+
+    #cr-ngo-network-section #verifiedNgoList .ngo-info {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 
 </style>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 </head>
 
@@ -4274,7 +5748,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ‘¤
+                            👤
                         </span>
 
                         <span class="cr-nav-label">
@@ -4298,7 +5772,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ¤
+                            🤝
                         </span>
 
                         <span class="cr-nav-label">
@@ -4320,7 +5794,7 @@ label:has(#showDeliveredAssistance):hover {
                         class="cr-nav-btn"
                         data-view="assistance-tracking"
                     >
-                        <span class="cr-nav-icon">ðŸšš</span>
+                        <span class="cr-nav-icon">🚚</span>
                         <span class="cr-nav-label">NGO Assistance Tracking</span>
                         <span
                             class="cr-nav-count"
@@ -4336,7 +5810,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ“„
+                            📄
                         </span>
 
                         <span class="cr-nav-label">
@@ -4360,7 +5834,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ 
+                            🏠
                         </span>
 
                         <span class="cr-nav-label">
@@ -4377,7 +5851,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ—ºï¸
+                            🗺️
                         </span>
 
                         <span class="cr-nav-label">
@@ -4394,7 +5868,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸŒªï¸
+                            🌪️
                         </span>
 
                         <span class="cr-nav-label">
@@ -4411,7 +5885,7 @@ label:has(#showDeliveredAssistance):hover {
                     >
 
                         <span class="cr-nav-icon">
-                            ðŸ’¬
+                            💬
                         </span>
 
                         <span class="cr-nav-label">
@@ -4427,9 +5901,9 @@ label:has(#showDeliveredAssistance):hover {
 
                     </button>
 
-
+     
                 <button type="button" class="cr-nav-btn" data-view="complaints">
-    <span class="cr-nav-icon">ðŸ“‹</span>
+    <span class="cr-nav-icon">📋</span>
     <span class="cr-nav-label">Complaint Management</span>
     <span class="cr-nav-count" id="sideComplaintsCount">0</span>
 </button>
@@ -4810,7 +6284,7 @@ label:has(#showDeliveredAssistance):hover {
                             <span
                                 class="coordination-legend-icon coordination-legend-person"
                             >
-                                ðŸ‘¤
+                                👤
                             </span>
 
                             Verified Individual Request
@@ -4823,7 +6297,7 @@ label:has(#showDeliveredAssistance):hover {
                             <span
                                 class="coordination-legend-icon coordination-legend-ngo"
                             >
-                                ðŸ 
+                                🏠
                             </span>
 
                             Verified NGO
@@ -4856,7 +6330,7 @@ label:has(#showDeliveredAssistance):hover {
                     <div class="disaster-zone-header">
 
                         <div class="disaster-zone-icon">
-                            ðŸ—ºï¸
+                            🗺️
                         </div>
 
 
@@ -5210,7 +6684,7 @@ label:has(#showDeliveredAssistance):hover {
             </span>
 
             <span>
-                v2.0 â€” NGO coordination workflow
+                v2.0 — NGO coordination workflow
             </span>
 
         </div>
@@ -5220,7 +6694,7 @@ label:has(#showDeliveredAssistance):hover {
 
     <div class="footer-bottom">
 
-        Â© 2026 Relief Resolver.
+        © 2026 Relief Resolver.
         Not affiliated with any government emergency service.
 
     </div>
@@ -5293,7 +6767,7 @@ label:has(#showDeliveredAssistance):hover {
 
 
 
-
+    
 function showView(view) {
     if (!validViews.includes(view)) {
         view = "individual";
@@ -5519,7 +6993,7 @@ window.addEventListener("resize", () => {
                     <div class="empty-state">
 
                         <div class="empty-icon">
-                            âœ“
+                            ✓
                         </div>
 
                         No messages have been received yet.
@@ -5644,7 +7118,7 @@ window.addEventListener("resize", () => {
                                                             contact-reviewed
                                                         "
                                                     >
-                                                        âœ“ REVIEWED
+                                                        ✓ REVIEWED
                                                     </span>
                                                 `
 
@@ -5747,7 +7221,7 @@ window.addEventListener("resize", () => {
 
 
             showControlMessage(
-                "âœ“ Message marked as reviewed."
+                "✓ Message marked as reviewed."
             );
 
         };

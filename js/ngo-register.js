@@ -108,31 +108,31 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ============================================================
        SHOW RESULT
     ============================================================ */
+function showResult(type, message) {
+    const resultElement = document.getElementById("ngoResult");
 
-    function showResult(type, message) {
-
-        if (!result) {
-
-            alert(message);
-
-            return;
-        }
-
-        result.className =
-            "ngo-result show " + type;
-
-        result.textContent = message;
-
-        result.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
-        });
-
-        if (type === "error") {
-            showToast(message);
-        }
+    if (!resultElement) {
+        alert(message);
+        return;
     }
 
+    resultElement.className = "ngo-result show " + type;
+    resultElement.textContent = message;
+
+    // Force the message to be visible
+    resultElement.style.display = "block";
+    resultElement.style.visibility = "visible";
+    resultElement.style.opacity = "1";
+
+    resultElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+
+    if (type === "error") {
+        showToast(message);
+    }
+}
 
     /* ============================================================
        FIELD REFERENCES
@@ -740,6 +740,7 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
 
 
+    console.log("NGO REGISTRATION SUBMIT HANDLER RUNNING");
             /* ====================================================
                BASIC INFORMATION
             ==================================================== */
@@ -1742,7 +1743,7 @@ try {
 
     formData.append("serviceRadiusKm", String(Number(radius)));
 
-    // Actual uploaded files (File objects)
+    // Uploaded documents
     if (registrationCertificate instanceof File) {
         formData.append(
             "registrationCertificate",
@@ -1754,7 +1755,7 @@ try {
         formData.append("panDocument", panDocument);
     }
 
-    // Send registration request
+    // Submit registration to the backend
     const response = await fetch(
         "http://localhost:5000/api/auth/register",
         {
@@ -1763,26 +1764,30 @@ try {
         }
     );
 
-   const responseText = await response.text();
+    const responseText = await response.text();
+    let data;
 
-let data;
+    try {
+        data = JSON.parse(responseText);
+    } catch (parseError) {
+        console.error(
+            "Non-JSON registration response:",
+            responseText
+        );
 
-try {
-    data = JSON.parse(responseText);
-} catch (parseError) {
-    console.error("Non-JSON registration response:", responseText);
+        throw new Error(
+            `Server returned a non-JSON response (HTTP ${response.status}). Check the backend terminal for details.`
+        );
+    }
 
-    throw new Error(
-        `Server returned a non-JSON response (HTTP ${response.status}). Check the backend terminal for details.`
-    );
-}
-
+    // Handle unsuccessful registration
     if (!response.ok || !data.success) {
         throw new Error(
             data.message || "NGO registration failed."
         );
     }
 
+    // Registration succeeded
     console.log(
         "NGO successfully registered in MongoDB:",
         data.user
@@ -1790,8 +1795,24 @@ try {
 
     showResult(
         "success",
-        data.message || "NGO registered successfully."
+        "Your NGO has been registered successfully! " +
+        "Your organization is awaiting verification. " +
+        "Redirecting to login..."
     );
+
+    // Reset the form
+    form.reset();
+
+    const countryInput = document.getElementById("ngoCountry");
+
+    if (countryInput) {
+        countryInput.value = "India";
+    }
+
+    // Redirect only once, after successful registration
+    setTimeout(function () {
+        window.location.replace("./login.html");
+    }, 2000);
 
 } catch (error) {
     console.error("Unable to register NGO:", error);
@@ -1799,58 +1820,40 @@ try {
     showResult(
         "error",
         error.message ||
-            "The organization could not be saved. Please try again."
+        "The organization could not be saved. Please try again."
     );
 
     return;
 }
+
+// Continue with your existing validation-reset code below.
 
             /* ====================================================
                VERIFY SAVE
                ----------------------------------------------------
                This is useful while testing.
             ==================================================== */
-            console.log("NGO registration completed successfully.");
-
+           
             /* ====================================================
                SUCCESS
             ==================================================== */
+showResult(
+    "success",
+    "Your NGO has been registered successfully! " +
+    "Your organization is awaiting verification. " +
+    "Redirecting to login..."
+);
 
-            showResult(
-                "success",
+form.reset();
 
-                "✓ " +
-                name +
-                " has been registered successfully. " +
-                "Your organization is now pending verification. " +
-                "Relief Resolver staff will review your registration details and documents before approval."
-            );
+const countryInput = document.getElementById("ngoCountry");
+if (countryInput) {
+    countryInput.value = "India";
+}
 
-
-            /* ====================================================
-               RESET FORM
-            ==================================================== */
-
-            form.reset();
-
-
-            /* ----------------------------------------------------
-               COUNTRY DEFAULT
-            ---------------------------------------------------- */
-
-            const countryInput =
-                document.getElementById(
-                    "ngoCountry"
-                );
-
-
-            if (countryInput) {
-
-                countryInput.value =
-                    "India";
-            }
-
-
+setTimeout(() => {
+    window.location.assign("./login.html");
+}, 2500);
             /* ----------------------------------------------------
                RESET VALIDATION
             ---------------------------------------------------- */

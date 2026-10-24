@@ -298,7 +298,11 @@ try {
     serviceAreas: data.user.serviceAreas,
     supportedEmergencies: data.user.supportedEmergencies,
     operatingRadiusKm: data.user.serviceRadiusKm,
-    status: data.user.status
+    status: String(
+    data.user.verificationStatus ||
+    data.user.status ||
+    "pending"
+).trim().toLowerCase()
   };
 } catch (error) {
   console.error("NGO profile loading error:", error);
@@ -307,6 +311,7 @@ try {
   window.location.href = "index.html";
   return;
 }
+
 
 
     if (!currentNgo) {
@@ -342,24 +347,87 @@ try {
      * ------------------------------------------------------------
      */
 
-    if (
-        String(
-            currentNgo.status || ""
-        )
-            .trim()
-            .toLowerCase() !==
-        "verified"
-    ) {
+const status = String(
+    currentNgo.status || "pending"
+).trim().toLowerCase();
 
-        alert(
-            "Your NGO is still awaiting verification."
-        );
 
-        window.location.href =
-            "index.html";
+if (status !== "verified") {
+    document.body.innerHTML = `
+        <main style="
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+            background:#f5f1e8;
+            font-family:Arial,sans-serif;
+        ">
+            <section style="
+                max-width:560px;
+                padding:40px;
+                background:white;
+                text-align:center;
+                border:1px solid #ded8cc;
+                border-radius:12px;
+            ">
+                <div style="font-size:42px;">⏳</div>
+                <h1>Verification Pending</h1>
+                <p>
+                    Your NGO registration has been received.
+                    The Control Room is reviewing your application.
+                </p>
+                <p>
+                    Your organization details, relief requests,
+                    maps and operational features will be available
+                    once your NGO is approved.
+                </p>
+                <strong style="color:#b83b32;">
+                    Status: Pending Approval
+                </strong>
+                <br><br>
+                <button id="pendingLogout" style="
+                    padding:12px 24px;
+                    background:#b83b32;
+                    color:white;
+                    border:0;
+                    border-radius:6px;
+                    cursor:pointer;
+                ">Logout</button>
+            </section>
+        </main>
+    `;
 
-        return;
-    }
+    document.getElementById("pendingLogout")
+        .addEventListener("click", function () {
+            [
+                "reliefAuthToken",
+                "reliefNgoLoggedIn",
+                "reliefNgoId",
+                "reliefNgoName",
+                "reliefAccountRole"
+            ].forEach(key => {
+                localStorage.removeItem(key);
+                sessionStorage.removeItem(key);
+            });
+
+            window.location.href = "login.html";
+        });
+
+    return;
+}
+
+
+
+if (status === "rejected") {
+    alert(
+        "Your NGO registration has been rejected. " +
+        "Please contact Relief Resolver staff."
+    );
+
+    window.location.href = "index.html";
+    return;
+}
 
 
     /*
@@ -5367,8 +5435,8 @@ function handleStorageChange(
 /* ================================================================
    REFRESH DASHBOARD
 ================================================================ */
-
 async function refreshDashboard() {
+    await ensureNGOCoordinates(currentNgo);
 
     /*
      * Re-read current NGO.

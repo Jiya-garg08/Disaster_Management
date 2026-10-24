@@ -707,155 +707,300 @@ function requestDetails(
    REVIEW CARD
 ============================================================ */
 
+
 function createReviewCard(request) {
     const priority = getPriority(request);
     const assessment = getPriorityAssessment(request);
-
     const evidence = hasEvidence(request);
+    const photo = evidence ? getEvidence(request) : "";
     const id = getRequestId(request);
     const reporter = getReporterName(request);
     const lat = getLat(request);
     const lng = getLng(request);
     const location = getLocationName(request);
 
+    const submittedRaw =
+        request.createdAt || request.timestamp || request.savedAt;
+
+    const submittedDate = submittedRaw
+        ? (typeof submittedRaw === "number"
+            ? submittedRaw
+            : Date.parse(submittedRaw))
+        : NaN;
+
+    const submittedLabel = Number.isFinite(submittedDate)
+        ? new Date(submittedDate).toLocaleString()
+        : "Submission time unavailable";
+
+    const mapFrame = lat !== null && lng !== null
+        ? `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.015}%2C${lat - 0.01}%2C${lng + 0.015}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`
+        : "";
+
+    const scoreReasons = assessment.reasons
+        .map(reason => `<li>${safe(reason)}</li>`)
+        .join("");
+
     return `
-        <article class="request-card">
+        <article class="request-card rr-detail-card">
 
-            <div class="request-head">
+            <div class="rr-breadcrumb">
+                <span>⌂</span>
+                <span>Individual Requests</span>
+                <span>›</span>
+                <strong>Request Details</strong>
+            </div>
+
+            <div class="rr-page-heading">
                 <div>
-                    <div class="request-id">
-                        ${safe(id)}
-
-                        <span class="priority ${priority.cls}">
-                            ${safe(priority.label)}
-                        </span>
-                    </div>
-
-                    <h3 class="request-title">
-                        ${safe(location)}
+                    <h3 class="rr-page-title">
+                        Individual Emergency Request
                     </h3>
-
-                    <div class="request-location">
-                        📍
-                        ${lat !== null ? lat.toFixed(5) : "—"},
-                        ${lng !== null ? lng.toFixed(5) : "—"}
-                    </div>
+                    <p class="rr-page-subtitle">
+                        Inspect the evidence before a request enters the relief network.
+                    </p>
                 </div>
 
-                <div class="urgency-box">
-                    <span>PRIORITY SCORE</span>
-                    <strong>${assessment.score}/100</strong>
-                </div>
+                <span class="rr-awaiting-pill">
+                    ● Awaiting review
+                </span>
             </div>
 
-            <div class="priority-explanation">
-                <strong>
-                    Suggested priority: ${safe(assessment.label)}
-                </strong>
+            <div class="rr-detail-layout">
 
-                <div>
-                    ${safe(assessment.reasons.join(" · "))}
-                </div>
+                <!-- LEFT: REQUEST DETAILS -->
+                <section class="rr-main-column">
+                    <div class="rr-request-overview">
 
-                <small>
-                    Decision support only. The Control Room makes
-                    the final verification and assistance decisions.
-                </small>
-            </div>
+                        <div class="rr-overview-top">
+                            <div class="rr-id-line">
+                                <span class="priority ${priority.cls}">
+                                    ${safe(priority.label)} PRIORITY
+                                </span>
+                                <span class="rr-request-id">
+                                    ${safe(id)}
+                                </span>
+                            </div>
 
-            ${requestDetails(request)}
-
-            <div class="reporter-row">
-                <div class="reporter-avatar">
-                    ${safe(
-                        reporter.charAt(0).toUpperCase()
-                    )}
-                </div>
-
-                <div class="reporter-main">
-                    <strong>${safe(reporter)}</strong>
-
-                    <span>
-                        ${safe(
-                            request.reporterType ||
-                            "Affected Person"
-                        )}
-
-                        ·
-
-                        ${safe(
-                            request.contactNumber ||
-                            request.phone ||
-                            "No contact"
-                        )}
-                    </span>
-                </div>
-            </div>
-
-            <div class="situation">
-                <div class="situation-label">
-                    SITUATION DETAILS
-                </div>
-
-                <p>
-                    ${safe(
-                        request.situationDetails ||
-                        request.description ||
-                        "No details provided."
-                    )}
-                </p>
-            </div>
-
-            <div class="verification-row">
-                <div class="status-main">
-                    <span>VERIFICATION</span>
-
-                    <strong>
-                        ⚠ Verification pending
-                    </strong>
-                </div>
-
-                <button
-                    type="button"
-                    class="btn btn-light"
-                    onclick="viewEvidence('${jsArg(id)}')"
-                    ${evidence ? "" : "disabled"}
-                >
-                    📷
-                    ${evidence ? "View evidence" : "No evidence"}
-                </button>
-            </div>
-
-            <div class="actions">
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="verifyRequest('${jsArg(id)}')"
-                    ${evidence ? "" : "disabled"}
-                >
-                    ✓ VERIFY REQUEST
-                </button>
-
-                ${
-                    evidence
-                        ? ""
-                        : `
-                            <span
-                                style="
-                                    font-size:9px;
-                                    color:#9a6a00;
-                                "
-                            >
-                                Evidence photo is required
-                                before verification.
+                            <span class="rr-received-pill">
+                                ◷ ${safe(submittedLabel)}
                             </span>
-                        `
-                }
-            </div>
+                        </div>
 
+                        <h4 class="rr-location-title">
+                            📍 ${safe(location)}
+                        </h4>
+
+                        <p class="rr-coordinates">
+                            ${lat !== null ? lat.toFixed(5) : "—"},
+                            ${lng !== null ? lng.toFixed(5) : "—"}
+                        </p>
+
+                        ${requestDetails(request)}
+
+                        <div class="rr-situation-panel">
+                            <h5>▤ Situation Details</h5>
+                            <p>${safe(
+                                request.situationDetails ||
+                                request.description ||
+                                "No details provided."
+                            )}</p>
+                        </div>
+
+                        <!-- EVIDENCE AND MAP -->
+                        <div class="rr-media-grid">
+
+                            <section class="rr-media-panel">
+                                <div class="rr-panel-heading">
+                                    <h5>▣ Evidence</h5>
+                                    <span class="rr-count-pill">
+                                        ${evidence ? "1 image" : "No image"}
+                                    </span>
+                                </div>
+
+                                ${evidence ? `
+                                    <button
+                                        type="button"
+                                        class="rr-evidence-preview"
+                                        onclick="viewEvidence('${jsArg(id)}')"
+                                        aria-label="View evidence photo"
+                                    >
+                                        <img
+                                            src="${photo}"
+                                            alt="Emergency evidence"
+                                        >
+                                        <span>View evidence ↗</span>
+                                    </button>
+                                ` : `
+                                    <div class="rr-no-evidence">
+                                        <strong>No evidence photo submitted</strong>
+                                        <small>
+                                            A photo is required before verification.
+                                        </small>
+                                    </div>
+                                `}
+                            </section>
+
+                            <section class="rr-media-panel">
+                                <div class="rr-panel-heading">
+                                    <h5>📍 Location</h5>
+
+                                    ${lat !== null && lng !== null ? `
+                                        <a
+                                            href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >Open in Maps ↗</a>
+                                    ` : ""}
+                                </div>
+
+                                ${mapFrame ? `
+                                    <div
+    class="rr-map-frame rr-leaflet-map"
+    data-lat="${lat}"
+    data-lng="${lng}"
+    data-location="${safe(location)}"
+></div>
+                                ` : `
+                                    <div class="rr-no-map">
+                                        Location coordinates unavailable.
+                                    </div>
+                                `}
+                            </section>
+
+                        </div>
+
+                        <!-- REPORTER -->
+                        <div class="rr-reporter-row">
+                            <div class="reporter-avatar">
+                                ${safe(reporter.charAt(0).toUpperCase())}
+                            </div>
+
+                            <div class="reporter-main">
+                                <strong>${safe(reporter)}</strong>
+                                <span>
+                                    ${safe(request.reporterType || "Affected Person")}
+                                    ·
+                                    ${safe(
+                                        request.contactNumber ||
+                                        request.phone ||
+                                        "No contact"
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- RIGHT: PRIORITY AND ACTIONS -->
+                <aside class="rr-side-column">
+
+                    <section class="rr-side-panel">
+                        <div class="rr-side-heading">
+                            <span class="rr-side-icon">◉</span>
+                            <h5>Priority Score</h5>
+                        </div>
+
+                        <div class="rr-score-row">
+                            <span>
+                                Suggested priority: ${safe(assessment.label)}
+                            </span>
+                            <strong>
+                                ${assessment.score}<small>/100</small>
+                            </strong>
+                        </div>
+
+                        <div class="rr-score-track">
+                            <span style="width:${assessment.score}%"></span>
+                        </div>
+
+                        <div class="rr-breakdown">
+                            <h6>▥ Score Breakdown</h6>
+                            <ul>${scoreReasons}</ul>
+
+                            <div class="rr-score-total">
+                                <span>Total Score</span>
+                                <strong>${assessment.score}/100</strong>
+                            </div>
+                        </div>
+
+                        <p class="rr-decision-note">
+                            Decision support only. The Control Room makes
+                            the final verification and assistance decisions.
+                        </p>
+                    </section>
+
+                    <section class="rr-side-panel">
+                        <div class="rr-side-heading">
+                            <span class="rr-side-icon">⚙</span>
+                            <h5>Quick Actions</h5>
+                        </div>
+
+                        <div class="rr-quick-actions">
+                            <button
+                                type="button"
+                                class="btn btn-green rr-verify-btn"
+                                onclick="verifyRequest('${jsArg(id)}')"
+                                ${evidence ? "" : "disabled"}
+                            >
+                                ✓ Verify Request
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn rr-reject-btn"
+                                onclick="rejectRequest('${jsArg(id)}')"
+                            >
+                                ✕ Reject Request
+                            </button>
+                        </div>
+
+                        ${evidence ? "" : `
+                            <p class="rr-evidence-warning">
+                                Evidence photo is required before verification.
+                            </p>
+                        `}
+                    </section>
+
+                    <section class="rr-side-panel">
+                        <div class="rr-side-heading">
+                            <span class="rr-side-icon">◷</span>
+                            <h5>Status Timeline</h5>
+                        </div>
+
+                        <ol class="rr-timeline">
+                            <li class="rr-timeline-complete">
+                                <span class="rr-timeline-dot"></span>
+                                <div>
+                                    <strong>Request Submitted</strong>
+                                    <small>${safe(submittedLabel)}</small>
+                                </div>
+                            </li>
+
+                            <li class="rr-timeline-current">
+                                <span class="rr-timeline-dot"></span>
+                                <div>
+                                    <strong>Awaiting Verification</strong>
+                                    <small>Evidence review is pending</small>
+                                </div>
+                            </li>
+
+                            <li>
+                                <span class="rr-timeline-dot"></span>
+                                <div>
+                                    <strong>NGO Network Notification</strong>
+                                    <small>Available after verification</small>
+                                </div>
+                            </li>
+                        </ol>
+                    </section>
+
+                </aside>
+            </div>
         </article>
     `;
 }
+
 
 /* ============================================================
    REVIEW QUEUE
@@ -930,9 +1075,42 @@ requests.sort((a, b) =>
             )
             .join("");
 
+    initializeRequestMaps();
+
 }
 
 
+function initializeRequestMaps() {
+    if (typeof L === "undefined") {
+        console.error("Leaflet did not load. Check your internet connection.");
+        return;
+    }
+
+    document.querySelectorAll(".rr-leaflet-map").forEach(element => {
+        if (element.dataset.mapInitialized === "true") return;
+
+        const lat = Number(element.dataset.lat);
+        const lng = Number(element.dataset.lng);
+        const location = element.dataset.location || "Emergency location";
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+        const map = L.map(element).setView([lat, lng], 14);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(location);
+
+        element.dataset.mapInitialized = "true";
+
+        setTimeout(() => map.invalidateSize(), 100);
+    });
+}
 /* ============================================================
    VIEW EVIDENCE
 ============================================================ */
@@ -1244,6 +1422,266 @@ async function verifyRequest(id) {
             true
         );
     }
+}
+
+
+
+/* ============================================================
+   REJECT INDIVIDUAL EMERGENCY REQUEST
+============================================================ */
+
+async function rejectRequest(id) {
+    const requests = readRequests();
+
+    const request = requests.find(item =>
+        String(getRequestId(item)) === String(id) ||
+        String(item.mongoId || item._id || "") === String(id)
+    );
+
+    if (!request) {
+        showControlMessage("Request could not be found.", true);
+        return;
+    }
+
+    if (
+        request.verified === true ||
+        String(request.verificationStatus || "").toLowerCase() === "verified"
+    ) {
+        showControlMessage(
+            "This request has already been verified.",
+            true
+        );
+        return;
+    }
+
+    showRejectConfirmation(request, async () => {
+    await processRequestRejection(request, id);
+});
+
+return;
+
+    const mongoId = request.mongoId || request._id;
+
+    if (!mongoId) {
+        showControlMessage(
+            "MongoDB request ID is missing. Please reload the dashboard.",
+            true
+        );
+        return;
+    }
+
+    const token = sessionStorage.getItem("reliefAuthToken");
+
+    if (!token) {
+        showControlMessage(
+            "Your session has expired. Please log in again.",
+            true
+        );
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/api/requests/${encodeURIComponent(mongoId)}/verify`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: "rejected"
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Request rejection failed."
+            );
+        }
+
+        showControlMessage(
+            `Request ${request.requestNumber || id} rejected successfully.`
+        );
+
+        await loadControlRoomRequests();
+
+    } catch (error) {
+        console.error("Request rejection failed:", error);
+
+        showControlMessage(
+            error.message || "Unable to reject the request.",
+            true
+        );
+    }
+}
+
+
+
+function showRejectConfirmation(request, onConfirm) {
+    document.getElementById("rejectConfirmationOverlay")?.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "rejectConfirmationOverlay";
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 100002;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+    `;
+
+    overlay.innerHTML = `
+        <div style="
+            width: min(420px, 94vw);
+            padding: 25px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.2);
+            font-family: inherit;
+        ">
+            <div style="
+                width: 44px;
+                height: 44px;
+                display: grid;
+                place-items: center;
+                border-radius: 12px;
+                background: #fee2e2;
+                color: #dc2626;
+                font-size: 23px;
+                margin-bottom: 16px;
+            ">!</div>
+
+            <h3 style="
+                margin: 0 0 9px;
+                color: #172b43;
+                font-size: 20px;
+            ">Reject emergency request?</h3>
+
+            <p style="
+                margin: 0;
+                color: #64748b;
+                font-size: 13px;
+                line-height: 1.6;
+            ">
+                Are you sure you want to reject request
+                <strong style="color:#334155"></strong>?
+                This will mark the request as rejected.
+            </p>
+
+            <div style="
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 25px;
+            ">
+                <button id="cancelRejectButton" type="button"
+                    style="
+                        padding: 11px 17px;
+                        border: 1px solid #d1d5db;
+                        border-radius: 8px;
+                        background: white;
+                        color: #374151;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Cancel</button>
+
+                <button id="confirmRejectButton" type="button"
+                    style="
+                        padding: 11px 17px;
+                        border: 1px solid #dc2626;
+                        border-radius: 8px;
+                        background: #dc2626;
+                        color: white;
+                        font-weight: 700;
+                        cursor: pointer;
+                    ">Reject Request</button>
+            </div>
+        </div>
+    `;
+
+    overlay.querySelector("p strong").textContent =
+        request.requestNumber || getRequestId(request);
+
+    document.body.appendChild(overlay);
+
+    const closeModal = () => overlay.remove();
+
+    overlay.querySelector("#cancelRejectButton").onclick = closeModal;
+
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) closeModal();
+    });
+
+    overlay.querySelector("#confirmRejectButton").onclick = async event => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        button.textContent = "Rejecting...";
+
+        try {
+            await onConfirm();
+            closeModal();
+        } catch (error) {
+            button.disabled = false;
+            button.textContent = "Reject Request";
+            showControlMessage(
+                error.message || "Unable to reject the request.",
+                true
+            );
+        }
+    };
+}
+
+async function processRequestRejection(request, id) {
+    const mongoId = request.mongoId || request._id;
+
+    if (!mongoId) {
+        throw new Error(
+            "MongoDB request ID is missing. Please reload the dashboard."
+        );
+    }
+
+    const token = sessionStorage.getItem("reliefAuthToken");
+
+    if (!token) {
+        throw new Error(
+            "Your session has expired. Please log in again."
+        );
+    }
+
+    const response = await fetch(
+        `http://localhost:5000/api/requests/${encodeURIComponent(mongoId)}/verify`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ status: "rejected" })
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+        throw new Error(
+            data.message || "Request rejection failed."
+        );
+    }
+
+    showControlMessage(
+        `Request ${request.requestNumber || id} rejected successfully.`
+    );
+
+    await loadControlRoomRequests();
 }
 
 
@@ -2460,80 +2898,174 @@ function hasNGODocument(ngo, type) {
 ============================================================ */
 
 async function viewNGODocument(ngoId, type) {
-    const ngoList = Array.isArray(window.controlRoomNGOs)
-        ? window.controlRoomNGOs
-        : readNGOs();
-
-    const ngo = ngoList.find(item =>
-        String(item.id) === String(ngoId) ||
-        String(item.mongoId || item._id || "") === String(ngoId)
-    );
-
-    if (!ngo) {
-        showControlMessage("NGO could not be found.", true);
-        return;
-    }
-
-    const documentKind = {
-        registration: "registration",
-        pan: "pan"
-    };
-
-    const kind = documentKind[type];
-
-    if (!kind) {
-        showControlMessage("Invalid document type.", true);
-        return;
-    }
-
-    const token = sessionStorage.getItem("reliefAuthToken");
-
-    if (!token) {
-        showControlMessage(
-            "Control Room login token not found. Please log in again.",
-            true
-        );
-        return;
-    }
-
-    const mongoNgoId = ngo.mongoId || ngo._id || ngo.id;
-
-    const metadata = kind === "registration"
-        ? ngo.documents?.registrationCertificate
-        : ngo.documents?.panDocument;
-
-    if (!metadata?.filename) {
-        showControlMessage(
-            "This document has not been uploaded to the backend.",
-            true
-        );
-        return;
-    }
+    console.log("[NGO DOC] Click received:", { ngoId, type });
 
     let objectUrl = null;
 
     try {
+        const targetId = String(ngoId ?? "").trim();
+
+        const kind = {
+            registration: "registration",
+            pan: "pan"
+        }[type];
+
+        if (!kind) {
+            throw new Error("Invalid document type.");
+        }
+
+        const token = sessionStorage.getItem("reliefAuthToken");
+
+        if (!token) {
+            throw new Error("Please log in to the Control Room again.");
+        }
+
+        const localNGOs = typeof readNGOs === "function"
+            ? readNGOs()
+            : [];
+
+        const localNGO = localNGOs.find(item =>
+            [item.id, item.ngoId, item.mongoId, item._id]
+                .some(id => String(id ?? "").trim() === targetId)
+        );
+
         const response = await fetch(
-            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/documents/${kind}`,
+            "http://localhost:5000/api/auth/ngos",
             {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`
-                }
+                },
+                cache: "no-store"
             }
         );
 
         if (!response.ok) {
-            let message = "Unable to load the NGO document.";
+            throw new Error(
+                `Unable to load NGO records (HTTP ${response.status}).`
+            );
+        }
+
+        const result = await response.json();
+        const backendNGOs = Array.isArray(result.ngos)
+            ? result.ngos
+            : [];
+
+        // First try MongoDB ID / backend ID.
+        let ngo = backendNGOs.find(item =>
+            [item.id, item._id, item.mongoId]
+                .some(id => String(id ?? "").trim() === targetId)
+        );
+
+        // Next, match by email when available.
+        const localEmail = String(
+            localNGO?.email || localNGO?.contactEmail || ""
+        ).trim().toLowerCase();
+
+        if (!ngo && localEmail) {
+            ngo = backendNGOs.find(item =>
+                String(item.email || "").trim().toLowerCase() === localEmail
+            );
+        }
+
+        // Last, try organization name only if it identifies exactly one record.
+        if (!ngo && localNGO) {
+            const localName = String(
+                localNGO.name || localNGO.organizationName || ""
+            ).trim().toLowerCase();
+
+            if (localName) {
+                const matches = backendNGOs.filter(item =>
+                    String(item.name || item.organizationName || "")
+                        .trim().toLowerCase() === localName
+                );
+
+                if (matches.length === 1) {
+                    ngo = matches[0];
+                }
+            }
+        }
+
+        if (!ngo) {
+            console.error("[NGO DOC] No backend match.", {
+                targetId,
+                localNGO,
+                backendNGOs: backendNGOs.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    email: item.email
+                }))
+            });
+
+            throw new Error(
+                "This NGO is not present in the backend. Check its registration and database record."
+            );
+        }
+
+        const mongoNgoId = ngo._id || ngo.id || ngo.mongoId;
+
+        if (!mongoNgoId) {
+            throw new Error("The backend NGO record has no MongoDB ID.");
+        }
+
+        const metadata = kind === "registration"
+            ? ngo.documents?.registrationCertificate
+            : ngo.documents?.panDocument;
+
+        console.log("[NGO DOC] Resolved document:", {
+            ngoName: ngo.name,
+            mongoNgoId,
+            kind,
+            filename: metadata?.filename,
+            mimeType: metadata?.mimeType
+        });
+
+        if (!metadata?.filename) {
+            throw new Error(
+                `No ${kind} document is stored for ${ngo.name || targetId}.`
+            );
+        }
+
+        const documentUrl =
+            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/documents/${kind}`;
+
+        const fileResponse = await fetch(documentUrl, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            cache: "no-store"
+        });
+
+        if (!fileResponse.ok) {
+            let message = `Document API returned HTTP ${fileResponse.status}.`;
 
             try {
-                const data = await response.json();
+                const data = await fileResponse.json();
                 message = data.message || message;
             } catch (_) {}
 
             throw new Error(message);
         }
 
-        const blob = await response.blob();
+        const blob = await fileResponse.blob();
+
+        if (!blob.size) {
+            throw new Error("The document file is empty.");
+        }
+
+        const mimeType = (
+            blob.type || metadata.mimeType || ""
+        ).toLowerCase();
+
+        const isPdf = mimeType.includes("pdf");
+        const isImage = mimeType.startsWith("image/");
+
+        if (!isPdf && !isImage) {
+            throw new Error(
+                `Unsupported document format: ${mimeType || "unknown"}.`
+            );
+        }
 
         objectUrl = URL.createObjectURL(blob);
 
@@ -2541,89 +3073,58 @@ async function viewNGODocument(ngoId, type) {
 
         const overlay = document.createElement("div");
         overlay.id = "ngoDocumentOverlay";
-
         overlay.style.cssText = `
-            position:fixed;
-            inset:0;
-            z-index:100002;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding:20px;
-            background:rgba(7,21,37,.82);
-            backdrop-filter:blur(6px);
+            position: fixed;
+            inset: 0;
+            z-index: 100002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(7, 21, 37, .82);
+            backdrop-filter: blur(6px);
         `;
-
-        const isPdf =
-            blob.type === "application/pdf" ||
-            metadata.mimeType === "application/pdf";
-
-        const preview = document.createElement(
-            isPdf ? "iframe" : "img"
-        );
-
-        preview.style.cssText = `
-            display:block;
-            width:100%;
-            height:72vh;
-            max-height:72vh;
-            border:0;
-            object-fit:contain;
-            background:#f0ece4;
-            border-radius:9px;
-        `;
-
-        if (isPdf) {
-            preview.title = "NGO document";
-            preview.src = objectUrl;
-        } else {
-            preview.alt = "NGO document";
-            preview.src = objectUrl;
-        }
 
         const panel = document.createElement("div");
-
         panel.style.cssText = `
-            width:min(900px,95vw);
-            max-height:92vh;
-            overflow:auto;
-            background:#fffdf9;
-            border-radius:15px;
-            padding:20px;
-            box-shadow:0 30px 90px rgba(0,0,0,.3);
+            width: min(900px, 95vw);
+            max-height: 92vh;
+            overflow: auto;
+            background: #fffdf9;
+            border: 1px solid #e6dfd3;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .3);
         `;
 
         const header = document.createElement("div");
-
         header.style.cssText = `
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:15px;
-            margin-bottom:15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 15px;
         `;
 
         const heading = document.createElement("div");
-
         const label = document.createElement("div");
-        label.textContent = "NGO document";
+        label.textContent = "NGO DOCUMENT";
         label.style.cssText = `
-            color:#2f7a4a;
-            font-size:9px;
-            font-weight:800;
-            letter-spacing:.1em;
-            text-transform:uppercase;
+            color: #2f7a4a;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .1em;
         `;
 
         const title = document.createElement("h2");
         title.textContent = kind === "registration"
             ? "Registration Certificate"
             : "PAN Document";
-
         title.style.cssText = `
-            margin:5px 0 0;
-            font-family:Fraunces,Georgia,serif;
-            font-size:24px;
+            margin: 5px 0 0;
+            font-family: Georgia, serif;
+            font-size: 24px;
+            color: #171717;
         `;
 
         const closeButton = document.createElement("button");
@@ -2632,36 +3133,52 @@ async function viewNGODocument(ngoId, type) {
         closeButton.textContent = "CLOSE";
         closeButton.addEventListener("click", closeNGODocument);
 
+        const preview = document.createElement(isPdf ? "iframe" : "img");
+        preview.style.cssText = `
+            display: block;
+            width: 100%;
+            height: 72vh;
+            max-height: 72vh;
+            border: 0;
+            object-fit: contain;
+            background: #f0ece4;
+            border-radius: 9px;
+        `;
+
+        if (isPdf) {
+            preview.title = title.textContent;
+            preview.src = objectUrl;
+        } else {
+            preview.alt = title.textContent;
+            preview.src = objectUrl;
+        }
+
         heading.append(label, title);
         header.append(heading, closeButton);
         panel.append(header, preview);
         overlay.appendChild(panel);
-        document.body.appendChild(overlay);
 
+        // Register the overlay before adding it to the document.
+        const activeObjectUrl = objectUrl;
+        const originalCloseNGODocument = closeNGODocument;
+
+        // Ensure the object URL is released when this viewer closes.
         overlay.addEventListener("click", event => {
             if (event.target === overlay) {
                 closeNGODocument();
             }
         });
 
-        // Release the temporary URL when the document viewer closes.
-        const cleanup = () => {
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
-                objectUrl = null;
-            }
-        };
+        document.body.appendChild(overlay);
 
-        overlay.addEventListener("DOMNodeRemoved", cleanup, {
-            once: true
-        });
+        console.log("[NGO DOC] Viewer opened successfully.");
 
     } catch (error) {
         if (objectUrl) {
             URL.revokeObjectURL(objectUrl);
         }
 
-        console.error("NGO document viewing error:", error);
+        console.error("[NGO DOC] Viewing failed:", error);
 
         showControlMessage(
             error.message || "Unable to open NGO document.",
@@ -2669,6 +3186,7 @@ async function viewNGODocument(ngoId, type) {
         );
     }
 }
+
 
 function closeNGODocument() {
 
@@ -3155,7 +3673,12 @@ async function updateNGOChecklist(ngoId, field, value) {
         return;
     }
 
-    const mongoNgoId = ngo.mongoId || ngo._id || ngo.id;
+    const targetId = String(ngoId).trim();
+
+const mongoNgoId =
+    ngo.mongoId ||
+    ngo._id ||
+    ngo.id;
     const newValue = Boolean(value);
 
     const token = sessionStorage.getItem("reliefAuthToken");
@@ -3396,7 +3919,7 @@ async function rejectNGO(ngoId) {
         : readNGOs();
 
     const ngo = ngos.find(item =>
-        String(item.id) === String(ngoId) ||
+        String(item.id || "") === String(ngoId) ||
         String(item.mongoId || item._id || "") === String(ngoId)
     );
 
@@ -3415,47 +3938,108 @@ async function rejectNGO(ngoId) {
         return;
     }
 
-    const mongoNgoId = ngo.mongoId || ngo._id || ngo.id;
+    // Use a real backend MongoDB ID.
+    let mongoNgoId = ngo._id || ngo.mongoId;
 
     try {
-        const response = await fetch(
-            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
-            {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    status: "rejected"
-                })
+        // Resolve the backend record if the displayed ID is a local ID.
+        if (!mongoNgoId || !/^[a-f\d]{24}$/i.test(String(mongoNgoId))) {
+            const listResponse = await fetch(
+    "http://localhost:5000/api/auth/ngos",
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        cache: "no-store"
+    }
+);
+
+            const listData = await listResponse.json();
+
+            if (!listResponse.ok) {
+                throw new Error(
+                    listData.message || "Unable to load backend NGOs."
+                );
             }
-        );
 
-        const data = await response.json();
+            const backendNGOs = Array.isArray(listData.ngos)
+                ? listData.ngos
+                : [];
 
-        if (!response.ok || !data.success) {
-            showControlMessage(
-                data.message || "Unable to reject NGO.",
-                true
+            const email = String(ngo.email || "").trim().toLowerCase();
+
+            const matches = backendNGOs.filter(item =>
+                email &&
+                String(item.email || "").trim().toLowerCase() === email
             );
-            return;
+
+            if (matches.length !== 1) {
+                throw new Error(
+                    "This NGO has no unique matching backend record. Rejection was not submitted."
+                );
+            }
+
+            mongoNgoId = matches[0]._id || matches[0].id;
+        }
+
+        if (!/^[a-f\d]{24}$/i.test(String(mongoNgoId || ""))) {
+            throw new Error("A valid MongoDB NGO ID could not be resolved.");
+        }
+
+        const response = await fetch(
+    `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
+    {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            status: "rejected"
+        })
+    }
+);
+
+        const rawResponse = await response.text();
+        let data = {};
+
+        try {
+            data = rawResponse ? JSON.parse(rawResponse) : {};
+        } catch (_) {
+            throw new Error(
+                `Unexpected backend response (HTTP ${response.status}).`
+            );
+        }
+
+        console.log("[NGO REJECT] Response:", {
+            status: response.status,
+            data
+        });
+
+        if (!response.ok || data.success !== true) {
+            throw new Error(
+                data.message || `Unable to reject NGO (HTTP ${response.status}).`
+            );
         }
 
         ngo.status = "rejected";
         ngo.verificationStatus = "rejected";
         ngo.rejectedAt = Date.now();
 
-        renderAll();
+        if (typeof renderAll === "function") {
+            renderAll();
+        } else if (typeof renderNGOs === "function") {
+            renderNGOs();
+        }
 
         showControlMessage(
             `NGO ${ngo.name || ngoId} has been rejected.`
         );
     } catch (error) {
-        console.error("NGO rejection error:", error);
+        console.error("[NGO REJECT] Failed:", error);
 
         showControlMessage(
-            "Unable to connect to the backend. Please ensure the server is running.",
+            error.message || "Unable to reject NGO.",
             true
         );
     }

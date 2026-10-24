@@ -7,11 +7,11 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-    
+
     <title>NGO Dashboard | Relief Resolver</title>
 
     <!-- =========================================================
-         Leaflet
+         LEAFLET
     ========================================================== -->
 
     <link
@@ -2217,7 +2217,237 @@
 
 }
 
-    </style>
+/* ================================================================
+   NGO ACTIVE RELIEF CASES
+================================================================ */
+
+.ngo-active-cases {
+    margin: 30px 0;
+}
+
+
+.active-cases-heading {
+    margin-bottom: 20px;
+}
+
+
+.section-kicker {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    opacity: 0.6;
+    margin-bottom: 6px;
+}
+
+
+.active-cases-heading h2 {
+    margin: 0;
+}
+
+
+.active-cases-heading p {
+    margin-top: 6px;
+    opacity: 0.7;
+}
+
+
+.active-cases-list {
+    display: grid;
+    gap: 20px;
+}
+
+
+.active-case-card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+
+.active-case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+
+.active-case-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.55;
+}
+
+
+.active-case-header h3 {
+    margin: 6px 0;
+}
+
+
+.active-case-header p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.65;
+}
+
+
+.active-status-pill {
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #2854c5;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+
+.active-case-details {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+
+.ngo-tracking-stepper {
+    display: flex;
+    gap: 5px;
+    margin: 25px 0;
+    overflow-x: auto;
+}
+
+
+.ngo-tracking-stepper
+.tracking-step {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    position: relative;
+}
+
+
+.ngo-tracking-stepper
+.tracking-node {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e5e7eb;
+    color: #6b7280;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    position: relative;
+    z-index: 2;
+}
+
+
+.ngo-tracking-stepper
+.tracking-step.completed
+.tracking-node {
+    background: #198754;
+    color: white;
+}
+
+
+.tracking-step-content strong {
+    display: block;
+    font-size: 10px;
+}
+
+
+.tracking-step-content small {
+    display: block;
+    margin-top: 3px;
+    font-size: 9px;
+    opacity: 0.6;
+}
+
+
+.ngo-tracking-action {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+
+    font-weight: 800;
+    font-size: 12px;
+
+    background: #198754;
+    color: white;
+}
+
+
+.ngo-tracking-action:hover {
+    opacity: 0.9;
+}
+
+
+.delivery-complete-message {
+    padding: 13px;
+    border-radius: 10px;
+    background: #e9f7ef;
+    color: #198754;
+    text-align: center;
+    font-weight: 800;
+}
+
+
+@media (max-width: 700px) {
+
+    .active-case-header {
+        flex-direction: column;
+    }
+
+    .active-status-pill {
+        align-self: flex-start;
+    }
+
+    .ngo-tracking-stepper {
+        justify-content: flex-start;
+    }
+
+}
+
+
+        /* NGO capacity and availability */
+        .capacity-management-card{background:#fff;border:1px solid #e9e1d3;border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(25,25,25,.05)}
+        .capacity-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+        .capacity-field{display:flex;flex-direction:column;gap:8px;min-width:0}
+        .capacity-field>span,.capacity-services-fieldset legend{font-size:12px;font-weight:800;color:#454545}
+        .capacity-field input,.capacity-field select{width:100%;min-height:44px;border:1px solid #ded8ce;border-radius:10px;background:#fffdf8;padding:10px 12px;font:inherit;color:#171717}
+        .capacity-active-cases{border:1px solid #e9e1d3;border-radius:12px;padding:12px;background:#fffcf3}
+        .capacity-active-cases strong{font-size:25px;color:#218653}
+        .capacity-active-cases small,.capacity-services-fieldset p{font-size:12px;color:#6b6b6b;line-height:1.5}
+        .capacity-services-fieldset{border:1px solid #eee6da;border-radius:12px;padding:16px;margin:20px 0 0;min-width:0}
+        .capacity-services-fieldset legend{padding:0 6px}
+        .capacity-service-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+        .capacity-service-options label{display:flex;align-items:center;gap:8px;font-size:13px;color:#333}
+        .capacity-service-options input{accent-color:#218653;width:16px;height:16px}
+        .capacity-stock-grid{margin-top:12px}.capacity-additional-services{margin-top:16px}
+        .capacity-form-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}
+        .capacity-form-footer p{font-size:12px;color:#666;margin:0}
+        .capacity-save-button{border:0;border-radius:999px;background:#f5b43f;color:#171717;padding:12px 20px;font-weight:800;cursor:pointer}
+        .capacity-save-button:hover{background:#e9a52f}
+        @media(max-width:760px){.capacity-form-grid{grid-template-columns:1fr}.capacity-service-options{grid-template-columns:repeat(2,minmax(0,1fr))}.capacity-form-footer{align-items:stretch;flex-direction:column}.capacity-save-button{width:100%}.capacity-management-card{padding:16px}}
+
+</style>
+    
 </head>
 
 
@@ -2664,7 +2894,76 @@
 
 
 
-        <!-- =====================================================
+                <!-- =====================================================
+             NGO CAPACITY AND AVAILABILITY
+        ====================================================== -->
+        <section class="section capacity-management-section">
+            <div class="section-heading">
+                <div>
+                    <div class="section-kicker">OPERATIONS READINESS</div>
+                    <h2>My Availability &amp; Resources</h2>
+                    <p>Keep your current capacity accurate so the Control Room can coordinate more effectively.</p>
+                </div>
+            </div>
+            <form id="ngoCapacityForm" class="capacity-management-card">
+                <div class="capacity-form-grid">
+                    <label class="capacity-field">
+                        <span>Current availability</span>
+                        <select id="ngoAvailabilityInput" name="availability">
+                            <option value="available">Available for new requests</option>
+                            <option value="limited">Limited capacity</option>
+                            <option value="unavailable">Unavailable for new requests</option>
+                        </select>
+                    </label>
+                    <label class="capacity-field">
+                        <span>Volunteers currently available</span>
+                        <input id="ngoVolunteersInput" name="volunteersAvailable" type="number" min="0" max="100000" step="1" placeholder="e.g. 8">
+                    </label>
+                    <label class="capacity-field">
+                        <span>Vehicles currently available</span>
+                        <input id="ngoVehiclesInput" name="vehiclesAvailable" type="number" min="0" max="100000" step="1" placeholder="e.g. 2">
+                    </label>
+                    <div class="capacity-field capacity-active-cases">
+                        <span>Active relief cases</span>
+                        <strong id="ngoActiveCaseCount">0</strong>
+                        <small>Calculated from your existing accepted requests.</small>
+                    </div>
+                </div>
+                <fieldset class="capacity-services-fieldset">
+                    <legend>Services currently offered</legend>
+                    <p>Select the types of assistance your organization can currently provide.</p>
+                    <div class="capacity-service-options">
+                        <label><input type="checkbox" name="ngoCapacityService" value="food"> Food</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="water"> Water</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="medicine"> Medicine</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="shelter"> Shelter</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="clothing"> Clothing</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="rescue"> Rescue</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="transport"> Transport</label>
+                        <label><input type="checkbox" name="ngoCapacityService" value="other"> Other relief support</label>
+                    </div>
+                    <label class="capacity-field capacity-additional-services">
+                        <span>Additional services (comma-separated)</span>
+                        <input id="ngoAdditionalServicesInput" type="text" placeholder="e.g. sanitation, temporary toilets">
+                    </label>
+                </fieldset>
+                <fieldset class="capacity-services-fieldset">
+                    <legend>Optional reported stock</legend>
+                    <p>Only enter stock quantities your organization has actually confirmed. Leave blank if you do not track an item.</p>
+                    <div class="capacity-form-grid capacity-stock-grid">
+                        <label class="capacity-field"><span>Medicine units</span><input id="ngoMedicineStockInput" type="number" min="0" max="10000000" step="1" placeholder="Not reported"></label>
+                        <label class="capacity-field"><span>Food packets</span><input id="ngoFoodStockInput" type="number" min="0" max="10000000" step="1" placeholder="Not reported"></label>
+                        <label class="capacity-field"><span>Water units</span><input id="ngoWaterStockInput" type="number" min="0" max="10000000" step="1" placeholder="Not reported"></label>
+                    </div>
+                </fieldset>
+                <div class="capacity-form-footer">
+                    <p id="ngoCapacitySaveMessage" role="status" aria-live="polite">Capacity details are visible to authorized Relief Resolver dashboards.</p>
+                    <button type="submit" class="capacity-save-button">Save capacity details</button>
+                </div>
+            </form>
+        </section>
+
+<!-- =====================================================
              MAP
         ====================================================== -->
 
@@ -2841,6 +3140,44 @@
 
                 </div>
 
+                <!-- ============================================================
+     NGO ACTIVE RELIEF CASES
+============================================================= -->
+
+<section
+    class="ngo-active-cases"
+    id="ngoActiveCasesPanel"
+    hidden
+>
+
+    <div class="active-cases-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                ACTIVE RELIEF OPERATIONS
+            </span>
+
+            <h2>
+                My Active Relief Cases
+            </h2>
+
+            <p>
+                Track and update assistance currently
+                being handled by your NGO.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="ngoActiveCasesList"
+        class="active-cases-list"
+    ></div>
+
+</section>
 
                 <div
                     class="request-list"
