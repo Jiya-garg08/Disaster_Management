@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/register",
+                "https://disaster-management-7o5i.onrender.com/api/auth/register",
                 {
                     method: "POST",
                     headers: {
