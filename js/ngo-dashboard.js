@@ -269,7 +269,7 @@ if (!token) {
 }
 
 try {
-  const response = await fetch("http://localhost:5000/api/auth/me", {
+  const response = await fetch("https://disaster-management-7o5i.onrender.com/api/auth/me", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`
@@ -1452,7 +1452,7 @@ async function initializeNGOCapacityForm() {
             showMessage("Saving capacity details...");
 
             const response = await fetch(
-                "http://localhost:5000/api/ngos/me/capacity",
+                "https://disaster-management-7o5i.onrender.com/api/ngos/me/capacity",
                 {
                     method: "PATCH",
                     headers: {
@@ -2316,7 +2316,7 @@ async function getRequests() {
 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/requests/ngo",
+            "https://disaster-management-7o5i.onrender.com/api/requests/ngo",
             {
                 method: "GET",
                 headers: {
@@ -3691,7 +3691,7 @@ async function updateNgoCaseStatus(requestId, newStatus) {
         const token = localStorage.getItem("reliefAuthToken");
 
         const response = await fetch(
-            `http://localhost:5000/api/requests/${encodeURIComponent(
+            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(
                 request.mongoId || request._id || request.id
             )}/tracking`,
             {
@@ -4716,7 +4716,7 @@ async function confirmNgoHelp(requestId) {
 
         // Persist acceptance in MongoDB.
         const response = await fetch(
-            `http://localhost:5000/api/requests/${encodeURIComponent(
+            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(
                 request.mongoId || request._id || request.id
             )}/accept`,
             {
