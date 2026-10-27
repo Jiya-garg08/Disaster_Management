@@ -21,3 +21,6 @@ server/uploads/
 # Logs
 *.log
 npm-debug.log*
+
+# Local editor settings
+.vscode/
