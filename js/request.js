@@ -2231,7 +2231,7 @@ async function saveRequestToControlRoom(request) {
         throw new Error("Please log in again before submitting your request.");
     }
 
-    const response = await fetch("http://localhost:5000/api/requests", {
+    const response = await fetch("https://disaster-management-7o5i.onrender.com/api/requests", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
