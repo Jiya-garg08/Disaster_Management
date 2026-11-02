@@ -1757,7 +1757,8 @@ try {
 
     // Submit registration to the backend
     const response = await fetch(
-        "https://disaster-management-7o5i.onrender.com/api/auth/register",
+                "http://localhost:5000/api/requests/ngo",
+
         {
             method: "POST",
             body: formData
