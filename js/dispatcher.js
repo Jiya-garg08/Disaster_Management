@@ -153,7 +153,8 @@ async function loadControlRoomRequests() {
 
     try {
         const response = await fetch(
-            "https://disaster-management-7o5i.onrender.com/api/requests/control-room",
+             "http://localhost:5000/api/requests/control-room",
+            
             {
                 method: "GET",
                 headers: {
@@ -2930,7 +2931,7 @@ async function viewNGODocument(ngoId, type) {
         );
 
         const response = await fetch(
-            "https://disaster-management-7o5i.onrender.com/api/auth/ngos",
+            "http://localhost:5000/api/auth/ngos",
             {
                 method: "GET",
                 headers: {
@@ -3945,7 +3946,7 @@ async function rejectNGO(ngoId) {
         // Resolve the backend record if the displayed ID is a local ID.
         if (!mongoNgoId || !/^[a-f\d]{24}$/i.test(String(mongoNgoId))) {
             const listResponse = await fetch(
-    "https://disaster-management-7o5i.onrender.com/api/auth/ngos",
+    "http://localhost:5000/api/auth/ngos",
     {
         headers: {
             Authorization: `Bearer ${token}`
@@ -4257,7 +4258,7 @@ async function loadControlRoomNGOs() {
 
     try {
         const response = await fetch(
-            "https://disaster-management-7o5i.onrender.com/api/auth/ngos",
+            "http://localhost:5000/api/auth/ngos",
             {
                 method: "GET",
                 headers: {
