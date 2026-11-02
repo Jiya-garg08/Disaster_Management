@@ -906,15 +906,14 @@ exports.acceptRequestForNGO = async (req, res) => {
 
         // 5. Atomically claim the request and initialize tracking.
         const request = await Request.findOneAndUpdate(
-            {
-                _id: id,
-                verificationStatus: "verified",
-                $or: [
-                    { trackingNgoId: null },
-                    { trackingNgoId: { $exists: false } },
-                    { trackingNgoId: "" }
-                ]
-            },
+    {
+        _id: id,
+        verificationStatus: "verified",
+        $or: [
+            { trackingNgoId: null },
+            { trackingNgoId: { $exists: false } }
+        ]
+    },
             {
                 $set: {
                     trackingNgoId: req.user.id,
