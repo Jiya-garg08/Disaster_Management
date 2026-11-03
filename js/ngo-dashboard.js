@@ -3691,7 +3691,7 @@ async function updateNgoCaseStatus(requestId, newStatus) {
         const token = localStorage.getItem("reliefAuthToken");
 
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(
+            `http://localhost:5000/api/requests/${encodeURIComponent(
                 request.mongoId || request._id || request.id
             )}/tracking`,
             {
@@ -4716,7 +4716,7 @@ async function confirmNgoHelp(requestId) {
 
         // Persist acceptance in MongoDB.
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(
+            `http://localhost:5000/api/requests/${encodeURIComponent(
                 request.mongoId || request._id || request.id
             )}/accept`,
             {

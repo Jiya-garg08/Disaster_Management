@@ -2,7 +2,11 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const NGO = require("../models/NGO");
+const { OAuth2Client } = require("google-auth-library");
 
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 exports.register = async (req, res) => {
   let createdUser = null;
@@ -641,6 +645,117 @@ exports.updateNGOVerificationChecklist = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to update NGO verification checklist."
+    });
+  }
+};
+
+
+exports.googleLogin = async (req, res) => {
+  try {
+    const { credential, role } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        success: false,
+        message: "Google credential is required."
+      });
+    }
+
+    // Google login is initially restricted to Individual accounts.
+    if (role !== "individual") {
+      return res.status(403).json({
+        success: false,
+        message: "Google login is currently available for Individual accounts only."
+      });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({
+        success: false,
+        message: "Google authentication is not configured."
+      });
+    }
+
+    // Verify the credential with Google.
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.sub || !payload.email || !payload.email_verified) {
+      return res.status(401).json({
+        success: false,
+        message: "Google account verification failed."
+      });
+    }
+
+    const email = payload.email.trim().toLowerCase();
+
+    // Find an existing account by its verified email.
+    let user = await User.findOne({ email }).select("+password");
+
+    if (user) {
+      // Never silently link Google to an existing local account.
+      if (user.authProvider !== "google") {
+        return res.status(409).json({
+          success: false,
+          message: "An account already exists with this email. Please use your existing login method."
+        });
+      }
+
+      // Existing Google account must match the Google identity.
+      if (user.googleId !== payload.sub) {
+        return res.status(401).json({
+          success: false,
+          message: "This Google account does not match the registered account."
+        });
+      }
+
+      if (user.role !== "individual" || !user.isActive) {
+        return res.status(403).json({
+          success: false,
+          message: "This account is not permitted to sign in with Google."
+        });
+      }
+    } else {
+      // The current schema requires a phone number.
+      // Collect it through registration rather than inventing one.
+      return res.status(404).json({
+        success: false,
+        message: "No account found. Please register as an Individual first, then use Google login."
+      });
+    }
+
+    const jwt = require("jsonwebtoken");
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful.",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error("Google login error:", error.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Google authentication failed."
     });
   }
 };

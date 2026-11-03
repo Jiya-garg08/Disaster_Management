@@ -153,8 +153,7 @@ async function loadControlRoomRequests() {
 
     try {
         const response = await fetch(
-             "http://localhost:5000/api/requests/control-room",
-            
+            "http://localhost:5000/api/requests/control-room",
             {
                 method: "GET",
                 headers: {
@@ -1389,7 +1388,7 @@ async function verifyRequest(id) {
 
     try {
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(mongoId)}/verify`,
+            `http://localhost:5000/api/requests/${encodeURIComponent(mongoId)}/verify`,
             {
                 method: "PATCH",
                 headers: {
@@ -1483,7 +1482,7 @@ return;
 
     try {
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(mongoId)}/verify`,
+            `http://localhost:5000/api/requests/${encodeURIComponent(mongoId)}/verify`,
             {
                 method: "PATCH",
                 headers: {
@@ -1659,7 +1658,7 @@ async function processRequestRejection(request, id) {
     }
 
     const response = await fetch(
-        `https://disaster-management-7o5i.onrender.com/api/requests/${encodeURIComponent(mongoId)}/verify`,
+        `http://localhost:5000/api/requests/${encodeURIComponent(mongoId)}/verify`,
         {
             method: "PATCH",
             headers: {
@@ -3028,7 +3027,7 @@ async function viewNGODocument(ngoId, type) {
         }
 
         const documentUrl =
-            `https://disaster-management-7o5i.onrender.com/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/documents/${kind}`;
+            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/documents/${kind}`;
 
         const fileResponse = await fetch(documentUrl, {
             method: "GET",
@@ -3717,7 +3716,7 @@ const mongoNgoId =
 
     try {
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification-checklist`,
+            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification-checklist`,
             {
                 method: "PATCH",
                 headers: {
@@ -3835,7 +3834,7 @@ async function verifyNGO(ngoId) {
 
     try {
         const response = await fetch(
-            `https://disaster-management-7o5i.onrender.com/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
+            `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
             {
                 method: "PATCH",
                 headers: {
@@ -3988,7 +3987,7 @@ async function rejectNGO(ngoId) {
         }
 
         const response = await fetch(
-    `https://disaster-management-7o5i.onrender.com/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
+    `http://localhost:5000/api/auth/ngos/${encodeURIComponent(mongoNgoId)}/verification`,
     {
         method: "PATCH",
         headers: {

@@ -19,10 +19,24 @@ const userSchema = new mongoose.Schema(
     },
 
     password: {
-      type: String,
-      required: true,
-      select: false
-    },
+  type: String,
+  required: function () {
+    return this.authProvider !== "google";
+  },
+  select: false
+},
+
+authProvider: {
+  type: String,
+  enum: ["local", "google"],
+  default: "local"
+},
+
+googleId: {
+  type: String,
+  sparse: true,
+  unique: true
+},
 
     phone: {
       type: String,
@@ -60,7 +74,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+  if (!this.isModified("password") || !this.password) return;
 
   this.password = await bcrypt.hash(this.password, 12);
 });

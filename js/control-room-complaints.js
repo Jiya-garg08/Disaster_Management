@@ -8,7 +8,6 @@
 
     const API = "http://localhost:5000/api/complaints";
 
-
     const $ = (id) => document.getElementById(id);
 
     function escapeHTML(value) {

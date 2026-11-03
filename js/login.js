@@ -118,6 +118,10 @@ document.addEventListener(
         let selectedRole =
             "individual";
 
+                // Google Sign-In elements
+        const googleSignInButton = document.getElementById("googleSignInButton");
+        const googleSignInContainer = document.getElementById("googleSignInContainer");
+
 
         /* ============================================================
            SESSION HELPERS
@@ -273,6 +277,10 @@ function clearIndividualSession() {
 
 
             clearMessages();
+if (googleSignInContainer) {
+    googleSignInContainer.style.display = "flex";
+}
+
 
         }
 
@@ -361,6 +369,9 @@ function clearIndividualSession() {
 
             }
 
+            if (googleSignInContainer) {
+    googleSignInContainer.style.display = "none";
+}
 
             clearMessages();
 
@@ -566,7 +577,7 @@ if (
 ) {
     try {
         const response = await fetch(
-           "http://localhost:5000/api/auth/login",
+            "http://localhost:5000/api/auth/login",
             {
                 method: "POST",
                 headers: {
@@ -652,7 +663,7 @@ if (
 async function loginNgo(email, password) {
     try {
         const response = await fetch(
-           "http://localhost:5000/api/auth/login",
+            "http://localhost:5000/api/auth/login",
             {
                 method: "POST",
                 headers: {
@@ -796,6 +807,121 @@ console.log("RETURNED TOKEN:", data.token);
         /* ============================================================
            INITIAL STATE
            ============================================================ */
+
+
+
+                // ============================================================
+        // GOOGLE LOGIN — INDIVIDUAL ACCOUNTS ONLY
+        // ============================================================
+
+        async function handleGoogleCredential(response) {
+            clearMessages();
+
+            if (selectedRole !== "individual") {
+                showError("Google login is available for Individual accounts only.");
+                return;
+            }
+
+            try {
+                const result = await fetch(
+                    "http://localhost:5000/api/auth/google",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            credential: response.credential,
+                            role: "individual"
+                        })
+                    }
+                );
+
+                const data = await result.json();
+
+                if (!result.ok || !data.success || !data.token) {
+                    showError(data.message || "Google login failed.");
+                    return;
+                }
+
+                if (!data.user || data.user.role !== "individual") {
+                    showError("Please use a valid Individual account.");
+                    return;
+                }
+
+                // Keep the existing role separation.
+                clearAllSessions();
+
+                sessionStorage.setItem("reliefAuthToken", data.token);
+                sessionStorage.setItem("reliefUserLoggedIn", "true");
+                sessionStorage.setItem("reliefUserName", data.user.name || "Relief User");
+                sessionStorage.setItem("reliefUserEmail", data.user.email || "");
+                sessionStorage.setItem("reliefAccountRole", "individual");
+
+                if (data.user.phone) {
+                    sessionStorage.setItem("reliefUserPhone", data.user.phone);
+                }
+
+                showSuccess("Google login successful. Continuing...");
+
+                const pendingRequest =
+                    sessionStorage.getItem("reliefPendingRequest");
+                const loginPurpose =
+                    sessionStorage.getItem("reliefLoginPurpose");
+
+                if (pendingRequest && loginPurpose === "submit_request") {
+                    setTimeout(() => {
+                        window.location.href = "request.html?resumeRequest=true";
+                    }, 500);
+                    return;
+                }
+
+                setTimeout(() => {
+                    window.location.href = "individual-dashboard.html";
+                }, 500);
+
+            } catch (err) {
+                console.error("Google login error:", err);
+                showError("Cannot connect to the server. Please try again.");
+            }
+        }
+
+        // Initialize Google's official sign-in button.
+        function initializeGoogleSignIn() {
+            if (!window.google?.accounts?.id || !googleSignInButton) {
+                console.error(
+                    "Google Identity Services is not loaded. Check the Google script in login.html."
+                );
+                return;
+            }
+
+            google.accounts.id.initialize({
+                client_id: "802326814400-ingsbf8siqrd61qlu9hufaebae2od9u5.apps.googleusercontent.com",
+                callback: handleGoogleCredential
+            });
+
+            google.accounts.id.renderButton(
+                googleSignInButton,
+                {
+                    theme: "outline",
+                    size: "large",
+                    text: "continue_with",
+                    shape: "rectangular",
+                    width: 300
+                }
+            );
+        }
+
+        // Wait until Google's script has loaded.
+        function waitForGoogleSignIn() {
+            if (window.google?.accounts?.id) {
+                initializeGoogleSignIn();
+            } else {
+                setTimeout(waitForGoogleSignIn, 200);
+            }
+        }
+
+        waitForGoogleSignIn();
 
         selectIndividual();
 

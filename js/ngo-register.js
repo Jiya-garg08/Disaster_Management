@@ -1757,8 +1757,7 @@ try {
 
     // Submit registration to the backend
     const response = await fetch(
-                "http://localhost:5000/api/requests/ngo",
-
+        "http://localhost:5000/api/requests/ngo",
         {
             method: "POST",
             body: formData

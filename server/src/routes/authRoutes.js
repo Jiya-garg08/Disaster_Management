@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   register,
   login,
+  googleLogin,
   getMe,
   verifyNGO,
   getAllNGOs,
@@ -27,6 +28,7 @@ router.post(
   register
 );
 router.post("/login", login);
+router.post("/google", googleLogin);
 
 router.get("/me", protect, getMe);
 router.get(
