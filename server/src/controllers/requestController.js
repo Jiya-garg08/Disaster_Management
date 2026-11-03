@@ -1,7 +1,6 @@
-
 const Request = require("../models/Request");
-
-
+const User = require("../models/user");
+const { sendTrackingUpdateEmail } = require("../services/emailService");
 
 exports.createRequest = async (req, res) => {
   try {
@@ -814,13 +813,11 @@ exports.verifyRequest = async (req, res) => {
   }
 };
 
-
 exports.acceptRequestForNGO = async (req, res) => {
     try {
         const NGO = require("../models/NGO");
-        const User = require("../models/user");
 
-        // 1. Fetch the logged-in NGO profile.
+        // 1. Fetch the logged-in NGO profile
         const ngo = await NGO.findOne({
             user: req.user.id
         }).lean();
@@ -832,12 +829,11 @@ exports.acceptRequestForNGO = async (req, res) => {
             });
         }
 
-        // 2. Get the linked user's contact details.
+        // 2. Get NGO user details
         const user = await User.findById(req.user.id)
             .select("name phone")
             .lean();
 
-        // The actual organization name is organizationName.
         const ngoName =
             ngo.organizationName ||
             user?.name ||
@@ -845,7 +841,7 @@ exports.acceptRequestForNGO = async (req, res) => {
 
         const ngoPhone = user?.phone || "";
 
-        // 3. Identify the request.
+        // 3. Identify the request
         const { id } = req.params;
 
         if (!id || !require("mongoose").isValidObjectId(id)) {
@@ -871,13 +867,13 @@ exports.acceptRequestForNGO = async (req, res) => {
             });
         }
 
-        // 4. Prevent another NGO from claiming this request.
+        // 4. Prevent duplicate acceptance
         if (existing.trackingNgoId) {
+
             if (
                 String(existing.trackingNgoId) ===
                 String(req.user.id)
             ) {
-                // Repair the name if this NGO already accepted it.
                 const updatedExisting = await Request.findByIdAndUpdate(
                     existing._id,
                     {
@@ -892,7 +888,8 @@ exports.acceptRequestForNGO = async (req, res) => {
                 return res.status(200).json({
                     success: true,
                     message: "Your NGO has already accepted this request.",
-                    request: updatedExisting
+                    request: updatedExisting,
+                    emailSent: false
                 });
             }
 
@@ -904,16 +901,16 @@ exports.acceptRequestForNGO = async (req, res) => {
 
         const now = new Date();
 
-        // 5. Atomically claim the request and initialize tracking.
+        // 5. Atomically claim the request
         const request = await Request.findOneAndUpdate(
-    {
-        _id: id,
-        verificationStatus: "verified",
-        $or: [
-            { trackingNgoId: null },
-            { trackingNgoId: { $exists: false } }
-        ]
-    },
+            {
+                _id: id,
+                verificationStatus: "verified",
+                $or: [
+                    { trackingNgoId: null },
+                    { trackingNgoId: { $exists: false } }
+                ]
+            },
             {
                 $set: {
                     trackingNgoId: req.user.id,
@@ -944,9 +941,43 @@ exports.acceptRequestForNGO = async (req, res) => {
             });
         }
 
+        // 6. Send acceptance email after successful database update
+        let emailSent = false;
+
+        try {
+            const updatedRequest = await Request.findById(request._id)
+                .populate("individual", "name email");
+
+            const individual = updatedRequest?.individual;
+
+            if (individual?.email) {
+                await sendTrackingUpdateEmail({
+                    individualEmail: individual.email,
+                    individualName: individual.name || "there",
+                    requestNumber: updatedRequest.requestNumber,
+                    ngoName: ngoName,
+                    status: "accepted"
+                });
+
+                emailSent = true;
+
+                console.log("NGO acceptance email sent successfully.");
+            } else {
+                console.warn("Individual email address not found.");
+            }
+
+        } catch (emailError) {
+            console.error(
+                "NGO acceptance email failed:",
+                emailError.message
+            );
+        }
+
+        // 7. Return success response
         return res.status(200).json({
             success: true,
             message: "Request accepted successfully.",
+            emailSent,
             request
         });
 
@@ -1075,7 +1106,6 @@ const nearbyRequests = requests.filter((request) => {
   }
 };
 
-
 exports.updateNGOTracking = async (req, res) => {
   try {
     const { status } = req.body;
@@ -1104,7 +1134,7 @@ exports.updateNGOTracking = async (req, res) => {
           response: "accepted"
         }
       }
-    });
+    }).populate("individual", "name email");
 
     if (!request) {
       return res.status(404).json({
@@ -1146,19 +1176,47 @@ exports.updateNGOTracking = async (req, res) => {
       });
     }
 
+    // Update tracking status
     ngoResponse.progressStatus = status;
     ngoResponse.statusUpdatedAt = new Date();
 
     request.coordinationStatus =
       status === "delivered" ? "delivered" : status;
 
+    // Save database changes first
     await request.save();
+
+    // Send email after successful database update
+    let emailSent = false;
+
+    try {
+      const individual = request.individual;
+
+      if (individual?.email) {
+        await sendTrackingUpdateEmail({
+          individualEmail: individual.email,
+          individualName: individual.name || "there",
+          requestNumber: request.requestNumber,
+          ngoName: request.trackingNgoName || "Assigned NGO",
+          status
+        });
+
+        emailSent = true;
+        console.log("Tracking notification email sent successfully.");
+      } else {
+        console.warn("Individual email address not found.");
+      }
+    } catch (emailError) {
+      console.error("Tracking email sending failed:", emailError.message);
+    }
 
     return res.status(200).json({
       success: true,
       message: "Tracking status updated successfully.",
+      emailSent,
       request
     });
+
   } catch (error) {
     console.error("========== NGO TRACKING ERROR ==========");
     console.error(error.message);
@@ -1171,7 +1229,6 @@ exports.updateNGOTracking = async (req, res) => {
     });
   }
 };
-
 
 
 exports.attachEvidence = async (req, res) => {
