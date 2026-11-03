@@ -269,7 +269,7 @@ if (!token) {
 }
 
 try {
-  const response = await fetch("https://disaster-management-7o5i.onrender.com/api/auth/me", {
+  const response = await fetch("http://localhost:5000/api/auth/me", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`
@@ -1452,7 +1452,7 @@ async function initializeNGOCapacityForm() {
             showMessage("Saving capacity details...");
 
             const response = await fetch(
-                "https://disaster-management-7o5i.onrender.com/api/ngos/me/capacity",
+                "http://localhost:5000/api/ngos/me/capacity",
                 {
                     method: "PATCH",
                     headers: {
@@ -2316,7 +2316,7 @@ async function getRequests() {
 
     try {
         const response = await fetch(
-            "https://disaster-management-7o5i.onrender.com/api/requests/ngo",
+            "http://localhost:5000/api/requests/ngo",
             {
                 method: "GET",
                 headers: {
