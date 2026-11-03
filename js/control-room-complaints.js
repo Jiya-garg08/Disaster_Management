@@ -6,7 +6,7 @@
 (() => {
     "use strict";
 
-    const API = "http://localhost:5000/api/complaints";
+    const API = "https://disaster-management-7o5i.onrender.com/api/complaints";
 
     const $ = (id) => document.getElementById(id);
 

@@ -156,7 +156,7 @@ async function getRequests() {
         }
 
         const response = await fetch(
-            "http://localhost:5000/api/requests/mine",
+            "https://disaster-management-7o5i.onrender.com/api/requests/mine",
             {
                 method: "GET",
                 headers: {
